@@ -36,15 +36,49 @@
     position: fixed;
     inset: 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     background: #0b3f3a;
     color: #eaf6f4;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 15px;
+    font-size: 14px;
     z-index: 9999;
+    padding: 24px;
+    text-align: center;
+    box-sizing: border-box;
+  }
+  #boot-loader.error {
+    background: #3a1414;
+    align-items: flex-start;
+    text-align: left;
+    overflow-y: auto;
+  }
+  #boot-error-detail {
+    margin-top: 14px;
+    font-family: monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: rgba(0,0,0,0.3);
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
   }
 </style>
+
+<script>
+  // Filet de sécurité : si un script externe échoue à charger ou qu'une
+  // erreur JS survient avant le rendu de l'app, on l'affiche à l'écran
+  // plutôt que de rester bloqué sur l'écran de chargement sans explication.
+  window.__bootErrors = [];
+  window.addEventListener("error", function (e) {
+    var msg = e.message || (e.target && e.target.src ? "Échec de chargement : " + e.target.src : "Erreur inconnue");
+    window.__bootErrors.push(msg);
+    window.__showBootError && window.__showBootError();
+  }, true);
+</script>
 
 <!-- React + ReactDOM (UMD) -->
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -59,8 +93,39 @@
 
 </head>
 <body>
-<div id="boot-loader">Chargement…</div>
+<div id="boot-loader">
+  <div>Chargement…</div>
+  <div id="boot-error-detail" style="display:none;"></div>
+</div>
 <div id="root"></div>
+
+<script>
+  window.__showBootError = function () {
+    var loader = document.getElementById("boot-loader");
+    var detail = document.getElementById("boot-error-detail");
+    if (!loader || !detail) return;
+    loader.classList.add("error");
+    loader.firstElementChild.textContent = "Erreur au chargement — détail ci-dessous :";
+    detail.style.display = "block";
+    detail.textContent = window.__bootErrors.join("\n\n");
+  };
+
+  // Si rien ne s'est passé après 8 secondes (root toujours vide), c'est
+  // qu'un script a échoué sans déclencher d'erreur JS classique (ex: CDN
+  // bloqué/lent). On le signale plutôt que de laisser un écran figé.
+  setTimeout(function () {
+    var root = document.getElementById("root");
+    if (root && root.children.length === 0) {
+      window.__bootErrors.push(
+        "Timeout : l'application n'a pas démarré après 8 secondes.\n" +
+        "Vérifie ta connexion internet (les librairies React/Recharts se chargent depuis unpkg.com).\n" +
+        "Si le problème persiste, vérifie que les fichiers PoolApp.jsx et lucide-shim.js sont bien" +
+        " présents à la racine du dépôt GitHub."
+      );
+      window.__showBootError();
+    }
+  }, 8000);
+</script>
 
 <script>
   // ---------- Polyfill window.storage (IndexedDB) ----------
