@@ -1083,12 +1083,14 @@ function computeRecommendations(latest, volume, products) {
 // ---------- Historique ----------
 function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication, applications, isPremium, poolName }) {
   const [activeParams, setActiveParams] = useState(["pH", "fCl"]);
+  const [showValues, setShowValues] = useState(false);
 
   const chartData = useMemo(() => {
     return [...measures]
       .sort((a, b) => new Date(a.date) - new Date(b.date))
       .map((m) => ({
         date: formatDateShort(m.date),
+        timestamp: new Date(m.date).getTime(),
         pH: m.pH !== undefined && m.pH !== "" ? parseFloat(m.pH) : null,
         fCl: m.fCl !== undefined && m.fCl !== "" ? parseFloat(m.fCl) : null,
         tCl: m.tCl !== undefined && m.tCl !== "" ? parseFloat(m.tCl) : null,
@@ -1175,11 +1177,27 @@ function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication,
         <span style={styles.axisLegendItem}><b>ᴅ</b> échelle dizaines (TAC, CYA, température) — droite</span>
       </p>
 
+      <label style={styles.checkboxRow}>
+        <input
+          type="checkbox"
+          checked={showValues}
+          onChange={(e) => setShowValues(e.target.checked)}
+        />
+        <span>Afficher les valeurs sur le graphique</span>
+      </label>
+
       <div style={styles.chartCard}>
         <ResponsiveContainer width="100%" height={220}>
-          <LineChart data={chartData} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
+          <LineChart data={chartData} margin={{ top: showValues ? 18 : 8, right: 12, left: -10, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e6ebe9" />
-            <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#7a8a93" }} />
+            <XAxis
+              dataKey="timestamp"
+              type="number"
+              domain={["dataMin", "dataMax"]}
+              scale="time"
+              tickFormatter={(ts) => formatDateShort(new Date(ts).toISOString())}
+              tick={{ fontSize: 10, fill: "#7a8a93" }}
+            />
             <YAxis
               yAxisId="left"
               tick={{ fontSize: 10, fill: "#7a8a93" }}
@@ -1192,6 +1210,7 @@ function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication,
               width={28}
             />
             <Tooltip
+              labelFormatter={(ts) => formatDate(new Date(ts).toISOString())}
               contentStyle={{ fontSize: 12, borderRadius: 10, border: "1px solid #e2e8e6" }}
             />
             {chartParams
@@ -1206,6 +1225,11 @@ function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication,
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   connectNulls
+                  label={
+                    showValues
+                      ? { fontSize: 10, fill: cp.color, position: "top", offset: 8 }
+                      : false
+                  }
                 />
               ))}
           </LineChart>
@@ -2152,6 +2176,8 @@ function AddPoolModal({ onClose, onSave }) {
 
 // ---------- Rapport ----------
 function ReportView({ pool, measures, applications, products, onClose }) {
+  const [showValues, setShowValues] = useState(false);
+
   const sortedMeasures = useMemo(
     () => [...measures].sort((a, b) => new Date(a.date) - new Date(b.date)),
     [measures]
@@ -2161,6 +2187,7 @@ function ReportView({ pool, measures, applications, products, onClose }) {
     () =>
       sortedMeasures.map((m) => ({
         date: formatDateShort(m.date),
+        timestamp: new Date(m.date).getTime(),
         pH: m.pH !== undefined && m.pH !== "" ? parseFloat(m.pH) : null,
         fCl: m.fCl !== undefined && m.fCl !== "" ? parseFloat(m.fCl) : null,
         tCl: m.tCl !== undefined && m.tCl !== "" ? parseFloat(m.tCl) : null,
@@ -2202,6 +2229,14 @@ function ReportView({ pool, measures, applications, products, onClose }) {
         <button style={styles.reportCloseBtn} onClick={onClose}>
           <X size={18} /> Fermer
         </button>
+        <label style={styles.reportToolbarCheckbox}>
+          <input
+            type="checkbox"
+            checked={showValues}
+            onChange={(e) => setShowValues(e.target.checked)}
+          />
+          <span>Afficher les valeurs</span>
+        </label>
         <button style={styles.reportPrintBtn} onClick={() => window.print()}>
           <Download size={16} /> Imprimer / Enregistrer en PDF
         </button>
@@ -2225,12 +2260,19 @@ function ReportView({ pool, measures, applications, products, onClose }) {
           <div style={styles.reportChartWrap}>
             <LineChart
               width={760}
-              height={280}
+              height={showValues ? 320 : 280}
               data={chartData}
-              margin={{ top: 8, right: 16, left: 0, bottom: 0 }}
+              margin={{ top: showValues ? 24 : 8, right: 16, left: 0, bottom: 0 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e6ebe9" />
-              <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#3a4a47" }} />
+              <XAxis
+                dataKey="timestamp"
+                type="number"
+                domain={["dataMin", "dataMax"]}
+                scale="time"
+                tickFormatter={(ts) => formatDateShort(new Date(ts).toISOString())}
+                tick={{ fontSize: 10, fill: "#3a4a47" }}
+              />
               <YAxis yAxisId="left" tick={{ fontSize: 10, fill: "#3a4a47" }} width={30} />
               <YAxis
                 yAxisId="right"
@@ -2250,6 +2292,11 @@ function ReportView({ pool, measures, applications, products, onClose }) {
                   strokeWidth={2}
                   dot={{ r: 2 }}
                   connectNulls
+                  label={
+                    showValues
+                      ? { fontSize: 9, fill: cp.color, position: "top", offset: 6 }
+                      : false
+                  }
                 />
               ))}
             </LineChart>
@@ -2398,6 +2445,14 @@ const styles = {
     fontWeight: 700,
     padding: "9px 14px",
     cursor: "pointer",
+  },
+  reportToolbarCheckbox: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    color: "#eaf6f4",
+    fontSize: 12.5,
+    fontWeight: 500,
   },
   reportPage: {
     maxWidth: 820,
