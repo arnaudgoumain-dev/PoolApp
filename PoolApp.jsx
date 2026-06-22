@@ -706,6 +706,7 @@ function PoolApp() {
       <Header
         poolName={activePool?.name}
         location={activePool?.location}
+        poolPhoto={activePool?.photo}
         isPremium={isPremium}
         pools={pools}
         activePoolId={activePoolId}
@@ -861,13 +862,17 @@ function PoolApp() {
 }
 
 // ---------- Header ----------
-function Header({ poolName, location, isPremium, pools, activePoolId, onSwitchPool, onAddPool }) {
+function Header({ poolName, location, poolPhoto, isPremium, pools, activePoolId, onSwitchPool, onAddPool }) {
   const [showSwitcher, setShowSwitcher] = useState(false);
 
   return (
     <header style={styles.header}>
       <div style={styles.headerIcon}>
-        <Droplets size={22} color="#e8f4fd" strokeWidth={2.2} />
+        {poolPhoto ? (
+          <img src={poolPhoto} alt="" style={{ width: 38, height: 38, borderRadius: 10, objectFit: "cover", display: "block" }} />
+        ) : (
+          <Droplets size={22} color="#e8f4fd" strokeWidth={2.2} />
+        )}
       </div>
       <button
         style={styles.headerTitleBtn}
@@ -4051,6 +4056,38 @@ const styles = {
 };
 
 // ---------- Point d'entrée ----------
+// ---------- Icône PWA — bleu piscine ----------
+(function injectPwaIcons() {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <rect width="512" height="512" rx="112" fill="#0a6ebd"/>
+    <rect width="512" height="512" rx="112" fill="url(#g)"/>
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#1a8fd1"/>
+        <stop offset="100%" stop-color="#064a8a"/>
+      </linearGradient>
+    </defs>
+    <!-- goutte gauche -->
+    <path d="M196 140 C196 140 148 210 148 252 C148 280 170 304 196 304 C222 304 244 280 244 252 C244 210 196 140 196 140Z" fill="white" opacity="0.95"/>
+    <!-- goutte droite -->
+    <path d="M316 180 C316 180 280 234 280 262 C280 284 296 302 316 302 C336 302 352 284 352 262 C352 234 316 180 316 180Z" fill="white" opacity="0.7"/>
+    <!-- reflet -->
+    <ellipse cx="184" cy="230" rx="10" ry="18" fill="white" opacity="0.4" transform="rotate(-20 184 230)"/>
+  </svg>`;
+  const url = "data:image/svg+xml;base64," + btoa(svg);
+  ["icon", "shortcut icon", "apple-touch-icon"].forEach((rel) => {
+    const existing = document.querySelector(`link[rel="${rel}"]`);
+    const link = existing || document.createElement("link");
+    link.rel = rel;
+    link.href = url;
+    if (!existing) document.head.appendChild(link);
+  });
+  const meta = document.querySelector('meta[name="theme-color"]') || document.createElement("meta");
+  meta.name = "theme-color";
+  meta.content = "#064a8a";
+  if (!meta.parentNode) document.head.appendChild(meta);
+})();
+
 const __root = ReactDOM.createRoot(document.getElementById("root"));
 __root.render(React.createElement(PoolApp));
 const __loader = document.getElementById("boot-loader");
