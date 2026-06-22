@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.23";
+const APP_VERSION = "0.24";
 
 // Tous les paramètres possibles, tous traitements confondus
 const TARGETS = {
@@ -818,6 +818,7 @@ function PoolApp() {
             onResetAll={resetAllProducts}
             isPremium={isPremium}
             poolName={activePool?.name}
+            onWantPremium={() => setShowPaywall(true)}
           />
         )}
         {tab === "settings" && (
@@ -879,6 +880,7 @@ function PoolApp() {
             setEditingProduct(null);
             setShowPaywall(true);
           }}
+          applications={poolApplications}
         />
       )}
 
@@ -2180,7 +2182,7 @@ function ValidateApplicationModal({ measure, recs, existingApplication, onClose,
 }
 
 // ---------- Produits ----------
-function ProductsView({ products, onEdit, onAddNew, onDelete, onResetAll, isPremium, poolName }) {
+function ProductsView({ products, onEdit, onAddNew, onDelete, onResetAll, isPremium, onWantPremium, poolName }) {
   function handleResetAll() {
     if (products.length === 0) return;
     const ok = window.confirm(
@@ -2221,7 +2223,7 @@ function ProductsView({ products, onEdit, onAddNew, onDelete, onResetAll, isPrem
                 {PRODUCT_ACTIONS.find((a) => a.value === p.action)?.label}
                 {!!p.waitHours && ` · attente ${p.waitHours}h`}
               </div>
-              {p.stockPercent !== undefined && p.stockPercent !== null && (() => {
+              {isPremium && p.stockPercent !== undefined && p.stockPercent !== null && (() => {
                 const pct = p.stockPercent;
                 const low = pct <= 20;
                 const container = p.containerAmount || 1;
@@ -2269,7 +2271,7 @@ function ProductsView({ products, onEdit, onAddNew, onDelete, onResetAll, isPrem
   );
 }
 
-function ProductModal({ product, onClose, onSave, isPremium, onWantPremium }) {
+function ProductModal({ product, onClose, onSave, isPremium, onWantPremium, applications }) {
   const [name, setName] = useState(product?.name || "");
   const [action, setAction] = useState(product?.action || "ph-");
   const [doseAmount, setDoseAmount] = useState(product?.doseAmount ?? 30);
@@ -2446,6 +2448,7 @@ function ProductModal({ product, onClose, onSave, isPremium, onWantPremium }) {
         placeholder="2"
       />
 
+      {isPremium ? (<>
       <label style={styles.fieldLabel}>Taille du contenant</label>
       <div style={styles.segmentedControl}>
         {["kg", "L"].map((u) => (
@@ -2509,6 +2512,47 @@ function ProductModal({ product, onClose, onSave, isPremium, onWantPremium }) {
           </span>
         </div>
       )}
+
+      </>) : (
+        <button style={styles.photoLockedBtn} onClick={onWantPremium}>
+          <Lock size={16} />
+          <span>Gestion du stock réservée à la version illimitée</span>
+        </button>
+      )}
+
+      {isPremium && product && (() => {
+        // Extraire les 10 dernières consommations de ce produit
+        const history = (applications || [])
+          .flatMap((app) => (app.steps || [])
+            .filter((s) => s.productName === product.name && s.appliedAmount)
+            .map((s) => ({ date: app.appliedAt, amount: s.appliedAmount, unit: s.doseUnit || "g" }))
+          )
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+          .slice(0, 10);
+        if (!history.length) return null;
+        return (
+          <div style={{ marginBottom: 12 }}>
+            <label style={styles.fieldLabel}>10 dernières consommations</label>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              {history.map((h, i) => {
+                const unit = h.unit || "g";
+                const amt = h.amount;
+                const displayAmt = (unit === "g" && amt >= 1000)
+                  ? `${(amt/1000).toFixed(2).replace(/\.?0+$/, "")} kg`
+                  : (unit === "mL" && amt >= 1000)
+                  ? `${(amt/1000).toFixed(2).replace(/\.?0+$/, "")} L`
+                  : `${amt} ${unit}`;
+                return (
+                  <div key={i} style={styles.consumptionRow}>
+                    <span style={styles.consumptionDate}>{formatDate(h.date)}</span>
+                    <span style={styles.consumptionAmt}>{displayAmt}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       <label style={styles.fieldLabel}>Note / précaution</label>
       <textarea
@@ -4379,6 +4423,24 @@ const styles = {
     borderRadius: 99,
     border: "1px solid",
     marginTop: 3,
+  },
+  consumptionRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "6px 10px",
+    borderRadius: 8,
+    background: "#f0f6fb",
+    border: "1px solid #d0e4f5",
+  },
+  consumptionDate: {
+    fontSize: 12,
+    color: "#4a6480",
+  },
+  consumptionAmt: {
+    fontSize: 12,
+    fontWeight: 700,
+    color: "#0a6ebd",
   },
   photoLockedBtn: {
     display: "flex",
