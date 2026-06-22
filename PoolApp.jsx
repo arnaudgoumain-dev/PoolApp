@@ -1725,7 +1725,7 @@ function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, applicat
 }
 
 // ---------- Modal Ajout mesure ----------
-function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, apiKey, apiProvider }) {
+function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, apiKey, apiProvider, activeParamKeys }) {
   const isEditing = !!measure;
   const [date, setDate] = useState(
     measure ? new Date(measure.date).toISOString().slice(0, 16) : todayLocalDatetime()
@@ -2453,52 +2453,55 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
         réellement appliquées pour ce bassin.
       </p>
 
-      {isPremium && (
-        <>
-          <div style={styles.sectionRow}>
-            <span style={styles.sectionLabel}>Clé API (analyse IA)</span>
-          </div>
-          <label style={styles.fieldLabel}>Provider</label>
-          <div style={styles.segmentedControl}>
-            {[
-              { value: "anthropic", label: "Anthropic (Claude)" },
-              { value: "openai", label: "OpenAI (ChatGPT)" },
-            ].map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setApiProvider(opt.value)}
-                style={{
-                  ...styles.segmentedBtn,
-                  ...(apiProvider === opt.value ? styles.segmentedBtnActive : {}),
-                }}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
+      <div style={styles.sectionRow}>
+        <span style={styles.sectionLabel}>Clé API (analyse IA)</span>
+      </div>
 
-          <label style={styles.fieldLabel}>
-            Clé API {apiProvider === "openai" ? "OpenAI" : "Anthropic"}
-          </label>
-          <div style={styles.apiKeyRow}>
-            <input
-              type="password"
-              style={{ ...styles.input, flex: 1 }}
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder={apiProvider === "openai" ? "sk-..." : "sk-ant-..."}
-              autoComplete="off"
-              autoCorrect="off"
-              spellCheck={false}
-            />
-          </div>
-          <p style={styles.helpTextSmall}>
-            Ta clé est stockée localement sur cet appareil, jamais transmise ailleurs qu'au
-            provider choisi. Utilisée pour l'analyse de bandelettes et le commentaire IA.
-          </p>
-        </>
+      {!apiKey && (
+        <p style={{ ...styles.helpTextSmall, marginBottom: 10, color: "#a0a8b0" }}>
+          Saisis une clé API pour activer l'analyse IA des bandelettes et le commentaire automatique.
+        </p>
       )}
+
+      <label style={{ ...styles.fieldLabel, opacity: !apiKey ? 0.45 : 1 }}>Provider</label>
+      <div style={{ ...styles.segmentedControl, opacity: !apiKey ? 0.45 : 1, pointerEvents: !apiKey ? "none" : "auto" }}>
+        {[
+          { value: "anthropic", label: "Anthropic (Claude)" },
+          { value: "openai", label: "OpenAI (ChatGPT)" },
+        ].map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => setApiProvider(opt.value)}
+            style={{
+              ...styles.segmentedBtn,
+              ...(apiProvider === opt.value ? styles.segmentedBtnActive : {}),
+            }}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+
+      <label style={styles.fieldLabel}>
+        Clé API {apiProvider === "openai" ? "OpenAI" : "Anthropic"}
+      </label>
+      <div style={styles.apiKeyRow}>
+        <input
+          type="password"
+          style={{ ...styles.input, flex: 1 }}
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
+          placeholder={apiProvider === "openai" ? "sk-..." : "sk-ant-..."}
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+        />
+      </div>
+      <p style={styles.helpTextSmall}>
+        Ta clé est stockée localement sur cet appareil, jamais transmise ailleurs qu'au
+        provider choisi. Utilisée pour l'analyse de bandelettes et le commentaire IA.
+      </p>
 
       <div style={styles.sectionRow}>
         <span style={styles.sectionLabel}>Zone sensible</span>
