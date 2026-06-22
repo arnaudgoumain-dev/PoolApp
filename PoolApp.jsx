@@ -8,16 +8,97 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.1";
+const APP_VERSION = "0.3";
 
+// Tous les paramètres possibles, tous traitements confondus
 const TARGETS = {
-  pH: { min: 7.2, max: 7.4, unit: "", label: "pH" },
-  fCl: { min: 1, max: 3, unit: "mg/L", label: "Chlore libre" },
-  tCl: { min: 0, max: 99, unit: "mg/L", label: "Chlore total" },
-  tac: { min: 80, max: 120, unit: "mg/L", label: "TAC" },
-  cya: { min: 30, max: 50, unit: "mg/L", label: "Stabilisant (CYA)" },
-  temp: { min: 24, max: 30, unit: "°C", label: "Température de l'eau" },
+  pH:     { min: 7.2, max: 7.4, unit: "",      label: "pH" },
+  fCl:    { min: 1,   max: 3,   unit: "mg/L",  label: "Chlore libre" },
+  tCl:    { min: 0,   max: 99,  unit: "mg/L",  label: "Chlore total" },
+  tac:    { min: 80,  max: 120, unit: "mg/L",  label: "TAC" },
+  cya:    { min: 30,  max: 50,  unit: "mg/L",  label: "Stabilisant (CYA)" },
+  temp:   { min: 24,  max: 30,  unit: "°C",    label: "Température de l'eau" },
+  sel:    { min: 3000,max: 5000,unit: "mg/L",  label: "Salinité (sel)" },
+  brome:  { min: 2,   max: 4,   unit: "mg/L",  label: "Brome" },
+  o2:     { min: 10,  max: 30,  unit: "mg/L",  label: "Oxygène actif" },
 };
+
+// Types de traitement — définissent quels paramètres sont pertinents
+// et si les cibles standard s'appliquent ou sont ajustées.
+const TREATMENT_TYPES = [
+  {
+    value: "chlore",
+    label: "Chlore",
+    description: "Chlore stabilisé ou non, usage courant",
+    params: ["pH", "fCl", "tCl", "tac", "cya", "temp"],
+    targets: {}, // utilise les cibles standard de TARGETS
+  },
+  {
+    value: "sel",
+    label: "Sel (électrolyseur)",
+    description: "Électrolyseur au sel, le chlore est produit en continu",
+    params: ["pH", "fCl", "tCl", "tac", "sel", "temp"],
+    targets: {
+      pH:  { min: 7.2, max: 7.6 },   // tolérance légèrement plus large
+      fCl: { min: 0.5, max: 2 },      // électrolyseur maintient en continu, doses plus faibles
+      sel: { min: 3000, max: 5000 },
+    },
+  },
+  {
+    value: "brome",
+    label: "Brome",
+    description: "Traitement au brome, courant pour spas et piscines intérieures",
+    params: ["pH", "brome", "tac", "temp"],
+    targets: {
+      pH:    { min: 7.2, max: 7.6 },
+      brome: { min: 2, max: 4 },
+    },
+  },
+  {
+    value: "o2",
+    label: "Oxygène actif / PHMB",
+    description: "Sans chlore ni brome, adapté aux peaux sensibles",
+    params: ["pH", "o2", "tac", "temp"],
+    targets: {
+      pH: { min: 6.8, max: 7.4 },    // plage pH différente pour O2 actif
+      o2: { min: 10, max: 30 },
+    },
+  },
+  {
+    value: "autre",
+    label: "Autre (UV, ozone…)",
+    description: "Système alternatif ou combiné, paramètres de base",
+    params: ["pH", "fCl", "tac", "temp"],
+    targets: {},
+  },
+];
+
+const FILTRATION_TYPES = [
+  { value: "sable",     label: "Sable" },
+  { value: "cartouche", label: "Cartouche" },
+  { value: "diatomees", label: "Diatomées" },
+  { value: "aucune",    label: "Sans filtration (naturelle)" },
+];
+
+// Retourne les cibles effectives pour le traitement donné
+// (fusionne les cibles par défaut avec les surcharges du traitement)
+function getEffectiveTargets(treatmentType) {
+  const tt = TREATMENT_TYPES.find((t) => t.value === treatmentType) || TREATMENT_TYPES[0];
+  const effective = {};
+  const paramKeys = tt.params.map((p) => p.toLowerCase());
+  for (const key of paramKeys) {
+    const base = TARGETS[key];
+    const override = tt.targets[key] || tt.targets[Object.keys(tt.targets).find(k => k.toLowerCase() === key)] || {};
+    if (base) effective[key] = { ...base, ...override };
+  }
+  return effective;
+}
+
+// Retourne la liste des clés de paramètres actifs pour le traitement donné
+function getActiveParams(treatmentType) {
+  const tt = TREATMENT_TYPES.find((t) => t.value === treatmentType) || TREATMENT_TYPES[0];
+  return tt.params.map((p) => p.toLowerCase());
+}
 
 const DEFAULT_PRODUCTS = [
   {
@@ -67,29 +148,36 @@ const DEFAULT_PRODUCTS = [
 ];
 
 const PRODUCT_ACTIONS = [
-  { value: "ph-", label: "Baisse le pH" },
-  { value: "ph+", label: "Monte le pH" },
-  { value: "chlore", label: "Chlore non stabilisé (choc)" },
-  { value: "chlore-stabilise", label: "Chlore stabilisé (CYA +)" },
-  { value: "tac+", label: "Monte le TAC" },
+  { value: "ph-",             label: "Baisse le pH" },
+  { value: "ph+",             label: "Monte le pH" },
+  { value: "chlore",          label: "Chlore non stabilisé (choc)" },
+  { value: "chlore-stabilise",label: "Chlore stabilisé (CYA +)" },
+  { value: "tac+",            label: "Monte le TAC" },
+  { value: "brome",           label: "Brome" },
+  { value: "o2",              label: "Oxygène actif" },
+  { value: "sel",             label: "Sel (salinité)" },
 ];
 
-// Délai d'attente par défaut (heures) selon le type d'action si le produit n'en précise pas
 const DEFAULT_WAIT_HOURS = {
   "ph-": 2,
   "ph+": 2,
   "chlore": 12,
   "chlore-stabilise": 24,
   "tac+": 6,
+  "brome": 6,
+  "o2": 4,
+  "sel": 24,
 };
 
-// Ordre de priorité des traitements (les plus petits nombres se font en premier)
 const ACTION_PRIORITY = {
   "tac+": 1,
   "ph-": 2,
   "ph+": 2,
   "chlore": 3,
   "chlore-stabilise": 4,
+  "brome": 3,
+  "o2": 3,
+  "sel": 5,
 };
 
 const STORAGE_KEYS = {
@@ -100,6 +188,8 @@ const STORAGE_KEYS = {
   pools: "pool:pools",
   activePool: "pool:activePool",
   applications: "pool:applications",
+  apiKey: "pool:apiKey",
+  apiProvider: "pool:apiProvider",
 };
 
 // ---------- Helpers ----------
@@ -113,9 +203,11 @@ function todayLocalDatetime() {
   return d.toISOString().slice(0, 16);
 }
 
-function statusFor(param, value) {
+function statusFor(param, value, customTargets) {
   if (value === undefined || value === null || value === "") return null;
-  const t = TARGETS[param];
+  const targets = customTargets || TARGETS;
+  const t = targets[param];
+  if (!t) return null;
   const v = parseFloat(value);
   if (Number.isNaN(v)) return null;
   if (v < t.min) return "low";
@@ -168,10 +260,116 @@ function parseDataUrl(dataUrl) {
   return { mediaType: match[1], data: match[2] };
 }
 
-async function analyzeStripPhoto(dataUrl) {
-  const parsed = parseDataUrl(dataUrl);
+// ---------- Helpers IA (Anthropic + OpenAI) ----------
+
+async function callAIWithImage({ apiKey, apiProvider, prompt, imageDataUrl }) {
+  const parsed = parseDataUrl(imageDataUrl);
   if (!parsed) throw new Error("Image invalide");
 
+  if (apiProvider === "openai") {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        max_tokens: 1000,
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              { type: "image_url", image_url: { url: `data:${parsed.mediaType};base64,${parsed.data}` } },
+            ],
+          },
+        ],
+      }),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `Erreur OpenAI ${response.status}`);
+    }
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || "";
+  } else {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "image", source: { type: "base64", media_type: parsed.mediaType, data: parsed.data } },
+              { type: "text", text: prompt },
+            ],
+          },
+        ],
+      }),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `Erreur Anthropic ${response.status}`);
+    }
+    const data = await response.json();
+    return (data.content || []).find((b) => b.type === "text")?.text || "";
+  }
+}
+
+async function callAIText({ apiKey, apiProvider, prompt }) {
+  if (apiProvider === "openai") {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        max_tokens: 1200,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `Erreur OpenAI ${response.status}`);
+    }
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || "";
+  } else {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1200,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `Erreur Anthropic ${response.status}`);
+    }
+    const data = await response.json();
+    return (data.content || []).find((b) => b.type === "text")?.text || "";
+  }
+}
+
+async function analyzeStripPhoto({ apiKey, apiProvider, dataUrl }) {
   const prompt = `Tu regardes une photo d'un tube de bandelettes de test pour piscine, avec une bandelette imbibée posée à côté ou sur la légende imprimée sur le tube. Le tube affiche une légende de couleurs avec des valeurs numériques (mg/L ou ppm) pour chaque paramètre (pH, chlore libre, chlore total, TAC/alcalinité, stabilisant CYA, dureté TH, brome).
 
 Pour chaque paramètre visible à la fois sur la bandelette ET sur la légende du tube :
@@ -182,40 +380,15 @@ Pour chaque paramètre visible à la fois sur la bandelette ET sur la légende d
 Réponds UNIQUEMENT en JSON, sans aucun texte avant ou après, sans balises markdown, selon ce format exact (utilise null si un paramètre n'est pas visible ou pas mesuré par cette bandelette) :
 {"pH": nombre ou null, "fCl": nombre ou null, "tCl": nombre ou null, "tac": nombre ou null, "cya": nombre ou null, "confidence": "haute" ou "moyenne" ou "basse", "note": "courte remarque en français sur la lisibilité de la photo, en une phrase"}`;
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-6",
-      max_tokens: 1000,
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "image",
-              source: { type: "base64", media_type: parsed.mediaType, data: parsed.data },
-            },
-            { type: "text", text: prompt },
-          ],
-        },
-      ],
-    }),
-  });
-
-  if (!response.ok) throw new Error("Erreur API");
-  const data = await response.json();
-  const textBlock = (data.content || []).find((b) => b.type === "text");
-  if (!textBlock) throw new Error("Pas de réponse texte");
-
-  const cleaned = textBlock.text.replace(/```json|```/g, "").trim();
+  const text = await callAIWithImage({ apiKey, apiProvider, prompt, imageDataUrl: dataUrl });
+  const cleaned = text.replace(/```json|```/g, "").trim();
   return JSON.parse(cleaned);
 }
 
 // ---------- Composant principal ----------
 function PoolApp() {
   const [pools, setPools] = useState([
-    { id: "default", name: "Ma piscine", location: "Valbonne (06)", volume: 72 },
+    { id: "default", name: "Ma piscine", location: "Valbonne (06)", volume: 72, treatmentType: "chlore", filtration: "sable" },
   ]);
   const [activePoolId, setActivePoolId] = useState("default");
   const [measures, setMeasures] = useState([]);
@@ -233,6 +406,8 @@ function PoolApp() {
   const [applications, setApplications] = useState([]);
   const [validatingMeasure, setValidatingMeasure] = useState(null);
   const [showReport, setShowReport] = useState(false);
+  const [apiKey, setApiKey] = useState("");
+  const [apiProvider, setApiProvider] = useState("anthropic"); // "anthropic" | "openai"
   const [loaded, setLoaded] = useState(false);
 
   // --- Chargement initial depuis le stockage persistant ---
@@ -275,6 +450,12 @@ function PoolApp() {
         // Les mesures/produits existants n'avaient pas de poolId : on les rattache au bassin par défaut
         loadedMeasures = loadedMeasures.map((m) => (m.poolId ? m : { ...m, poolId: "default" }));
       }
+      // Migration : ajoute treatmentType/filtration aux anciens bassins qui n'en ont pas
+      loadedPools = loadedPools.map((p) => ({
+        treatmentType: "chlore",
+        filtration: "sable",
+        ...p,
+      }));
       setPools(loadedPools);
 
       let loadedActiveId = loadedPools[0]?.id || "default";
@@ -303,6 +484,14 @@ function PoolApp() {
       try {
         const ap = await window.storage.get(STORAGE_KEYS.applications);
         if (ap?.value) setApplications(JSON.parse(ap.value));
+      } catch (e) {}
+      try {
+        const ak = await window.storage.get(STORAGE_KEYS.apiKey);
+        if (ak?.value) setApiKey(JSON.parse(ak.value));
+      } catch (e) {}
+      try {
+        const aprov = await window.storage.get(STORAGE_KEYS.apiProvider);
+        if (aprov?.value) setApiProvider(JSON.parse(aprov.value));
       } catch (e) {}
       setLoaded(true);
     }
@@ -340,9 +529,29 @@ function PoolApp() {
     window.storage.set(STORAGE_KEYS.applications, JSON.stringify(applications)).catch(() => {});
   }, [applications, loaded]);
 
+  useEffect(() => {
+    if (!loaded) return;
+    window.storage.set(STORAGE_KEYS.apiKey, JSON.stringify(apiKey)).catch(() => {});
+  }, [apiKey, loaded]);
+
+  useEffect(() => {
+    if (!loaded) return;
+    window.storage.set(STORAGE_KEYS.apiProvider, JSON.stringify(apiProvider)).catch(() => {});
+  }, [apiProvider, loaded]);
+
   const activePool = useMemo(
     () => pools.find((p) => p.id === activePoolId) || pools[0],
     [pools, activePoolId]
+  );
+
+  const effectiveTargets = useMemo(
+    () => getEffectiveTargets(activePool?.treatmentType || "chlore"),
+    [activePool]
+  );
+
+  const activeParamKeys = useMemo(
+    () => getActiveParams(activePool?.treatmentType || "chlore"),
+    [activePool]
   );
 
   const poolMeasures = useMemo(
@@ -369,8 +578,8 @@ function PoolApp() {
 
   const validatingMeasureRecs = useMemo(() => {
     if (!validatingMeasure) return [];
-    return computeRecommendations(validatingMeasure, activePool?.volume || 0, poolProducts);
-  }, [validatingMeasure, activePool, poolProducts]);
+    return computeRecommendations(validatingMeasure, activePool?.volume || 0, poolProducts, effectiveTargets, activeParamKeys);
+  }, [validatingMeasure, activePool, poolProducts, effectiveTargets, activeParamKeys]);
 
   const existingApplicationForValidating = useMemo(() => {
     if (!validatingMeasure) return null;
@@ -515,6 +724,11 @@ function PoolApp() {
             applicationForLatest={latest ? poolApplications.find((a) => a.measureId === latest.id) : null}
             blockedByLimit={blockedByLimit}
             isPremium={isPremium}
+            apiKey={apiKey}
+            apiProvider={apiProvider}
+            recentMeasures={sortedMeasures}
+            effectiveTargets={effectiveTargets}
+            activeParamKeys={activeParamKeys}
           />
         )}
         {tab === "history" && (
@@ -560,6 +774,10 @@ function PoolApp() {
             onWantPremiumForReport={() => setShowPaywall(true)}
             isPremium={isPremium}
             setIsPremium={setIsPremium}
+            apiKey={apiKey}
+            setApiKey={setApiKey}
+            apiProvider={apiProvider}
+            setApiProvider={setApiProvider}
           />
         )}
       </main>
@@ -580,6 +798,9 @@ function PoolApp() {
             setEditingMeasure(null);
             setShowPaywall(true);
           }}
+          apiKey={apiKey}
+          apiProvider={apiProvider}
+          activeParamKeys={activeParamKeys}
         />
       )}
 
@@ -694,7 +915,7 @@ function Header({ poolName, location, isPremium, pools, activePoolId, onSwitchPo
                 )}
                 <div style={{ flex: 1, textAlign: "left" }}>
                   <div style={{ fontWeight: 700, fontSize: 13.5, color: "#16302c" }}>{p.name}</div>
-                  <div style={{ fontSize: 11.5, color: "#7a8a93" }}>{p.location} · {p.volume} m³</div>
+                  <div style={{ fontSize: 11.5, color: "#7a8a93" }}>{p.location} · {p.volume} m³ · {TREATMENT_TYPES.find((t) => t.value === p.treatmentType)?.label || "Chlore"}</div>
                 </div>
                 {p.id === activePoolId && <CheckCircle2 size={16} color="#1f8a70" />}
               </button>
@@ -749,10 +970,65 @@ function TabBar({ tab, setTab }) {
 }
 
 // ---------- Dashboard ----------
-function Dashboard({ latest, volume, products, onAddMeasure, onEditMeasure, onValidateApplication, applicationForLatest, blockedByLimit, isPremium }) {
+function Dashboard({ latest, volume, products, onAddMeasure, onEditMeasure, onValidateApplication, applicationForLatest, blockedByLimit, isPremium, apiKey, apiProvider, recentMeasures, effectiveTargets, activeParamKeys }) {
+  const [aiComment, setAiComment] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(null);
+
+  async function handleAiAnalysis() {
+    if (!apiKey || !latest) return;
+    setAiLoading(true);
+    setAiError(null);
+    setAiComment("");
+    try {
+      const historyLines = (recentMeasures || [])
+        .slice(-10)
+        .map((m) =>
+          `- ${formatDate(m.date)}: pH=${m.pH ?? "?"}, fCl=${m.fCl ?? "?"}, tCl=${m.tCl ?? "?"}, TAC=${m.tac ?? "?"}, CYA=${m.cya ?? "?"}, T°=${m.temp ?? "?"}`
+        )
+        .join("\n");
+
+      const productsLines = products
+        .map((p) => `- ${p.name} (${PRODUCT_ACTIONS.find((a) => a.value === p.action)?.label ?? p.action})`)
+        .join("\n");
+
+      const prompt = `Tu es un expert en traitement de l'eau de piscine. Voici les données d'une piscine privée de ${volume} m³.
+
+DERNIÈRE MESURE (${formatDate(latest.date)}) :
+- pH : ${latest.pH ?? "non mesuré"}
+- Chlore libre (fCl) : ${latest.fCl ?? "non mesuré"} mg/L
+- Chlore total (tCl) : ${latest.tCl ?? "non mesuré"} mg/L
+- TAC : ${latest.tac ?? "non mesuré"} mg/L
+- Stabilisant (CYA) : ${latest.cya ?? "non mesuré"} mg/L
+- Température : ${latest.temp ?? "non mesurée"} °C
+
+HISTORIQUE DES 10 DERNIÈRES MESURES :
+${historyLines || "Aucun historique disponible"}
+
+PRODUITS DISPONIBLES :
+${productsLines || "Aucun produit renseigné"}
+
+Cibles recommandées : pH 7.2–7.4, chlore libre 1–3 mg/L, TAC 80–120 mg/L, CYA 30–50 mg/L, température 24–30 °C.
+
+En tenant compte de l'historique, fournis une analyse concise (5–8 phrases maximum) qui :
+1. Commente les tendances observées sur les dernières mesures (pas seulement la dernière)
+2. Identifie si des traitements semblent inefficaces (paramètre qui ne s'améliore pas)
+3. Donne des conseils avancés ou des mises en garde spécifiques à cette situation
+4. Reste factuel, sans répéter ce que le plan de traitement dit déjà
+
+Réponds directement en français, sans titre ni introduction.`;
+
+      const text = await callAIText({ apiKey, apiProvider, prompt });
+      setAiComment(text.trim());
+    } catch (e) {
+      setAiError(e.message || "Erreur lors de l'analyse IA");
+    } finally {
+      setAiLoading(false);
+    }
+  }
   const recs = useMemo(
-    () => (latest ? computeRecommendations(latest, volume, products) : []),
-    [latest, volume, products]
+    () => (latest ? computeRecommendations(latest, volume, products, effectiveTargets, activeParamKeys) : []),
+    [latest, volume, products, effectiveTargets, activeParamKeys]
   );
 
   if (!latest) {
@@ -771,7 +1047,9 @@ function Dashboard({ latest, volume, products, onAddMeasure, onEditMeasure, onVa
     );
   }
 
-  const params = ["pH", "fCl", "tCl", "tac", "cya", "temp"].filter(
+  // Paramètres actifs selon le traitement, filtrés par ceux effectivement saisis
+  const allPossibleParams = activeParamKeys || ["pH", "fCl", "tCl", "tac", "cya", "temp"];
+  const params = allPossibleParams.filter(
     (p) => latest[p] !== undefined && latest[p] !== "" && latest[p] !== null
   );
 
@@ -795,7 +1073,7 @@ function Dashboard({ latest, volume, products, onAddMeasure, onEditMeasure, onVa
 
       <div style={styles.grid}>
         {params.map((p) => (
-          <ParamCard key={p} param={p} value={latest[p]} />
+          <ParamCard key={p} param={p} value={latest[p]} effectiveTargets={effectiveTargets} />
         ))}
       </div>
 
@@ -851,13 +1129,52 @@ function Dashboard({ latest, volume, products, onAddMeasure, onEditMeasure, onVa
           )}
         </div>
       )}
+
+      {isPremium && (
+        <div style={styles.aiSection}>
+          <div style={styles.aiSectionTitle}>
+            <Sparkles size={14} color="#7a3fa0" /> Analyse IA
+          </div>
+          {apiKey ? (
+            <>
+              <button
+                style={{
+                  ...styles.aiAnalyzeBtn,
+                  ...(aiLoading ? styles.aiAnalyzeBtnLoading : {}),
+                }}
+                onClick={handleAiAnalysis}
+                disabled={aiLoading || !latest}
+              >
+                {aiLoading ? (
+                  <><Loader2 size={14} className="spin" /> Analyse en cours…</>
+                ) : (
+                  <><Sparkles size={14} /> Analyser avec {apiProvider === "openai" ? "ChatGPT" : "Claude"}</>
+                )}
+              </button>
+              {aiComment && (
+                <div style={styles.aiCommentBox}>{aiComment}</div>
+              )}
+              {aiError && (
+                <div style={styles.aiErrorBox}>{aiError}</div>
+              )}
+            </>
+          ) : (
+            <div style={styles.aiKeyMissing}>
+              <Lock size={14} color="#a0a8b0" />
+              <span>Renseigne ta clé API dans les Réglages pour activer l'analyse IA.</span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-function ParamCard({ param, value }) {
-  const t = TARGETS[param];
-  const status = statusFor(param, value);
+function ParamCard({ param, value, effectiveTargets }) {
+  const allTargets = effectiveTargets || TARGETS;
+  const t = allTargets[param] || TARGETS[param];
+  if (!t) return null;
+  const status = statusFor(param, value, allTargets);
   const color = statusColor(status);
   return (
     <div style={{ ...styles.paramCard, borderColor: color + "33" }}>
@@ -920,12 +1237,17 @@ function RecoCard({ reco, isLast }) {
 }
 
 // ---------- Logique de recommandation ----------
-function computeRecommendations(latest, volume, products) {
-  const steps = [];
+function computeRecommendations(latest, volume, products, effectiveTargets, activeParamKeys) {
+  // Fallback vers le traitement chlore standard si non précisé
+  const targets = effectiveTargets || getEffectiveTargets("chlore");
+  const paramKeys = activeParamKeys || getActiveParams("chlore");
 
-  // TAC (traité en premier car influence le pH)
+  const steps = [];
+  const has = (key) => paramKeys.includes(key);
+
+  // TAC (en premier — influence le pH)
   const tac = parseFloat(latest.tac);
-  if (!Number.isNaN(tac) && tac < TARGETS.tac.min) {
+  if (has("tac") && !Number.isNaN(tac) && targets.tac && tac < targets.tac.min) {
     const prod = products.find((p) => p.action === "tac+");
     steps.push({
       action: "tac+",
@@ -945,14 +1267,13 @@ function computeRecommendations(latest, volume, products) {
 
   // pH
   const phVal = parseFloat(latest.pH);
-  if (!Number.isNaN(phVal)) {
-    const targetMid = 7.3;
-    if (phVal > TARGETS.pH.max) {
+  if (has("ph") && !Number.isNaN(phVal) && targets.ph) {
+    const phTargets = targets.ph;
+    const targetMid = (phTargets.min + phTargets.max) / 2;
+    if (phVal > phTargets.max) {
       const diff = phVal - targetMid;
       const prod = products.find((p) => p.action === "ph-");
-      const computedDose = prod
-        ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount))
-        : null;
+      const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : null;
       steps.push({
         action: "ph-",
         title: `pH trop haut (${phVal})`,
@@ -960,19 +1281,17 @@ function computeRecommendations(latest, volume, products) {
         productAvailable: !!prod,
         productPhoto: prod?.photo || null,
         doseText: prod
-          ? `≈ ${computedDose} ${prod.doseUnit} pour viser ${targetMid}`
+          ? `≈ ${computedDose} ${prod.doseUnit} pour viser ${targetMid.toFixed(1)}`
           : "Aucun produit pH- dans ta liste — ajoute-en un dans l'onglet Produits.",
         computedDoseAmount: computedDose,
         doseUnit: prod?.doseUnit || null,
         note: prod?.note,
         waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["ph-"],
       });
-    } else if (phVal < TARGETS.pH.min) {
+    } else if (phVal < phTargets.min) {
       const diff = targetMid - phVal;
       const prod = products.find((p) => p.action === "ph+");
-      const computedDose = prod
-        ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount))
-        : null;
+      const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : null;
       steps.push({
         action: "ph+",
         title: `pH trop bas (${phVal})`,
@@ -980,7 +1299,7 @@ function computeRecommendations(latest, volume, products) {
         productAvailable: !!prod,
         productPhoto: prod?.photo || null,
         doseText: prod
-          ? `≈ ${computedDose} ${prod.doseUnit} pour viser ${targetMid}`
+          ? `≈ ${computedDose} ${prod.doseUnit} pour viser ${targetMid.toFixed(1)}`
           : "Aucun produit pH+ dans ta liste — ajoute-en un dans l'onglet Produits.",
         computedDoseAmount: computedDose,
         doseUnit: prod?.doseUnit || null,
@@ -995,13 +1314,12 @@ function computeRecommendations(latest, volume, products) {
   const tCl = parseFloat(latest.tCl);
   const combined = !Number.isNaN(fCl) && !Number.isNaN(tCl) ? Math.max(0, tCl - fCl) : null;
 
-  if (!Number.isNaN(fCl)) {
+  if (has("fcl") && !Number.isNaN(fCl) && targets.fcl) {
+    const fclT = targets.fcl;
     if (combined !== null && combined > 0.5) {
-      const targetFcl = Math.max(3, combined * 3);
+      const targetFcl = Math.max(fclT.max, combined * 3);
       const prod = products.find((p) => p.action === "chlore");
-      const computedDose = prod
-        ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (targetFcl / prod.effectAmount))
-        : null;
+      const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (targetFcl / prod.effectAmount)) : null;
       steps.push({
         action: "chlore",
         title: `Chlore combiné élevé (${combined.toFixed(2)} mg/L)`,
@@ -1016,13 +1334,11 @@ function computeRecommendations(latest, volume, products) {
         note: "Chlore combiné = chloramines, signe d'une désinfection insuffisante. Verser le soir, filtration en continu.",
         waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["chlore"],
       });
-    } else if (fCl < TARGETS.fCl.min) {
-      const targetFcl = 2;
+    } else if (fCl < fclT.min) {
+      const targetFcl = (fclT.min + fclT.max) / 2;
       const diff = targetFcl - fCl;
       const prod = products.find((p) => p.action === "chlore");
-      const computedDose = prod
-        ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount))
-        : null;
+      const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : null;
       steps.push({
         action: "chlore",
         title: `Chlore libre trop bas (${fCl} mg/L)`,
@@ -1037,7 +1353,7 @@ function computeRecommendations(latest, volume, products) {
         note: prod?.note,
         waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["chlore"],
       });
-    } else if (fCl > TARGETS.fCl.max) {
+    } else if (fCl > fclT.max) {
       steps.push({
         action: "chlore-excess",
         title: `Chlore libre trop haut (${fCl} mg/L)`,
@@ -1051,9 +1367,80 @@ function computeRecommendations(latest, volume, products) {
     }
   }
 
-  // CYA
+  // Brome
+  const bromeVal = parseFloat(latest.brome);
+  if (has("brome") && !Number.isNaN(bromeVal) && targets.brome) {
+    const brT = targets.brome;
+    if (bromeVal < brT.min) {
+      const prod = products.find((p) => p.action === "brome");
+      const diff = ((brT.min + brT.max) / 2) - bromeVal;
+      const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : null;
+      steps.push({
+        action: "brome",
+        title: `Brome trop bas (${bromeVal} mg/L)`,
+        productName: prod ? prod.name : "Brome (pastilles ou granulés)",
+        productAvailable: !!prod,
+        productPhoto: prod?.photo || null,
+        doseText: prod
+          ? `≈ ${computedDose} ${prod.doseUnit} pour viser ${(brT.min + brT.max) / 2} mg/L`
+          : "Aucun produit brome dans ta liste — ajoute-en un dans l'onglet Produits.",
+        computedDoseAmount: computedDose,
+        doseUnit: prod?.doseUnit || null,
+        note: "Verser loin des arrivées d'eau, filtration en marche.",
+        waitHours: prod?.waitHours ?? 6,
+      });
+    }
+  }
+
+  // Oxygène actif
+  const o2Val = parseFloat(latest.o2);
+  if (has("o2") && !Number.isNaN(o2Val) && targets.o2) {
+    const o2T = targets.o2;
+    if (o2Val < o2T.min) {
+      const prod = products.find((p) => p.action === "o2");
+      const diff = ((o2T.min + o2T.max) / 2) - o2Val;
+      const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : null;
+      steps.push({
+        action: "o2",
+        title: `Oxygène actif trop bas (${o2Val} mg/L)`,
+        productName: prod ? prod.name : "Oxygène actif (peroxyde d'hydrogène stabilisé)",
+        productAvailable: !!prod,
+        productPhoto: prod?.photo || null,
+        doseText: prod
+          ? `≈ ${computedDose} ${prod.doseUnit}`
+          : "Aucun produit oxygène actif dans ta liste — ajoute-en un dans l'onglet Produits.",
+        computedDoseAmount: computedDose,
+        doseUnit: prod?.doseUnit || null,
+        note: "Ne pas mélanger avec le chlore. Filtration en marche pendant 4h.",
+        waitHours: prod?.waitHours ?? 4,
+      });
+    }
+  }
+
+  // Sel (salinité pour électrolyseur)
+  const selVal = parseFloat(latest.sel);
+  if (has("sel") && !Number.isNaN(selVal) && targets.sel) {
+    const selT = targets.sel;
+    if (selVal < selT.min) {
+      const diff = ((selT.min + selT.max) / 2) - selVal;
+      const selKg = Math.round((diff * volume) / 1000); // g/L × m³ = g → /1000 pour kg
+      steps.push({
+        action: "sel",
+        title: `Salinité trop basse (${selVal} mg/L)`,
+        productName: "Sel de piscine (NaCl pur)",
+        productAvailable: true,
+        doseText: `≈ ${selKg} kg pour viser ${Math.round((selT.min + selT.max) / 2)} mg/L`,
+        computedDoseAmount: selKg,
+        doseUnit: "kg",
+        note: "Utiliser du sel spécial piscine (NaCl pur ≥ 99%). Dissoudre avant l'ajout ou verser directement près du skimmer, filtration en marche 24h.",
+        waitHours: 24,
+      });
+    }
+  }
+
+  // CYA (pertinent seulement si le traitement l'inclut)
   const cya = parseFloat(latest.cya);
-  if (!Number.isNaN(cya) && cya > TARGETS.cya.max) {
+  if (has("cya") && !Number.isNaN(cya) && targets.cya && cya > targets.cya.max) {
     const renewalPercent = Math.round((1 - 40 / cya) * 100);
     steps.push({
       action: "renouvellement",
@@ -1068,18 +1455,14 @@ function computeRecommendations(latest, volume, products) {
     });
   }
 
-  // Tri par ordre de priorité chimique (TAC -> pH -> chlore -> reste)
+  // Tri et calcul des délais cumulés
   steps.sort((a, b) => (ACTION_PRIORITY[a.action] ?? 9) - (ACTION_PRIORITY[b.action] ?? 9));
-
-  // Calcul des délais cumulés entre chaque étape du plan
   let cumulativeHours = 0;
-  const plan = steps.map((step, i) => {
+  return steps.map((step, i) => {
     const startsAfter = cumulativeHours;
     cumulativeHours += step.waitHours || 0;
     return { ...step, stepNumber: i + 1, startsAfterHours: startsAfter };
   });
-
-  return plan;
 }
 
 // ---------- Historique ----------
@@ -1342,7 +1725,7 @@ function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, applicat
 }
 
 // ---------- Modal Ajout mesure ----------
-function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium }) {
+function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, apiKey, apiProvider }) {
   const isEditing = !!measure;
   const [date, setDate] = useState(
     measure ? new Date(measure.date).toISOString().slice(0, 16) : todayLocalDatetime()
@@ -1354,6 +1737,9 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium })
   const [tac, setTac] = useState(measure?.tac ?? "");
   const [cya, setCya] = useState(measure?.cya ?? "");
   const [temp, setTemp] = useState(measure?.temp ?? "");
+  const [sel, setSel] = useState(measure?.sel ?? "");
+  const [brome, setBrome] = useState(measure?.brome ?? "");
+  const [o2, setO2] = useState(measure?.o2 ?? "");
   const [note, setNote] = useState(measure?.note || "");
   const [photo, setPhoto] = useState(measure?.photo || null);
   const [photoBusy, setPhotoBusy] = useState(false);
@@ -1384,7 +1770,7 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium })
     setAnalyzeError(null);
     setAnalyzeNote(null);
     try {
-      const result = await analyzeStripPhoto(photo);
+      const result = await analyzeStripPhoto({ apiKey, apiProvider, dataUrl: photo });
       if (result.pH !== null && result.pH !== undefined) setPH(String(result.pH));
       if (result.fCl !== null && result.fCl !== undefined) setFCl(String(result.fCl));
       if (result.tCl !== null && result.tCl !== undefined) setTCl(String(result.tCl));
@@ -1411,19 +1797,29 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium })
       tac,
       cya,
       temp,
+      sel,
+      brome,
+      o2,
       note,
       photo,
     });
   }
 
-  const fields = [
-    { key: "pH", label: "pH", value: pH, set: setPH, step: "0.01", placeholder: "7.40" },
-    { key: "fCl", label: "Chlore libre (mg/L)", value: fCl, set: setFCl, step: "0.01", placeholder: "1.20" },
-    { key: "tCl", label: "Chlore total (mg/L)", value: tCl, set: setTCl, step: "0.01", placeholder: "1.30" },
-    { key: "tac", label: "TAC (mg/L)", value: tac, set: setTac, step: "1", placeholder: "100" },
-    { key: "cya", label: "Stabilisant CYA (mg/L)", value: cya, set: setCya, step: "1", placeholder: "40" },
-    { key: "temp", label: "Température de l'eau (°C)", value: temp, set: setTemp, step: "0.1", placeholder: "27" },
+  // Tous les champs possibles, filtrés selon le traitement du bassin
+  const ALL_FIELDS = [
+    { key: "pH",   label: "pH",                        value: pH,    set: setPH,    step: "0.01", placeholder: "7.40" },
+    { key: "fCl",  label: "Chlore libre (mg/L)",       value: fCl,   set: setFCl,   step: "0.01", placeholder: "1.20" },
+    { key: "tCl",  label: "Chlore total (mg/L)",       value: tCl,   set: setTCl,   step: "0.01", placeholder: "1.30" },
+    { key: "tac",  label: "TAC (mg/L)",                value: tac,   set: setTac,   step: "1",    placeholder: "100" },
+    { key: "cya",  label: "Stabilisant CYA (mg/L)",   value: cya,   set: setCya,   step: "1",    placeholder: "40" },
+    { key: "temp", label: "Température de l'eau (°C)", value: temp,  set: setTemp,  step: "0.1",  placeholder: "27" },
+    { key: "sel",  label: "Salinité / sel (mg/L)",     value: sel,   set: setSel,   step: "10",   placeholder: "4000" },
+    { key: "brome",label: "Brome (mg/L)",              value: brome, set: setBrome, step: "0.1",  placeholder: "3.0" },
+    { key: "o2",   label: "Oxygène actif (mg/L)",      value: o2,    set: setO2,    step: "0.5",  placeholder: "20" },
   ];
+  const fields = activeParamKeys
+    ? ALL_FIELDS.filter((f) => activeParamKeys.includes(f.key.toLowerCase()))
+    : ALL_FIELDS.filter((f) => ["pH","fCl","tCl","tac","cya","temp"].includes(f.key));
 
   return (
     <ModalShell onClose={onClose} title={isEditing ? "Modifier la mesure" : "Nouvelle mesure"}>
@@ -1436,33 +1832,34 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium })
       />
 
       <label style={styles.fieldLabel}>Méthode de mesure</label>
-      <div style={styles.methodRow}>
-        <button
-          type="button"
-          onClick={() => setMethod("photometre")}
-          style={{
-            ...styles.methodBtn,
-            ...(method === "photometre" ? styles.methodBtnActive : {}),
-          }}
-        >
-          Photomètre
-        </button>
-        <button
-          type="button"
-          onClick={() => setMethod("bandelette")}
-          style={{
-            ...styles.methodBtn,
-            ...(method === "bandelette" ? styles.methodBtnActive : {}),
-          }}
-        >
-          Bandelette
-        </button>
+      <div style={styles.segmentedControl}>
+        {[
+          { value: "photometre", label: "Photomètre" },
+          { value: "bandelette", label: "Bandelette" },
+        ].map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => setMethod(opt.value)}
+            style={{
+              ...styles.segmentedBtn,
+              ...(method === opt.value ? styles.segmentedBtnActive : {}),
+            }}
+          >
+            {opt.label}
+          </button>
+        ))}
       </div>
 
       {method === "bandelette" && (
         <div style={styles.stripHint}>
           Place le tube de légende et ta bandelette imbibée côte à côte dans le même cadre,
-          puis prends la photo. {isPremium ? "L'analyse automatique lira les couleurs." : ""}
+          puis prends la photo.{" "}
+          {isPremium && apiKey
+            ? "L'analyse IA lira les couleurs automatiquement."
+            : isPremium
+            ? "Renseigne une clé API dans les Réglages pour activer l'analyse automatique."
+            : ""}
         </div>
       )}
 
@@ -1504,9 +1901,13 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium })
                 </button>
                 {method === "bandelette" && (
                   <button
-                    style={styles.analyzeBtn}
+                    style={{
+                      ...styles.analyzeBtn,
+                      ...(!apiKey ? styles.analyzeBtnDisabled : {}),
+                    }}
                     onClick={handleAnalyze}
-                    disabled={analyzing}
+                    disabled={analyzing || !apiKey}
+                    title={!apiKey ? "Renseigne une clé API dans les Réglages" : ""}
                   >
                     {analyzing ? (
                       <>
@@ -1515,6 +1916,7 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium })
                     ) : (
                       <>
                         <Sparkles size={14} /> Analyser les couleurs
+                        {!apiKey && " (clé API requise)"}
                       </>
                     )}
                   </button>
@@ -1884,7 +2286,7 @@ function ProductModal({ product, onClose, onSave, isPremium, onWantPremium }) {
 }
 
 // ---------- Réglages ----------
-function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitchPool, onWantAddPool, onDeleteAllMeasures: onDeleteAllMeasuresRaw, poolMeasureCount, onGenerateReport, onWantPremiumForReport, isPremium, setIsPremium }) {
+function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitchPool, onWantAddPool, onDeleteAllMeasures: onDeleteAllMeasuresRaw, poolMeasureCount, onGenerateReport, onWantPremiumForReport, isPremium, setIsPremium, apiKey, setApiKey, apiProvider, setApiProvider }) {
   const activePool = pools.find((p) => p.id === activePoolId) || pools[0];
 
   function onDeleteAllMeasures() {
@@ -1946,7 +2348,7 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
               )}
               <div style={{ flex: 1, textAlign: "left" }}>
                 <div style={{ fontWeight: 700, fontSize: 13.5, color: "#16302c" }}>{p.name}</div>
-                <div style={{ fontSize: 11.5, color: "#7a8a93" }}>{p.location} · {p.volume} m³</div>
+                <div style={{ fontSize: 11.5, color: "#7a8a93" }}>{p.location} · {p.volume} m³ · {TREATMENT_TYPES.find((t) => t.value === p.treatmentType)?.label || "Chlore"}</div>
               </div>
               {p.id === activePoolId && <CheckCircle2 size={16} color="#1f8a70" />}
             </button>
@@ -1985,10 +2387,52 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
         onChange={(e) => onUpdatePool(activePool.id, { volume: parseFloat(e.target.value) || 0 })}
       />
 
+      <label style={styles.fieldLabel}>Type de traitement</label>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {TREATMENT_TYPES.map((tt) => (
+          <button
+            key={tt.value}
+            type="button"
+            style={{
+              ...styles.treatmentOption,
+              ...(activePool?.treatmentType === tt.value ? styles.treatmentOptionActive : {}),
+            }}
+            onClick={() => onUpdatePool(activePool.id, { treatmentType: tt.value })}
+          >
+            <div style={styles.treatmentOptionTop}>
+              <span style={styles.treatmentOptionLabel}>{tt.label}</span>
+              {activePool?.treatmentType === tt.value && (
+                <CheckCircle2 size={16} color="#0f5e56" />
+              )}
+            </div>
+            <div style={styles.treatmentOptionDesc}>{tt.description}</div>
+            <div style={styles.treatmentOptionParams}>
+              Paramètres : {tt.params.join(", ")}
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <label style={{ ...styles.fieldLabel, marginTop: 14 }}>Type de filtration</label>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+        {FILTRATION_TYPES.map((ft) => (
+          <button
+            key={ft.value}
+            type="button"
+            onClick={() => onUpdatePool(activePool.id, { filtration: ft.value })}
+            style={{
+              ...styles.filtrationOption,
+              ...(activePool?.filtration === ft.value ? styles.filtrationOptionActive : {}),
+            }}
+          >
+            {ft.label}
+          </button>
+        ))}
+      </div>
+
       <p style={styles.helpText}>
-        Le volume est utilisé pour calculer toutes les doses de produits. Les cibles de
-        paramètres (pH 7.2–7.4, chlore libre 1–3 mg/L, etc.) suivent les recommandations
-        standards pour piscines privées et ne sont pas modifiables ici pour rester fiables.
+        Le traitement détermine quels paramètres sont mesurés et les cibles recommandées.
+        Le volume est utilisé pour calculer les doses de produits.
       </p>
 
       <div style={styles.sectionRow}>
@@ -2008,6 +2452,53 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
         Le rapport reprend l'historique des mesures, les conseils donnés et les quantités
         réellement appliquées pour ce bassin.
       </p>
+
+      {isPremium && (
+        <>
+          <div style={styles.sectionRow}>
+            <span style={styles.sectionLabel}>Clé API (analyse IA)</span>
+          </div>
+          <label style={styles.fieldLabel}>Provider</label>
+          <div style={styles.segmentedControl}>
+            {[
+              { value: "anthropic", label: "Anthropic (Claude)" },
+              { value: "openai", label: "OpenAI (ChatGPT)" },
+            ].map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setApiProvider(opt.value)}
+                style={{
+                  ...styles.segmentedBtn,
+                  ...(apiProvider === opt.value ? styles.segmentedBtnActive : {}),
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          <label style={styles.fieldLabel}>
+            Clé API {apiProvider === "openai" ? "OpenAI" : "Anthropic"}
+          </label>
+          <div style={styles.apiKeyRow}>
+            <input
+              type="password"
+              style={{ ...styles.input, flex: 1 }}
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder={apiProvider === "openai" ? "sk-..." : "sk-ant-..."}
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+            />
+          </div>
+          <p style={styles.helpTextSmall}>
+            Ta clé est stockée localement sur cet appareil, jamais transmise ailleurs qu'au
+            provider choisi. Utilisée pour l'analyse de bandelettes et le commentaire IA.
+          </p>
+        </>
+      )}
 
       <div style={styles.sectionRow}>
         <span style={styles.sectionLabel}>Zone sensible</span>
@@ -2215,8 +2706,10 @@ function ReportView({ pool, measures, applications, products, onClose }) {
   // donné (avec les produits actuels) et retrouve l'application validée
   // correspondante si elle existe.
   const rows = useMemo(() => {
+    const repTargets = getEffectiveTargets(pool?.treatmentType || "chlore");
+    const repParams = getActiveParams(pool?.treatmentType || "chlore");
     return sortedMeasures.map((m) => {
-      const recs = computeRecommendations(m, pool?.volume || 0, products);
+      const recs = computeRecommendations(m, pool?.volume || 0, products, repTargets, repParams);
       const application = applications.find((a) => a.measureId === m.id) || null;
       return { measure: m, recs, application };
     });
@@ -3196,6 +3689,179 @@ const styles = {
     fontWeight: 500,
   },
   helpTextSmall: { fontSize: 12.5, color: "#7a8a93", lineHeight: 1.5 },
+  segmentedControl: {
+    display: "flex",
+    background: "#eef2f1",
+    borderRadius: 12,
+    padding: 3,
+    gap: 3,
+    marginBottom: 4,
+  },
+  segmentedBtn: {
+    flex: 1,
+    padding: "9px 6px",
+    border: "none",
+    borderRadius: 10,
+    background: "transparent",
+    color: "#5a6e69",
+    fontSize: 13,
+    fontWeight: 600,
+    cursor: "pointer",
+    transition: "all .15s",
+  },
+  segmentedBtnActive: {
+    background: "#ffffff",
+    color: "#0f5e56",
+    boxShadow: "0 1px 4px rgba(10,30,28,.14)",
+  },
+  apiKeyRow: {
+    display: "flex",
+    gap: 8,
+    alignItems: "center",
+  },
+  aiSection: {
+    marginTop: 22,
+    padding: "14px 16px",
+    background: "#f8f4fc",
+    borderRadius: 14,
+    border: "1px solid #e2d9f3",
+  },
+  aiSectionTitle: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    fontSize: 13,
+    fontWeight: 800,
+    color: "#7a3fa0",
+    marginBottom: 10,
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
+  },
+  aiAnalyzeBtn: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 7,
+    width: "100%",
+    padding: "11px 0",
+    borderRadius: 11,
+    border: "none",
+    background: "#7a3fa0",
+    color: "#ffffff",
+    fontWeight: 700,
+    fontSize: 13.5,
+    cursor: "pointer",
+  },
+  aiAnalyzeBtnLoading: {
+    background: "#a47cc4",
+    cursor: "not-allowed",
+  },
+  aiCommentBox: {
+    marginTop: 12,
+    padding: "12px 14px",
+    background: "#ffffff",
+    borderRadius: 10,
+    border: "1px solid #e2d9f3",
+    fontSize: 13.5,
+    color: "#16302c",
+    lineHeight: 1.65,
+    whiteSpace: "pre-wrap",
+  },
+  aiErrorBox: {
+    marginTop: 10,
+    padding: "10px 12px",
+    background: "#fff5f3",
+    borderRadius: 10,
+    border: "1px solid #f0c0b8",
+    fontSize: 12.5,
+    color: "#c4502f",
+  },
+  aiKeyMissing: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    padding: "10px 0",
+    fontSize: 12.5,
+    color: "#a0a8b0",
+  },
+  analyzeBtn: {
+    display: "flex",
+    alignItems: "center",
+    gap: 5,
+    padding: "7px 12px",
+    borderRadius: 9,
+    border: "none",
+    background: "#7a3fa0",
+    color: "#ffffff",
+    fontWeight: 600,
+    fontSize: 12.5,
+    cursor: "pointer",
+  },
+  analyzeBtnDisabled: {
+    background: "#c8c0d4",
+    cursor: "not-allowed",
+  },
+  treatmentOption: {
+    width: "100%",
+    textAlign: "left",
+    padding: "12px 14px",
+    borderRadius: 12,
+    border: "1.5px solid #e2e8e6",
+    background: "#ffffff",
+    cursor: "pointer",
+  },
+  treatmentOptionActive: {
+    border: "1.5px solid #0f5e56",
+    background: "#f0f9f6",
+  },
+  treatmentOptionTop: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 3,
+  },
+  treatmentOptionLabel: {
+    fontSize: 14,
+    fontWeight: 700,
+    color: "#16302c",
+  },
+  treatmentOptionDesc: {
+    fontSize: 12,
+    color: "#7a8a93",
+    lineHeight: 1.4,
+  },
+  treatmentOptionParams: {
+    fontSize: 11,
+    color: "#a0b0ac",
+    marginTop: 4,
+    fontStyle: "italic",
+  },
+  filtrationOption: {
+    padding: "11px 8px",
+    borderRadius: 10,
+    border: "1.5px solid #e2e8e6",
+    background: "#ffffff",
+    color: "#5a6e69",
+    fontSize: 13,
+    fontWeight: 600,
+    cursor: "pointer",
+    textAlign: "center",
+  },
+  filtrationOptionActive: {
+    border: "1.5px solid #0f5e56",
+    background: "#f0f9f6",
+    color: "#0f5e56",
+  },
+  stripHint: {
+    fontSize: 12.5,
+    color: "#7a8a93",
+    lineHeight: 1.5,
+    padding: "8px 12px",
+    background: "#f5f8f7",
+    borderRadius: 9,
+    border: "1px solid #e6ebe9",
+    marginBottom: 4,
+  },
   input: {
     width: "100%",
     boxSizing: "border-box",
