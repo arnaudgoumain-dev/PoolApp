@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.31";
+const APP_VERSION = "0.32";
 
 // Tous les paramètres possibles, tous traitements confondus
 const TARGETS = {
@@ -458,6 +458,7 @@ function PoolApp() {
   const [isPremium, setIsPremium] = useState(false);
   const [applications, setApplications] = useState([]);
   const [validatingMeasure, setValidatingMeasure] = useState(null);
+  const [validatingSelectedRecs, setValidatingSelectedRecs] = useState(null);
   const [showReport, setShowReport] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [apiProvider, setApiProvider] = useState("anthropic"); // "anthropic" | "openai"
@@ -733,12 +734,14 @@ function PoolApp() {
     setShowAddMeasure(true);
   }
 
-  function handleValidateApplication(m) {
+  function handleValidateApplication(m, recsOverride, selectedRecsOverride) {
     if (!isPremium) {
       setShowPaywall(true);
       return;
     }
     setValidatingMeasure(m);
+    if (selectedRecsOverride) setValidatingSelectedRecs(selectedRecsOverride);
+    else setValidatingSelectedRecs(null);
   }
 
   function addPool(pool) {
@@ -814,6 +817,8 @@ function PoolApp() {
             applications={poolApplications}
             isPremium={isPremium}
             poolName={activePool?.name}
+            onGenerateReport={() => setShowReport(true)}
+            onWantPremiumForReport={() => setShowPaywall(true)}
           />
         )}
         {tab === "products" && (
@@ -925,8 +930,9 @@ function PoolApp() {
           measure={validatingMeasure}
           recs={validatingMeasureRecs}
           existingApplication={existingApplicationForValidating}
-          onClose={() => setValidatingMeasure(null)}
+          onClose={() => { setValidatingMeasure(null); setValidatingSelectedRecs(null); }}
           onSave={saveApplication}
+          preselected={validatingSelectedRecs}
         />
       )}
 
@@ -1206,32 +1212,58 @@ Réponds directement en français, sans titre ni introduction.`;
               peut fausser le suivant s'il n'a pas eu le temps d'agir.
             </p>
           )}
-          {recs.map((r, i) => (
-            <RecoCard key={i} reco={r} isLast={i === recs.length - 1} />
-          ))}
+          {(() => {
+            const [selectedRecs, setSelectedRecs] = React.useState(() => {
+              const init = {};
+              recs.forEach((_, i) => { init[i] = false; });
+              return init;
+            });
+            const selectedCount = Object.values(selectedRecs).filter(Boolean).length;
 
-          {applicationForLatest ? (
-            <div style={styles.applyConfirmedCard}>
-              <CheckCircle2 size={16} color="#1a8fd1" />
-              <span style={{ flex: 1 }}>
-                Conseils {applicationForLatest.allApplied ? "appliqués" : "partiellement appliqués"}{" "}
-                le {formatDate(applicationForLatest.appliedAt)}
-              </span>
-              <button style={styles.editLinkBtn} onClick={() => onValidateApplication(latest)}>
-                Ajuster
-              </button>
-            </div>
-          ) : (
-            <div>
-              <button style={styles.validateApplyBtn} onClick={() => onValidateApplication(latest)}>
-                <CheckCircle2 size={16} /> Appliquer ces conseils
-                {!isPremium && <Lock size={14} style={{ marginLeft: 4 }} />}
-              </button>
-              <p style={{ ...styles.helpTextSmall, marginTop: 6, textAlign: "center" }}>
-                Sélectionne les conseils appliqués et saisis les quantités réelles.
-              </p>
-            </div>
-          )}
+            return (<>
+              {recs.map((r, i) => (
+                <RecoCard
+                  key={i}
+                  reco={r}
+                  isLast={i === recs.length - 1}
+                  selectable={!applicationForLatest}
+                  selected={!!selectedRecs[i]}
+                  onToggle={() => setSelectedRecs((prev) => ({ ...prev, [i]: !prev[i] }))}
+                />
+              ))}
+
+              {applicationForLatest ? (
+                <div style={styles.applyConfirmedCard}>
+                  <CheckCircle2 size={16} color="#1a8fd1" />
+                  <span style={{ flex: 1 }}>
+                    Conseils {applicationForLatest.allApplied ? "appliqués" : "partiellement appliqués"}{" "}
+                    le {formatDate(applicationForLatest.appliedAt)}
+                  </span>
+                  <button style={styles.editLinkBtn} onClick={() => onValidateApplication(latest, recs)}>
+                    Ajuster
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <button
+                    style={{ ...styles.validateApplyBtn, opacity: selectedCount === 0 ? 0.5 : 1 }}
+                    disabled={selectedCount === 0}
+                    onClick={() => {
+                      if (selectedCount === 0) return;
+                      onValidateApplication(latest, recs, selectedRecs);
+                    }}
+                  >
+                    <CheckCircle2 size={16} /> Appliquer ces conseils
+                    {selectedCount > 0 && ` (${selectedCount})`}
+                    {!isPremium && <Lock size={14} style={{ marginLeft: 4 }} />}
+                  </button>
+                  <p style={{ ...styles.helpTextSmall, marginTop: 6, textAlign: "center" }}>
+                    Coche les conseils appliqués, puis saisis les quantités réelles.
+                  </p>
+                </div>
+              )}
+            </>);
+          })()}
         </div>
       )}
 
@@ -1302,12 +1334,34 @@ function ParamCard({ param, value, effectiveTargets }) {
   );
 }
 
-function RecoCard({ reco, isLast }) {
+function RecoCard({ reco, isLast, selectable, selected, onToggle }) {
   return (
-    <div style={styles.recoCard}>
-      <div style={styles.recoTop}>
-        <div style={styles.recoStepBadge}>{reco.stepNumber}</div>
-        <span style={styles.recoParam}>{reco.title}</span>
+    <div
+      style={{
+        ...styles.recoCard,
+        ...(selectable ? {
+          cursor: "pointer",
+          border: selected ? "2px solid #0a6ebd" : "1.5px solid #d0e4f5",
+          background: selected ? "#eaf5fd" : styles.recoCard.background,
+        } : {}),
+      }}
+      onClick={selectable ? onToggle : undefined}
+    >
+      <div style={{ ...styles.recoTop, justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={styles.recoStepBadge}>{reco.stepNumber}</div>
+          <span style={styles.recoParam}>{reco.title}</span>
+        </div>
+        {selectable && (
+          <div style={{
+            width: 22, height: 22, borderRadius: 6, flexShrink: 0,
+            border: selected ? "2px solid #0a6ebd" : "2px solid #b0c4d8",
+            background: selected ? "#0a6ebd" : "transparent",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            {selected && <CheckCircle2 size={14} color="#fff" />}
+          </div>
+        )}
       </div>
 
       {reco.startsAfterHours > 0 && (
@@ -1596,7 +1650,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
 }
 
 // ---------- Historique ----------
-function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication, applications, isPremium, poolName }) {
+function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication, applications, isPremium, poolName, onGenerateReport, onWantPremiumForReport }) {
   const [activeParams, setActiveParams] = useState(["pH", "fCl"]);
   const [showValues, setShowValues] = useState(false);
 
@@ -1771,6 +1825,24 @@ function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication,
           />
         ))}
       </div>
+
+      <div style={{ ...styles.sectionRow, marginTop: 18 }}>
+        <span style={styles.sectionLabel}>Rapport</span>
+      </div>
+      {isPremium ? (
+        <button style={styles.validateApplyBtn} onClick={onGenerateReport}>
+          <FileText size={16} /> Générer le rapport de ce bassin
+        </button>
+      ) : (
+        <button style={styles.photoLockedBtn} onClick={onWantPremiumForReport}>
+          <Lock size={16} />
+          <span>Rapport PDF réservé à la version illimitée</span>
+        </button>
+      )}
+      <p style={styles.helpTextSmall}>
+        Le rapport reprend l'historique des mesures, les conseils donnés et les quantités
+        réellement appliquées pour ce bassin.
+      </p>
     </div>
   );
 }
@@ -2107,7 +2179,7 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
 }
 
 // ---------- Validation des conseils appliqués ----------
-function ValidateApplicationModal({ measure, recs, existingApplication, onClose, onSave }) {
+function ValidateApplicationModal({ measure, recs, existingApplication, onClose, onSave, preselected }) {
   function toDisplayUnit(amount, unit) {
     if (amount == null) return { value: "", displayUnit: unit };
     if (unit === "g" && amount >= 1000) return { value: parseFloat((amount / 1000).toFixed(3)), displayUnit: "kg" };
@@ -2124,8 +2196,9 @@ function ValidateApplicationModal({ measure, recs, existingApplication, onClose,
 
   // Étape 1 : sélection des conseils à appliquer
   // Étape 2 : saisie des quantités pour les conseils sélectionnés
-  const [step, setStep] = useState("select");
+  const [step, setStep] = useState(preselected ? "quantities" : "select");
   const [selected, setSelected] = useState(() => {
+    if (preselected) return preselected;
     const init = {};
     recs.forEach((_, i) => { init[i] = true; });
     return init;
@@ -2839,24 +2912,6 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
           />
         </div>
       )}
-
-      <div style={styles.sectionRow}>
-        <span style={styles.sectionLabel}>Rapport</span>
-      </div>
-      {isPremium ? (
-        <button style={styles.validateApplyBtn} onClick={onGenerateReport}>
-          <FileText size={16} /> Générer le rapport de ce bassin
-        </button>
-      ) : (
-        <button style={styles.photoLockedBtn} onClick={onWantPremiumForReport}>
-          <Lock size={16} />
-          <span>Rapport PDF réservé à la version illimitée</span>
-        </button>
-      )}
-      <p style={styles.helpTextSmall}>
-        Le rapport reprend l'historique des mesures, les conseils donnés et les quantités
-        réellement appliquées pour ce bassin.
-      </p>
 
       <div style={styles.sectionRow}>
         <span style={styles.sectionLabel}>Clé API (analyse IA)</span>
