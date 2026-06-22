@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.4";
+const APP_VERSION = "0.5";
 
 // Tous les paramètres possibles, tous traitements confondus
 const TARGETS = {
@@ -843,7 +843,7 @@ function PoolApp() {
           onClose={() => setShowPaywall(false)}
           onActivate={() => {
             setIsPremium(true);
-            setApiKey("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");
+            setApiKey("https://poolapp-proxy.arnaudmorizot.workers.dev");
             setShowPaywall(false);
           }}
         />
