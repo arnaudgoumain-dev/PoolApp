@@ -4,11 +4,11 @@ const {
 } = Recharts;
 const {
   Plus, Trash2, Droplets, X, ChevronRight, ChevronDown, Settings2, AlertTriangle, CheckCircle2,
-  History, Beaker, Camera, Lock, Crown, ImageOff, Sparkles, Loader2, Clock, FileText, Download
+  History, Beaker, Camera, Lock, Crown, ImageOff, Sparkles, Loader2, Clock, FileText, Download, Eye, EyeOff
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.6";
+const APP_VERSION = "0.7";
 
 // Tous les paramètres possibles, tous traitements confondus
 const TARGETS = {
@@ -2350,6 +2350,7 @@ function ProductModal({ product, onClose, onSave, isPremium, onWantPremium }) {
 // ---------- Réglages ----------
 function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitchPool, onWantAddPool, onDeleteAllMeasures: onDeleteAllMeasuresRaw, poolMeasureCount, onGenerateReport, onWantPremiumForReport, onWantPremium, isPremium, setIsPremium, apiKey, setApiKey, apiProvider, setApiProvider }) {
   const activePool = pools.find((p) => p.id === activePoolId) || pools[0];
+  const [showApiKey, setShowApiKey] = useState(false);
 
   function onDeleteAllMeasures() {
     if (!poolMeasureCount) return;
@@ -2547,22 +2548,32 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
           </div>
 
           <label style={styles.fieldLabel}>
-            Clé API {apiProvider === "openai" ? "OpenAI" : "Anthropic"}
+            {apiProvider === "openai"
+              ? "Clé API OpenAI"
+              : "Clé API Anthropic ou URL du proxy Cloudflare Worker"}
           </label>
           <div style={styles.apiKeyRow}>
             <input
-              type="password"
+              type={showApiKey ? "text" : "password"}
               style={{ ...styles.input, flex: 1 }}
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              placeholder={apiProvider === "openai" ? "sk-..." : "sk-ant-... ou URL du proxy"}
+              placeholder={apiProvider === "openai" ? "sk-..." : "sk-ant-... ou https://mon-proxy.workers.dev"}
               autoComplete="off"
               autoCorrect="off"
               spellCheck={false}
             />
+            <button
+              type="button"
+              onClick={() => setShowApiKey((v) => !v)}
+              style={styles.eyeBtn}
+              title={showApiKey ? "Masquer" : "Afficher"}
+            >
+              {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
           </div>
           <p style={styles.helpTextSmall}>
-            Ta clé est stockée localement. Pour Anthropic, tu peux saisir une clé sk-ant-... ou l'URL de ton proxy Cloudflare Worker (recommandé).
+            Ta clé est stockée localement. Pour Anthropic, saisis une clé sk-ant-... ou l'URL de ton proxy Cloudflare Worker (recommandé).
           </p>
         </>
       )}
@@ -3803,6 +3814,19 @@ const styles = {
     display: "flex",
     gap: 8,
     alignItems: "center",
+  },
+  eyeBtn: {
+    flexShrink: 0,
+    width: 36,
+    height: 36,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 9,
+    border: "1px solid #d0e4f5",
+    background: "#f0f6fb",
+    color: "#4a6480",
+    cursor: "pointer",
   },
   aiSection: {
     marginTop: 22,
