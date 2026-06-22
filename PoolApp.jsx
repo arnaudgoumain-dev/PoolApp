@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.5";
+const APP_VERSION = "0.6";
 
 // Tous les paramètres possibles, tous traitements confondus
 const TARGETS = {
@@ -843,7 +843,7 @@ function PoolApp() {
           onClose={() => setShowPaywall(false)}
           onActivate={() => {
             setIsPremium(true);
-            setApiKey("https://poolapp-proxy.arnaudmorizot.workers.dev");
+            setApiKey("https://poolapp-proxy.arnaud-goumain.workers.dev");
             setShowPaywall(false);
           }}
         />
