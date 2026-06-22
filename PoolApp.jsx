@@ -1749,6 +1749,7 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
   const [analyzeError, setAnalyzeError] = useState(null);
   const [analyzeNote, setAnalyzeNote] = useState(null);
   const fileInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
 
   async function handlePhotoChange(e) {
     const file = e.target.files?.[0];
@@ -1911,20 +1912,37 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
               {analyzeError && <div style={styles.analyzeNoteError}>{analyzeError}</div>}
             </div>
           ) : (
-            <button
-              type="button"
-              style={styles.photoCaptureBtn}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Camera size={18} />
-              {photoBusy ? "Chargement..." : "Prendre / choisir une photo"}
-            </button>
+            <div style={styles.photoCaptureBtnRow}>
+              <button
+                type="button"
+                style={styles.photoCaptureBtnHalf}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Camera size={17} />
+                {photoBusy ? "..." : "Appareil photo"}
+              </button>
+              <button
+                type="button"
+                style={styles.photoCaptureBtnHalf}
+                onClick={() => galleryInputRef.current?.click()}
+              >
+                <ImageOff size={17} />
+                {photoBusy ? "..." : "Bibliothèque"}
+              </button>
+            </div>
           )}
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
             capture="environment"
+            onChange={handlePhotoChange}
+            style={styles.hiddenFileInput}
+          />
+          <input
+            ref={galleryInputRef}
+            type="file"
+            accept="image/*"
             onChange={handlePhotoChange}
             style={styles.hiddenFileInput}
           />
@@ -2125,6 +2143,7 @@ function ProductModal({ product, onClose, onSave, isPremium, onWantPremium }) {
   const [photo, setPhoto] = useState(product?.photo || null);
   const [photoBusy, setPhotoBusy] = useState(false);
   const fileInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
 
   async function handlePhotoChange(e) {
     const file = e.target.files?.[0];
@@ -2184,20 +2203,37 @@ function ProductModal({ product, onClose, onSave, isPremium, onWantPremium }) {
               </button>
             </div>
           ) : (
-            <button
-              type="button"
-              style={styles.photoCaptureBtn}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Camera size={18} />
-              {photoBusy ? "Chargement..." : "Prendre / choisir une photo"}
-            </button>
+            <div style={styles.photoCaptureBtnRow}>
+              <button
+                type="button"
+                style={styles.photoCaptureBtnHalf}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Camera size={17} />
+                {photoBusy ? "..." : "Appareil photo"}
+              </button>
+              <button
+                type="button"
+                style={styles.photoCaptureBtnHalf}
+                onClick={() => galleryInputRef.current?.click()}
+              >
+                <ImageOff size={17} />
+                {photoBusy ? "..." : "Bibliothèque"}
+              </button>
+            </div>
           )}
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
             capture="environment"
+            onChange={handlePhotoChange}
+            style={styles.hiddenFileInput}
+          />
+          <input
+            ref={galleryInputRef}
+            type="file"
+            accept="image/*"
             onChange={handlePhotoChange}
             style={styles.hiddenFileInput}
           />
@@ -2596,6 +2632,7 @@ function AddPoolModal({ onClose, onSave }) {
   const [photo, setPhoto] = useState(null);
   const [photoBusy, setPhotoBusy] = useState(false);
   const fileInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
 
   async function handlePhotoChange(e) {
     const file = e.target.files?.[0];
@@ -2628,20 +2665,37 @@ function AddPoolModal({ onClose, onSave }) {
             </button>
           </div>
         ) : (
-          <button
-            type="button"
-            style={styles.photoCaptureBtn}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Camera size={18} />
-            {photoBusy ? "Chargement..." : "Prendre / choisir une photo"}
-          </button>
+          <div style={styles.photoCaptureBtnRow}>
+            <button
+              type="button"
+              style={styles.photoCaptureBtnHalf}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Camera size={17} />
+              {photoBusy ? "..." : "Appareil photo"}
+            </button>
+            <button
+              type="button"
+              style={styles.photoCaptureBtnHalf}
+              onClick={() => galleryInputRef.current?.click()}
+            >
+              <ImageOff size={17} />
+              {photoBusy ? "..." : "Bibliothèque"}
+            </button>
+          </div>
         )}
         <input
           ref={fileInputRef}
           type="file"
           accept="image/*"
           capture="environment"
+          onChange={handlePhotoChange}
+          style={styles.hiddenFileInput}
+        />
+        <input
+          ref={galleryInputRef}
+          type="file"
+          accept="image/*"
           onChange={handlePhotoChange}
           style={styles.hiddenFileInput}
         />
@@ -3882,6 +3936,26 @@ const styles = {
     background: "#fafcfb",
     color: "#0d2b4e",
     outline: "none",
+  },
+  photoCaptureBtnRow: {
+    display: "flex",
+    gap: 8,
+  },
+  photoCaptureBtnHalf: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    flex: 1,
+    padding: "13px 0",
+    borderRadius: 12,
+    border: "1.5px dashed #90c4e8",
+    background: "#f0f6fb",
+    color: "#0a6ebd",
+    fontWeight: 600,
+    fontSize: 13,
+    cursor: "pointer",
+    boxSizing: "border-box",
   },
   photoCaptureBtn: {
     display: "flex",
