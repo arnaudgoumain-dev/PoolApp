@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.3";
+const APP_VERSION = "0.4";
 
 // Tous les paramètres possibles, tous traitements confondus
 const TARGETS = {
@@ -353,10 +353,11 @@ async function callAIText({ apiKey, apiProvider, prompt }) {
     const data = await response.json();
     return data.choices?.[0]?.message?.content || "";
   } else {
-    const endpoint = apiKey.startsWith("http")
-      ? apiKey.replace(/\/+$/, "") + "/v1/messages"
+    const isProxy = apiKey.startsWith("http");
+    const endpoint = isProxy
+      ? apiKey.replace(/\/+$/, "").replace(/\/v1\/messages$/, "") + "/v1/messages"
       : "https://api.anthropic.com/v1/messages";
-    const authHeaders = apiKey.startsWith("http")
+    const authHeaders = isProxy
       ? {}
       : { "x-api-key": apiKey, "anthropic-dangerous-direct-browser-access": "true" };
 
@@ -732,6 +733,7 @@ function PoolApp() {
             latest={latest}
             volume={activePool?.volume || 0}
             products={poolProducts}
+            onWantPremium={() => setShowPaywall(true)}
             onAddMeasure={handleOpenAddMeasure}
             onEditMeasure={handleEditMeasure}
             onValidateApplication={handleValidateApplication}
@@ -990,7 +992,7 @@ function TabBar({ tab, setTab }) {
 }
 
 // ---------- Dashboard ----------
-function Dashboard({ latest, volume, products, onAddMeasure, onEditMeasure, onValidateApplication, applicationForLatest, blockedByLimit, isPremium, apiKey, apiProvider, recentMeasures, effectiveTargets, activeParamKeys }) {
+function Dashboard({ latest, volume, products, onAddMeasure, onEditMeasure, onValidateApplication, applicationForLatest, blockedByLimit, isPremium, onWantPremium, apiKey, apiProvider, recentMeasures, effectiveTargets, activeParamKeys }) {
   const [aiComment, setAiComment] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState(null);
@@ -1150,42 +1152,45 @@ Réponds directement en français, sans titre ni introduction.`;
         </div>
       )}
 
-      {isPremium && (
-        <div style={styles.aiSection}>
-          <div style={styles.aiSectionTitle}>
-            <Sparkles size={14} color="#7a3fa0" /> Analyse IA
-          </div>
-          {apiKey ? (
-            <>
-              <button
-                style={{
-                  ...styles.aiAnalyzeBtn,
-                  ...(aiLoading ? styles.aiAnalyzeBtnLoading : {}),
-                }}
-                onClick={handleAiAnalysis}
-                disabled={aiLoading || !latest}
-              >
-                {aiLoading ? (
-                  <><Loader2 size={14} className="spin" /> Analyse en cours…</>
-                ) : (
-                  <><Sparkles size={14} /> Analyser avec {apiProvider === "openai" ? "ChatGPT" : "Claude"}</>
-                )}
-              </button>
-              {aiComment && (
-                <div style={styles.aiCommentBox}>{aiComment}</div>
-              )}
-              {aiError && (
-                <div style={styles.aiErrorBox}>{aiError}</div>
-              )}
-            </>
-          ) : (
-            <div style={styles.aiKeyMissing}>
-              <Lock size={14} color="#a0a8b0" />
-              <span>Renseigne ta clé API dans les Réglages pour activer l'analyse IA.</span>
-            </div>
-          )}
+      <div style={styles.aiSection}>
+        <div style={styles.aiSectionTitle}>
+          <Sparkles size={14} color="#1a8fd1" /> Analyse IA
         </div>
-      )}
+        {!isPremium ? (
+          <button style={styles.aiLockedBtn} onClick={onWantPremium}>
+            <Lock size={15} />
+            <span>Fonctionnalité réservée à la version illimitée</span>
+          </button>
+        ) : apiKey ? (
+          <>
+            <button
+              style={{
+                ...styles.aiAnalyzeBtn,
+                ...(aiLoading ? styles.aiAnalyzeBtnLoading : {}),
+              }}
+              onClick={handleAiAnalysis}
+              disabled={aiLoading || !latest}
+            >
+              {aiLoading ? (
+                <><Loader2 size={14} className="spin" /> Analyse en cours…</>
+              ) : (
+                <><Sparkles size={14} /> Analyser avec {apiProvider === "openai" ? "ChatGPT" : "Claude"}</>
+              )}
+            </button>
+            {aiComment && (
+              <div style={styles.aiCommentBox}>{aiComment}</div>
+            )}
+            {aiError && (
+              <div style={styles.aiErrorBox}>{aiError}</div>
+            )}
+          </>
+        ) : (
+          <div style={styles.aiKeyMissing}>
+            <Lock size={14} color="#a0a8b0" />
+            <span>Renseigne ta clé API dans les Réglages pour activer l'analyse IA.</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -4001,6 +4006,22 @@ const styles = {
     whiteSpace: "nowrap",
     border: 0,
   },
+  aiLockedBtn: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    width: "100%",
+    padding: "12px 0",
+    borderRadius: 10,
+    border: "1.5px solid #90c4e8",
+    background: "#e8f4fd",
+    color: "#0a6ebd",
+    fontWeight: 600,
+    fontSize: 13,
+    cursor: "pointer",
+    boxSizing: "border-box",
+  },
   photoLockedBtn: {
     display: "flex",
     alignItems: "center",
@@ -4071,20 +4092,22 @@ const styles = {
 // ---------- Icône PWA — bleu piscine ----------
 (function injectPwaIcons() {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-    <rect width="512" height="512" rx="112" fill="#0a6ebd"/>
-    <rect width="512" height="512" rx="112" fill="url(#g)"/>
     <defs>
-      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stop-color="#1a8fd1"/>
         <stop offset="100%" stop-color="#064a8a"/>
       </linearGradient>
+      <clipPath id="rnd"><rect width="512" height="512" rx="115"/></clipPath>
     </defs>
-    <!-- goutte gauche -->
-    <path d="M196 140 C196 140 148 210 148 252 C148 280 170 304 196 304 C222 304 244 280 244 252 C244 210 196 140 196 140Z" fill="white" opacity="0.95"/>
-    <!-- goutte droite -->
-    <path d="M316 180 C316 180 280 234 280 262 C280 284 296 302 316 302 C336 302 352 284 352 262 C352 234 316 180 316 180Z" fill="white" opacity="0.7"/>
-    <!-- reflet -->
-    <ellipse cx="184" cy="230" rx="10" ry="18" fill="white" opacity="0.4" transform="rotate(-20 184 230)"/>
+    <!-- fond dégradé bleu -->
+    <rect width="512" height="512" rx="115" fill="url(#bg)"/>
+    <!-- vague de fond -->
+    <path d="M0 340 Q128 290 256 330 Q384 370 512 310 L512 512 L0 512Z" fill="#0a6ebd" opacity="0.55" clip-path="url(#rnd)"/>
+    <path d="M0 380 Q128 340 256 375 Q384 410 512 360 L512 512 L0 512Z" fill="#064a8a" opacity="0.6" clip-path="url(#rnd)"/>
+    <!-- goutte principale -->
+    <path d="M256 110 C256 110 176 222 176 286 C176 330 212 366 256 366 C300 366 336 330 336 286 C336 222 256 110 256 110Z" fill="white" opacity="0.95"/>
+    <!-- reflet interne goutte -->
+    <ellipse cx="234" cy="252" rx="14" ry="28" fill="white" opacity="0.35" transform="rotate(-20 234 252)"/>
   </svg>`;
   const url = "data:image/svg+xml;base64," + btoa(svg);
   ["icon", "shortcut icon", "apple-touch-icon"].forEach((rel) => {
