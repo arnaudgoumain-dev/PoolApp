@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.9";
+const APP_VERSION = "1.0";
 
 // Tous les paramètres possibles, tous traitements confondus
 const TARGETS = {
@@ -1788,47 +1788,67 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
   const [brome, setBrome] = useState(measure?.brome ?? "");
   const [o2, setO2] = useState(measure?.o2 ?? "");
   const [note, setNote] = useState(measure?.note || "");
-  const [photo, setPhoto] = useState(measure?.photo || null);
+  const [photos, setPhotos] = useState(
+    measure?.photo ? [measure.photo] : (measure?.photos || [])
+  );
   const [photoBusy, setPhotoBusy] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [analyzeError, setAnalyzeError] = useState(null);
   const [analyzeNote, setAnalyzeNote] = useState(null);
+  const [confirmAnalyze, setConfirmAnalyze] = useState(false);
   const fileInputRef = useRef(null);
   const galleryInputRef = useRef(null);
 
   async function handlePhotoChange(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
     setPhotoBusy(true);
-    setAnalyzeError(null);
-    setAnalyzeNote(null);
     try {
-      const dataUrl = await fileToDataUrl(file);
-      setPhoto(dataUrl);
+      const dataUrls = await Promise.all(files.map(fileToDataUrl));
+      setPhotos((prev) => [...prev, ...dataUrls]);
     } catch (err) {
       // silencieux
     } finally {
       setPhotoBusy(false);
+      e.target.value = "";
     }
   }
 
+  function removePhoto(idx) {
+    setPhotos((prev) => prev.filter((_, i) => i !== idx));
+    setAnalyzeNote(null);
+    setAnalyzeError(null);
+  }
+
   async function handleAnalyze() {
-    if (!photo) return;
+    if (!photos.length) return;
+    setConfirmAnalyze(false);
     setAnalyzing(true);
     setAnalyzeError(null);
     setAnalyzeNote(null);
     try {
-      const result = await analyzeStripPhoto({ apiKey, apiProvider, dataUrl: photo });
-      if (result.pH !== null && result.pH !== undefined) setPH(String(result.pH));
-      if (result.fCl !== null && result.fCl !== undefined) setFCl(String(result.fCl));
-      if (result.tCl !== null && result.tCl !== undefined) setTCl(String(result.tCl));
-      if (result.tac !== null && result.tac !== undefined) setTac(String(result.tac));
-      if (result.cya !== null && result.cya !== undefined) setCya(String(result.cya));
+      // Analyse chaque photo et fusionne les résultats (dernière valeur non-null gagne)
+      const merged = {};
+      const notes = [];
+      for (const dataUrl of photos) {
+        const result = await analyzeStripPhoto({ apiKey, apiProvider, dataUrl });
+        Object.keys(result).forEach((k) => {
+          if (result[k] !== null && result[k] !== undefined && k !== "confidence" && k !== "note") {
+            merged[k] = result[k];
+          }
+        });
+        if (result.note) notes.push(result.note);
+      }
+      if (merged.pH !== undefined) setPH(String(merged.pH));
+      if (merged.fCl !== undefined) setFCl(String(merged.fCl));
+      if (merged.tCl !== undefined) setTCl(String(merged.tCl));
+      if (merged.tac !== undefined) setTac(String(merged.tac));
+      if (merged.cya !== undefined) setCya(String(merged.cya));
       setAnalyzeNote(
-        `Lecture ${result.confidence || "estimée"} — ${result.note || "vérifie les valeurs avant d'enregistrer."}`
+        `${photos.length} photo(s) analysée(s) — ${notes.join(" / ") || "vérifie les valeurs avant d'enregistrer."}`
       );
     } catch (err) {
-      setAnalyzeError("Analyse impossible. Vérifie la photo (légende et bandelette bien visibles) ou saisis les valeurs manuellement.");
+      setAnalyzeError("Analyse impossible. Vérifie les photos ou saisis les valeurs manuellement.");
     } finally {
       setAnalyzing(false);
     }
@@ -1849,7 +1869,8 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
       brome,
       o2,
       note,
-      photo,
+      photo: photos[0] || null,
+      photos,
     });
   }
 
@@ -1912,85 +1933,68 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
       )}
 
       <label style={styles.fieldLabel}>
-        {method === "bandelette" ? "Photo tube + bandelette" : "Photo de la mesure"}
+        {method === "bandelette" ? "Photos bandelette + tube" : "Photos de la mesure"}
       </label>
       {isPremium ? (
         <div>
-          {photo ? (
-            <div style={styles.photoPreviewWrap}>
-              <img src={photo} alt="Aperçu" style={styles.photoPreview} />
-              <div style={styles.photoActionsRow}>
-                <button
-                  style={styles.photoRemoveBtn}
-                  onClick={() => {
-                    setPhoto(null);
-                    setAnalyzeNote(null);
-                    setAnalyzeError(null);
-                  }}
-                >
-                  <X size={14} /> Retirer
-                </button>
-                {method === "bandelette" && (
-                  <button
-                    style={{
-                      ...styles.analyzeBtn,
-                      ...(!apiKey ? styles.analyzeBtnDisabled : {}),
-                    }}
-                    onClick={handleAnalyze}
-                    disabled={analyzing || !apiKey}
-                    title={!apiKey ? "Renseigne une clé API dans les Réglages" : ""}
-                  >
-                    {analyzing ? (
-                      <>
-                        <Loader2 size={14} className="spin" /> Analyse en cours...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles size={14} /> Analyser les couleurs
-                        {!apiKey && " (clé API requise)"}
-                      </>
-                    )}
+          {/* Grille de miniatures */}
+          {photos.length > 0 && (
+            <div style={styles.photoGrid}>
+              {photos.map((src, idx) => (
+                <div key={idx} style={styles.photoThumbWrap}>
+                  <img src={src} alt={`Photo ${idx + 1}`} style={styles.photoThumb} />
+                  <button style={styles.photoThumbRemove} onClick={() => removePhoto(idx)}>
+                    <X size={12} />
                   </button>
-                )}
-              </div>
-              {analyzeNote && <div style={styles.analyzeNoteOk}>{analyzeNote}</div>}
-              {analyzeError && <div style={styles.analyzeNoteError}>{analyzeError}</div>}
-            </div>
-          ) : (
-            <div style={styles.photoCaptureBtnRow}>
-              <button
-                type="button"
-                style={styles.photoCaptureBtnHalf}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Camera size={17} />
-                {photoBusy ? "..." : "Appareil photo"}
-              </button>
-              <button
-                type="button"
-                style={styles.photoCaptureBtnHalf}
-                onClick={() => galleryInputRef.current?.click()}
-              >
-                <ImageOff size={17} />
-                {photoBusy ? "..." : "Bibliothèque"}
-              </button>
+                </div>
+              ))}
             </div>
           )}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={handlePhotoChange}
-            style={styles.hiddenFileInput}
-          />
-          <input
-            ref={galleryInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handlePhotoChange}
-            style={styles.hiddenFileInput}
-          />
+
+          {/* Bouton ajouter photo — toujours visible */}
+          <button
+            type="button"
+            style={{ ...styles.photoCaptureBtn, marginTop: photos.length ? 8 : 0 }}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Camera size={17} />
+            {photoBusy ? "Chargement..." : photos.length ? "Ajouter une photo" : "Prendre / choisir une photo"}
+          </button>
+
+          <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handlePhotoChange} style={styles.hiddenFileInput} />
+          <input ref={galleryInputRef} type="file" accept="image/*" multiple onChange={handlePhotoChange} style={styles.hiddenFileInput} />
+
+          {/* Bouton analyser + confirmation */}
+          {photos.length > 0 && apiKey && (
+            <div style={{ marginTop: 8 }}>
+              {!confirmAnalyze ? (
+                <button
+                  type="button"
+                  style={styles.analyzeBtn}
+                  onClick={() => setConfirmAnalyze(true)}
+                  disabled={analyzing}
+                >
+                  <Sparkles size={14} />
+                  Analyser {photos.length > 1 ? `${photos.length} photos` : "la photo"}
+                </button>
+              ) : (
+                <div style={styles.confirmAnalyzeBox}>
+                  <span>Tu as terminé d'ajouter des photos ?</span>
+                  <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                    <button style={styles.confirmYesBtn} onClick={handleAnalyze} disabled={analyzing}>
+                      {analyzing ? <><Loader2 size={13} className="spin" /> Analyse…</> : "Oui, analyser"}
+                    </button>
+                    <button style={styles.confirmNoBtn} onClick={() => setConfirmAnalyze(false)}>
+                      Ajouter d'autres
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {analyzeNote && <div style={{ ...styles.analyzeNoteOk, marginTop: 8 }}>{analyzeNote}</div>}
+          {analyzeError && <div style={{ ...styles.analyzeNoteError, marginTop: 8 }}>{analyzeError}</div>}
         </div>
       ) : (
         <button style={styles.photoLockedBtn} onClick={onWantPremium}>
@@ -4080,6 +4084,77 @@ const styles = {
     fontSize: 13,
     cursor: "pointer",
     boxSizing: "border-box",
+  },
+  photoGrid: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 4,
+  },
+  photoThumbWrap: {
+    position: "relative",
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+    overflow: "hidden",
+    border: "1.5px solid #d0e4f5",
+    flexShrink: 0,
+  },
+  photoThumb: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
+  },
+  photoThumbRemove: {
+    position: "absolute",
+    top: 3,
+    right: 3,
+    width: 20,
+    height: 20,
+    borderRadius: 99,
+    background: "rgba(0,0,0,0.55)",
+    border: "none",
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    padding: 0,
+  },
+  confirmAnalyzeBox: {
+    padding: "12px 14px",
+    borderRadius: 12,
+    background: "#e8f4fd",
+    border: "1px solid #90c4e8",
+    fontSize: 13.5,
+    color: "#0d2b4e",
+  },
+  confirmYesBtn: {
+    flex: 1,
+    padding: "9px 0",
+    borderRadius: 9,
+    border: "none",
+    background: "#0a6ebd",
+    color: "#fff",
+    fontWeight: 700,
+    fontSize: 13,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+  },
+  confirmNoBtn: {
+    flex: 1,
+    padding: "9px 0",
+    borderRadius: 9,
+    border: "1px solid #90c4e8",
+    background: "#fff",
+    color: "#0a6ebd",
+    fontWeight: 600,
+    fontSize: 13,
+    cursor: "pointer",
   },
   photoLockedBtn: {
     display: "flex",
