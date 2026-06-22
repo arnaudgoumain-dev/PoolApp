@@ -1008,8 +1008,9 @@ function TabBar({ tab, setTab }) {
     { id: "settings", label: "Réglages", icon: Settings2 },
   ];
   return (
-    <div style={styles.tabVersion}>v{APP_VERSION}</div>
-    <nav style={styles.tabBar}>
+    <>
+      <div style={styles.tabVersion}>v{APP_VERSION}</div>
+      <nav style={styles.tabBar}>
       {tabs.map((t) => {
         const Icon = t.icon;
         const active = tab === t.id;
@@ -1030,6 +1031,7 @@ function TabBar({ tab, setTab }) {
         );
       })}
     </nav>
+    </>
   );
 }
 
