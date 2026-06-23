@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.47";
+const APP_VERSION = "0.48";
 
 const TRANSLATIONS = {
   fr: {
@@ -188,6 +188,10 @@ const TRANSLATIONS = {
     param_fcl: "Chlore libre (mg/L)",
     axis_legend_u: "ᴜ échelle unités (pH, chlore) — gauche",
     action_ph_minus: "Baisse le pH",
+    note_ph_minus: "Vérifier le pH avant chaque ajout. Max 1 kg/100 m³/jour, ou espacer de 2h.",
+    note_ph_plus: "Répartir sur tout le bassin, filtration en marche.",
+    note_chlore_choc: "À verser le soir, soleil couché. Ne stabilise pas (n'augmente pas le CYA).",
+    note_galets: "Augmente le CYA à chaque utilisation. À éviter si CYA déjà > 50 mg/L.",
     action_ph_plus: "Monte le pH",
     action_chlore: "Chlore non stabilisé (choc)",
     action_chlore_stabilise: "Chlore stabilisé (CYA +)",
@@ -434,6 +438,10 @@ const TRANSLATIONS = {
     param_fcl: "Free chlorine (mg/L)",
     axis_legend_u: "ᴜ unit scale (pH, chlorine) — left",
     action_ph_minus: "Lowers pH",
+    note_ph_minus: "Check pH before each addition. Max 1 kg/100 m³/day, or space 2h apart.",
+    note_ph_plus: "Spread across the pool with filtration running.",
+    note_chlore_choc: "Pour in the evening after sunset. Does not stabilise (does not raise CYA).",
+    note_galets: "Raises CYA with each use. Avoid if CYA is already above 50 mg/L.",
     action_ph_plus: "Raises pH",
     action_chlore: "Unstabilised chlorine (shock)",
     action_chlore_stabilise: "Stabilised chlorine (CYA +)",
@@ -680,6 +688,10 @@ const TRANSLATIONS = {
     param_fcl: "Freies Chlor (mg/L)",
     axis_legend_u: "ᴜ Einheitsskala (pH, Chlor) — links",
     action_ph_minus: "pH senken",
+    note_ph_minus: "pH vor jeder Zugabe prüfen. Max 1 kg/100 m³/Tag oder 2h Abstand.",
+    note_ph_plus: "Im gesamten Becken verteilen, Filtration in Betrieb.",
+    note_chlore_choc: "Abends nach Sonnenuntergang zugeben. Stabilisiert nicht (erhöht CYA nicht).",
+    note_galets: "Erhöht CYA bei jeder Nutzung. Vermeiden wenn CYA bereits über 50 mg/L.",
     action_ph_plus: "pH erhöhen",
     action_chlore: "Nicht stabilisiertes Chlor (Schock)",
     action_chlore_stabilise: "Stabilisiertes Chlor (CYA +)",
@@ -926,6 +938,10 @@ const TRANSLATIONS = {
     param_fcl: "Cloro libero (mg/L)",
     axis_legend_u: "ᴜ scala unità (pH, cloro) — sinistra",
     action_ph_minus: "Abbassa il pH",
+    note_ph_minus: "Controllare il pH prima di ogni aggiunta. Max 1 kg/100 m³/giorno o distanziare di 2h.",
+    note_ph_plus: "Distribuire in tutta la vasca con filtrazione in funzione.",
+    note_chlore_choc: "Versare la sera dopo il tramonto. Non stabilizza (non aumenta il CYA).",
+    note_galets: "Aumenta il CYA ad ogni utilizzo. Evitare se il CYA è già sopra 50 mg/L.",
     action_ph_plus: "Alza il pH",
     action_chlore: "Cloro non stabilizzato (shock)",
     action_chlore_stabilise: "Cloro stabilizzato (CYA +)",
@@ -1172,6 +1188,10 @@ const TRANSLATIONS = {
     param_fcl: "Cloro libre (mg/L)",
     axis_legend_u: "ᴜ escala unidades (pH, cloro) — izquierda",
     action_ph_minus: "Baja el pH",
+    note_ph_minus: "Verificar el pH antes de cada adición. Máx 1 kg/100 m³/día o espaciar 2h.",
+    note_ph_plus: "Distribuir por toda la piscina con filtración en marcha.",
+    note_chlore_choc: "Verter por la noche después del atardecer. No estabiliza (no aumenta el CYA).",
+    note_galets: "Aumenta el CYA con cada uso. Evitar si el CYA ya supera los 50 mg/L.",
     action_ph_plus: "Sube el pH",
     action_chlore: "Cloro no estabilizado (choque)",
     action_chlore_stabilise: "Cloro estabilizado (CYA +)",
@@ -1418,6 +1438,10 @@ const TRANSLATIONS = {
     param_fcl: "Cloro livre (mg/L)",
     axis_legend_u: "ᴜ escala unidades (pH, cloro) — esquerda",
     action_ph_minus: "Baixa o pH",
+    note_ph_minus: "Verificar o pH antes de cada adição. Máx 1 kg/100 m³/dia ou espaçar 2h.",
+    note_ph_plus: "Distribuir por toda a piscina com filtração em funcionamento.",
+    note_chlore_choc: "Adicionar à noite após o pôr do sol. Não estabiliza (não aumenta o CYA).",
+    note_galets: "Aumenta o CYA a cada uso. Evitar se o CYA já estiver acima de 50 mg/L.",
     action_ph_plus: "Sobe o pH",
     action_chlore: "Cloro não estabilizado (choque)",
     action_chlore_stabilise: "Cloro estabilizado (CYA +)",
@@ -1618,6 +1642,7 @@ const DEFAULT_PRODUCTS = [
     effectAmount: 0.1,
     effectPer: 10,
     waitHours: 2,
+    noteKey: "note_ph_minus",
     note: "Vérifier le pH avant chaque ajout. Max 1 kg/100 m³/jour, ou espacer de 2h.",
     containerAmount: 1000,
     containerUnit: "kg",
@@ -1632,6 +1657,7 @@ const DEFAULT_PRODUCTS = [
     effectAmount: 0.1,
     effectPer: 10,
     waitHours: 2,
+    noteKey: "note_ph_plus",
     note: "Répartir sur tout le bassin, filtration en marche.",
     containerAmount: 1000,
     containerUnit: "kg",
@@ -1646,6 +1672,7 @@ const DEFAULT_PRODUCTS = [
     effectAmount: 1,
     effectPer: 10,
     waitHours: 12,
+    noteKey: "note_chlore_choc",
     note: "À verser le soir, soleil couché. Ne stabilise pas (n'augmente pas le CYA).",
     containerAmount: 1000,
     containerUnit: "kg",
@@ -1660,6 +1687,7 @@ const DEFAULT_PRODUCTS = [
     effectAmount: 1,
     effectPer: 30,
     waitHours: 24,
+    noteKey: "note_galets",
     note: "Augmente le CYA à chaque utilisation. À éviter si CYA déjà > 50 mg/L.",
     containerAmount: 1000,
     containerUnit: "kg",
@@ -2983,7 +3011,9 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
   const steps = [];
   const has = (key) => paramKeysLower.includes(key.toLowerCase());
 
-  // TAC
+  // Traduit la note d'un produit : utilise noteKey si c'est un produit par défaut, sinon la note brute
+  const prodNote = (prod, fallbackKey) =>
+    prod ? (prod.noteKey ? _(prod.noteKey) : prod.note) || _(fallbackKey) : _(fallbackKey);
   const tac = parseFloat(latestLower.tac);
   if (has("tac") && !Number.isNaN(tac) && targetsLower.tac && tac < targetsLower.tac.min) {
     const prod = products.find((p) => p.action === "tac+");
@@ -2998,7 +3028,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
         : _("missing_product_tip", { action: "tac+" }),
       computedDoseAmount: prod?.doseAmount ?? null,
       doseUnit: prod?.doseUnit || null,
-      note: prod?.note || _("reco_note_tac"),
+      note: prodNote(prod, "reco_note_tac"),
       waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["tac+"],
     });
   }
@@ -3023,7 +3053,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
           : _("missing_product_tip", { action: "ph-" }),
         computedDoseAmount: computedDose,
         doseUnit: prod?.doseUnit || null,
-        note: prod?.note,
+        note: prodNote(prod, "reco_note_tac"),
         waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["ph-"],
       });
     } else if (phVal < phTargets.min) {
@@ -3041,7 +3071,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
           : _("missing_product_tip", { action: "ph+" }),
         computedDoseAmount: computedDose,
         doseUnit: prod?.doseUnit || null,
-        note: prod?.note,
+        note: prodNote(prod, "reco_note_tac"),
         waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["ph+"],
       });
     }
@@ -3088,7 +3118,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
           : _("missing_product_tip", { action: "chlore" }),
         computedDoseAmount: computedDose,
         doseUnit: prod?.doseUnit || null,
-        note: prod?.note,
+        note: prodNote(prod, "reco_note_combined"),
         waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["chlore"],
       });
     } else if (fCl > fclT.max) {
