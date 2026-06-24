@@ -325,17 +325,10 @@
       console.warn("getRedirectResult error:", err.code, err.message);
     }
   });
-    console.warn("getRedirectResult error:", err.code, err.message);
-  });
 
   console.log("Firebase initialisé ✓");
 </script>
 
-<!-- Composant principal + point d'entr&#233;e : on r&#233;cup&#232;re le fichier
-     manuellement et on le transforme avec Babel en pr&#233;cisant runtime:
-     "classic" (React.createElement), car le runtime "automatic" par d&#233;faut
-     injecte un `import` ES qui ne peut pas s'ex&#233;cuter tel quel dans un
-     simple script de navigateur. -->
 <!-- Composant principal : on attend que Firebase soit prêt avant de charger l'app -->
 <script>
   function loadPoolApp() {
