@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.51";
+const APP_VERSION = "0.52";
 
 const TRANSLATIONS = {
   fr: {
@@ -189,6 +189,7 @@ const TRANSLATIONS = {
     axis_legend_u: "ᴜ échelle unités (pH, chlore) — gauche",
     action_ph_minus: "Baisse le pH",
         photos_section: "Photos des mesures",
+    pool_photos_label: "Photos du bassin (optionnel)",
     note_ph_minus: "Vérifier le pH avant chaque ajout. Max 1 kg/100 m³/jour, ou espacer de 2h.",
     note_ph_plus: "Répartir sur tout le bassin, filtration en marche.",
     note_chlore_choc: "À verser le soir, soleil couché. Ne stabilise pas (n'augmente pas le CYA).",
@@ -440,6 +441,7 @@ const TRANSLATIONS = {
     axis_legend_u: "ᴜ unit scale (pH, chlorine) — left",
     action_ph_minus: "Lowers pH",
         photos_section: "Reading photos",
+    pool_photos_label: "Pool photos (optional)",
     note_ph_minus: "Check pH before each addition. Max 1 kg/100 m³/day, or space 2h apart.",
     note_ph_plus: "Spread across the pool with filtration running.",
     note_chlore_choc: "Pour in the evening after sunset. Does not stabilise (does not raise CYA).",
@@ -691,6 +693,7 @@ const TRANSLATIONS = {
     axis_legend_u: "ᴜ Einheitsskala (pH, Chlor) — links",
     action_ph_minus: "pH senken",
         photos_section: "Messfotos",
+    pool_photos_label: "Beckenfotos (optional)",
     note_ph_minus: "pH vor jeder Zugabe prüfen. Max 1 kg/100 m³/Tag oder 2h Abstand.",
     note_ph_plus: "Im gesamten Becken verteilen, Filtration in Betrieb.",
     note_chlore_choc: "Abends nach Sonnenuntergang zugeben. Stabilisiert nicht (erhöht CYA nicht).",
@@ -942,6 +945,7 @@ const TRANSLATIONS = {
     axis_legend_u: "ᴜ scala unità (pH, cloro) — sinistra",
     action_ph_minus: "Abbassa il pH",
         photos_section: "Foto misurazioni",
+    pool_photos_label: "Foto vasca (opzionale)",
     note_ph_minus: "Controllare il pH prima di ogni aggiunta. Max 1 kg/100 m³/giorno o distanziare di 2h.",
     note_ph_plus: "Distribuire in tutta la vasca con filtrazione in funzione.",
     note_chlore_choc: "Versare la sera dopo il tramonto. Non stabilizza (non aumenta il CYA).",
@@ -1193,6 +1197,7 @@ const TRANSLATIONS = {
     axis_legend_u: "ᴜ escala unidades (pH, cloro) — izquierda",
     action_ph_minus: "Baja el pH",
         photos_section: "Fotos de mediciones",
+    pool_photos_label: "Fotos de la piscina (opcional)",
     note_ph_minus: "Verificar el pH antes de cada adición. Máx 1 kg/100 m³/día o espaciar 2h.",
     note_ph_plus: "Distribuir por toda la piscina con filtración en marcha.",
     note_chlore_choc: "Verter por la noche después del atardecer. No estabiliza (no aumenta el CYA).",
@@ -1444,6 +1449,7 @@ const TRANSLATIONS = {
     axis_legend_u: "ᴜ escala unidades (pH, cloro) — esquerda",
     action_ph_minus: "Baixa o pH",
         photos_section: "Fotos das medições",
+    pool_photos_label: "Fotos da piscina (opcional)",
     note_ph_minus: "Verificar o pH antes de cada adição. Máx 1 kg/100 m³/dia ou espaçar 2h.",
     note_ph_plus: "Distribuir por toda a piscina com filtração em funcionamento.",
     note_chlore_choc: "Adicionar à noite após o pôr do sol. Não estabiliza (não aumenta o CYA).",
@@ -3478,23 +3484,26 @@ function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, applicat
       </button>
       {open && (
         <div style={styles.measureDetails}>
-          {/* Photos : measure.photos[] en priorité, sinon measure.photo */}
+          {/* Photos d'analyse (photomètre/bandelette) */}
           {(() => {
             const allPhotos = measure.photos?.length ? measure.photos : (measure.photo ? [measure.photo] : []);
             if (!allPhotos.length) return null;
             return (
               <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 10 }}>
                 {allPhotos.map((src, idx) => (
-                  <img
-                    key={idx}
-                    src={src}
-                    alt=""
-                    style={{ height: 110, borderRadius: 8, objectFit: "cover", flexShrink: 0, border: "1px solid #d0e4f5" }}
-                  />
+                  <img key={idx} src={src} alt="" style={{ height: 110, borderRadius: 8, objectFit: "cover", flexShrink: 0, border: "1px solid #d0e4f5" }} />
                 ))}
               </div>
             );
           })()}
+          {/* Photos bassin */}
+          {measure.poolPhotos?.length > 0 && (
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 10 }}>
+              {measure.poolPhotos.map((src, idx) => (
+                <img key={idx} src={src} alt="" style={{ height: 110, borderRadius: 8, objectFit: "cover", flexShrink: 0, border: "1px solid #d0e4f5" }} />
+              ))}
+            </div>
+          )}
           <div style={styles.measureChips}>
             {params.map((p) => {
               const status = statusFor(p, measure[p]);
@@ -3567,6 +3576,8 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
   const [photos, setPhotos] = useState(
     measure?.photo ? [measure.photo] : (measure?.photos || [])
   );
+  const [poolPhotos, setPoolPhotos] = useState(measure?.poolPhotos || []);
+  const [poolPhotoBusy, setPoolPhotoBusy] = useState(false);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [analyzeError, setAnalyzeError] = useState(null);
@@ -3574,6 +3585,21 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
   const [confirmAnalyze, setConfirmAnalyze] = useState(false);
   const fileInputRef = useRef(null);
   const galleryInputRef = useRef(null);
+  const poolFileInputRef = useRef(null);
+  const poolGalleryInputRef = useRef(null);
+
+  async function handlePoolPhotoChange(e) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setPoolPhotoBusy(true);
+    try {
+      const dataUrls = await Promise.all(files.map(fileToDataUrl));
+      setPoolPhotos((prev) => [...prev, ...dataUrls]);
+    } catch (err) { /* silencieux */ } finally {
+      setPoolPhotoBusy(false);
+      e.target.value = "";
+    }
+  }
 
   async function handlePhotoChange(e) {
     const files = Array.from(e.target.files || []);
@@ -3647,6 +3673,7 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
       note,
       photo: photos[0] || null,
       photos,
+      poolPhotos,
     });
   }
 
@@ -3788,6 +3815,36 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
         placeholder={t("note_placeholder")}
         style={{ ...styles.input, minHeight: 64, resize: "vertical" }}
       />
+
+      {isPremium && (
+        <div style={{ marginTop: 4 }}>
+          <label style={styles.fieldLabel}>{t("pool_photos_label")}</label>
+          {poolPhotos.length > 0 && (
+            <div style={styles.photoGrid}>
+              {poolPhotos.map((src, idx) => (
+                <div key={idx} style={styles.photoThumbWrap}>
+                  <img src={src} alt="" style={styles.photoThumb} />
+                  <button style={styles.photoThumbRemove} onClick={() => setPoolPhotos((prev) => prev.filter((_, i) => i !== idx))}>
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div style={{ ...styles.photoCaptureBtnRow, marginTop: poolPhotos.length ? 8 : 0 }}>
+            <button type="button" style={styles.photoCaptureBtnHalf} onClick={() => poolFileInputRef.current?.click()}>
+              <Camera size={17} />
+              {poolPhotoBusy ? t("loading") : poolPhotos.length ? t("other_photo") : t("camera_btn")}
+            </button>
+            <button type="button" style={styles.photoCaptureBtnHalf} onClick={() => poolGalleryInputRef.current?.click()}>
+              <ImageOff size={17} />
+              {poolPhotoBusy ? t("loading") : poolPhotos.length ? t("other_gallery") : t("gallery_btn")}
+            </button>
+          </div>
+          <input ref={poolFileInputRef} type="file" accept="image/*" capture="environment" multiple onChange={handlePoolPhotoChange} style={styles.hiddenFileInput} />
+          <input ref={poolGalleryInputRef} type="file" accept="image/*" multiple onChange={handlePoolPhotoChange} style={styles.hiddenFileInput} />
+        </div>
+      )}
 
       <button style={styles.primaryBtn} onClick={handleSave}>
         {isEditing ? t("save_changes") : t("save_measure")}
@@ -4974,11 +5031,13 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
         )}
 
         {/* Section photos des mesures */}
-        {rows.some(({ measure }) => (measure.photos?.length || measure.photo)) && (
+        {rows.some(({ measure }) => (measure.photos?.length || measure.photo || measure.poolPhotos?.length)) && (
           <div style={{ marginTop: 24 }}>
             <div style={styles.reportSectionTitle}>{t("photos_section")}</div>
             {rows.map(({ measure }, i) => {
-              const allPhotos = measure.photos?.length ? measure.photos : (measure.photo ? [measure.photo] : []);
+              const analysisPhotos = measure.photos?.length ? measure.photos : (measure.photo ? [measure.photo] : []);
+              const poolPhotos = measure.poolPhotos || [];
+              const allPhotos = [...analysisPhotos, ...poolPhotos];
               if (!allPhotos.length) return null;
               return (
                 <div key={i} style={{ marginBottom: 16 }}>
@@ -4987,12 +5046,7 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
                   </div>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                     {allPhotos.map((src, j) => (
-                      <img
-                        key={j}
-                        src={src}
-                        alt=""
-                        style={{ height: 120, borderRadius: 8, objectFit: "cover", border: "1px solid #d0e4f5" }}
-                      />
+                      <img key={j} src={src} alt="" style={{ height: 120, borderRadius: 8, objectFit: "cover", border: "1px solid #d0e4f5" }} />
                     ))}
                   </div>
                 </div>
