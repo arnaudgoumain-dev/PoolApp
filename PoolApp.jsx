@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.49";
+const APP_VERSION = "0.51";
 
 const TRANSLATIONS = {
   fr: {
@@ -22,7 +22,7 @@ const TRANSLATIONS = {
     // Dashboard
     last_measure: "DERNIÈRE MESURE",
     modify: "Modifier",
-    new_measure: "+ Nouvelle mesure",
+    new_measure: "Nouvelle mesure",
     treatment_plan: "PLAN DE TRAITEMENT",
     all_in_range: "Tous les paramètres mesurés sont dans la cible.",
     no_measure: "Aucune mesure enregistrée",
@@ -188,6 +188,7 @@ const TRANSLATIONS = {
     param_fcl: "Chlore libre (mg/L)",
     axis_legend_u: "ᴜ échelle unités (pH, chlore) — gauche",
     action_ph_minus: "Baisse le pH",
+        photos_section: "Photos des mesures",
     note_ph_minus: "Vérifier le pH avant chaque ajout. Max 1 kg/100 m³/jour, ou espacer de 2h.",
     note_ph_plus: "Répartir sur tout le bassin, filtration en marche.",
     note_chlore_choc: "À verser le soir, soleil couché. Ne stabilise pas (n'augmente pas le CYA).",
@@ -284,7 +285,7 @@ const TRANSLATIONS = {
     premium_badge: "Premium",
     last_measure: "LAST READING",
     modify: "Edit",
-    new_measure: "+ New reading",
+    new_measure: "New reading",
     treatment_plan: "TREATMENT PLAN",
     all_in_range: "All measured parameters are within target.",
     no_measure: "No readings recorded",
@@ -438,6 +439,7 @@ const TRANSLATIONS = {
     param_fcl: "Free chlorine (mg/L)",
     axis_legend_u: "ᴜ unit scale (pH, chlorine) — left",
     action_ph_minus: "Lowers pH",
+        photos_section: "Reading photos",
     note_ph_minus: "Check pH before each addition. Max 1 kg/100 m³/day, or space 2h apart.",
     note_ph_plus: "Spread across the pool with filtration running.",
     note_chlore_choc: "Pour in the evening after sunset. Does not stabilise (does not raise CYA).",
@@ -534,7 +536,7 @@ const TRANSLATIONS = {
     premium_badge: "Premium",
     last_measure: "LETZTE MESSUNG",
     modify: "Bearbeiten",
-    new_measure: "+ Neue Messung",
+    new_measure: "Neue Messung",
     treatment_plan: "BEHANDLUNGSPLAN",
     all_in_range: "Alle gemessenen Parameter sind im Zielbereich.",
     no_measure: "Keine Messungen erfasst",
@@ -688,6 +690,7 @@ const TRANSLATIONS = {
     param_fcl: "Freies Chlor (mg/L)",
     axis_legend_u: "ᴜ Einheitsskala (pH, Chlor) — links",
     action_ph_minus: "pH senken",
+        photos_section: "Messfotos",
     note_ph_minus: "pH vor jeder Zugabe prüfen. Max 1 kg/100 m³/Tag oder 2h Abstand.",
     note_ph_plus: "Im gesamten Becken verteilen, Filtration in Betrieb.",
     note_chlore_choc: "Abends nach Sonnenuntergang zugeben. Stabilisiert nicht (erhöht CYA nicht).",
@@ -784,7 +787,7 @@ const TRANSLATIONS = {
     premium_badge: "Premium",
     last_measure: "ULTIMA MISURAZIONE",
     modify: "Modifica",
-    new_measure: "+ Nuova misurazione",
+    new_measure: "Nuova misurazione",
     treatment_plan: "PIANO DI TRATTAMENTO",
     all_in_range: "Tutti i parametri misurati sono nell'intervallo target.",
     no_measure: "Nessuna misurazione registrata",
@@ -938,6 +941,7 @@ const TRANSLATIONS = {
     param_fcl: "Cloro libero (mg/L)",
     axis_legend_u: "ᴜ scala unità (pH, cloro) — sinistra",
     action_ph_minus: "Abbassa il pH",
+        photos_section: "Foto misurazioni",
     note_ph_minus: "Controllare il pH prima di ogni aggiunta. Max 1 kg/100 m³/giorno o distanziare di 2h.",
     note_ph_plus: "Distribuire in tutta la vasca con filtrazione in funzione.",
     note_chlore_choc: "Versare la sera dopo il tramonto. Non stabilizza (non aumenta il CYA).",
@@ -1034,7 +1038,7 @@ const TRANSLATIONS = {
     premium_badge: "Premium",
     last_measure: "ÚLTIMA MEDICIÓN",
     modify: "Editar",
-    new_measure: "+ Nueva medición",
+    new_measure: "Nueva medición",
     treatment_plan: "PLAN DE TRATAMIENTO",
     all_in_range: "Todos los parámetros medidos están en el rango objetivo.",
     no_measure: "Sin mediciones registradas",
@@ -1188,6 +1192,7 @@ const TRANSLATIONS = {
     param_fcl: "Cloro libre (mg/L)",
     axis_legend_u: "ᴜ escala unidades (pH, cloro) — izquierda",
     action_ph_minus: "Baja el pH",
+        photos_section: "Fotos de mediciones",
     note_ph_minus: "Verificar el pH antes de cada adición. Máx 1 kg/100 m³/día o espaciar 2h.",
     note_ph_plus: "Distribuir por toda la piscina con filtración en marcha.",
     note_chlore_choc: "Verter por la noche después del atardecer. No estabiliza (no aumenta el CYA).",
@@ -1284,7 +1289,7 @@ const TRANSLATIONS = {
     premium_badge: "Premium",
     last_measure: "ÚLTIMA MEDIÇÃO",
     modify: "Editar",
-    new_measure: "+ Nova medição",
+    new_measure: "Nova medição",
     treatment_plan: "PLANO DE TRATAMENTO",
     all_in_range: "Todos os parâmetros medidos estão na faixa alvo.",
     no_measure: "Nenhuma medição registrada",
@@ -1438,6 +1443,7 @@ const TRANSLATIONS = {
     param_fcl: "Cloro livre (mg/L)",
     axis_legend_u: "ᴜ escala unidades (pH, cloro) — esquerda",
     action_ph_minus: "Baixa o pH",
+        photos_section: "Fotos das medições",
     note_ph_minus: "Verificar o pH antes de cada adição. Máx 1 kg/100 m³/dia ou espaçar 2h.",
     note_ph_plus: "Distribuir por toda a piscina com filtração em funcionamento.",
     note_chlore_choc: "Adicionar à noite após o pôr do sol. Não estabiliza (não aumenta o CYA).",
@@ -2214,15 +2220,13 @@ function PoolApp() {
   }
 
   function saveApplication(measureId, steps, allApplied) {
-    // Déduire le stock consommé pour chaque produit utilisé
-    if (allApplied) {
+    // Déduire le stock consommé pour chaque produit utilisé, qu'il soit appliqué partiellement ou totalement
+    const stepsWithAmount = steps.filter((s) => s.appliedAmount);
+    if (stepsWithAmount.length > 0) {
       setProducts((prev) => prev.map((prod) => {
-        const step = steps.find((s) => s.productName === prod.name);
-        if (!step || !step.appliedAmount || !prod.containerAmount) return prod;
-        // appliedAmount est toujours en g ou mL (unité de base)
-        // containerAmount est en kg ou L selon containerUnit
+        const step = stepsWithAmount.find((s) => s.productName === prod.name);
+        if (!step || !prod.containerAmount) return prod;
         const cUnit = prod.containerUnit || "kg";
-        // Convertir appliedAmount en kg ou L pour comparer au contenant
         let appliedInContainerUnit = step.appliedAmount;
         if (cUnit === "kg" && step.doseUnit === "g") appliedInContainerUnit = step.appliedAmount / 1000;
         if (cUnit === "L" && step.doseUnit === "mL") appliedInContainerUnit = step.appliedAmount / 1000;
@@ -2325,6 +2329,10 @@ function PoolApp() {
   }
 
   function handleWantAddPool() {
+    if (!isPremium) {
+      setShowPaywall(true);
+      return;
+    }
     setShowAddPool(true);
   }
 
@@ -3340,18 +3348,30 @@ function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication,
         <span>{t("show_values")}</span>
       </label>
 
-      <div style={styles.chartCard}>
-        <ResponsiveContainer width="100%" height={220}>
-          <LineChart data={chartData} margin={{ top: showValues ? 18 : 8, right: 12, left: -10, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e6ebe9" />
-            <XAxis
-              dataKey="timestamp"
-              type="number"
-              domain={["dataMin", "dataMax"]}
-              scale="time"
-              tickFormatter={(ts) => formatDateShort(new Date(ts).toISOString())}
-              tick={{ fontSize: 10, fill: "#6a7d90" }}
-            />
+      {/* Détermine si les mesures couvrent plus d'un jour */}
+      {(() => {
+        const timestamps = chartData.map((d) => d.timestamp);
+        const spanMs = timestamps.length > 1 ? Math.max(...timestamps) - Math.min(...timestamps) : 0;
+        const showTime = spanMs < 86400000 * 2; // moins de 2 jours → affiche heure
+        return (
+          <div style={styles.chartCard}>
+            <ResponsiveContainer width="100%" height={220}>
+              <LineChart data={chartData} margin={{ top: showValues ? 18 : 8, right: 12, left: -10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e6ebe9" />
+                <XAxis
+                  dataKey="timestamp"
+                  type="number"
+                  domain={["dataMin", "dataMax"]}
+                  scale="time"
+                  tickFormatter={(ts) => {
+                    const d = new Date(ts);
+                    if (showTime) {
+                      return `${d.getHours().toString().padStart(2,"0")}:${d.getMinutes().toString().padStart(2,"0")}`;
+                    }
+                    return `${d.getDate().toString().padStart(2,"0")}/${(d.getMonth()+1).toString().padStart(2,"0")}`;
+                  }}
+                  tick={{ fontSize: 10, fill: "#6a7d90" }}
+                />
             <YAxis
               yAxisId="left"
               tick={{ fontSize: 10, fill: "#6a7d90" }}
@@ -3388,7 +3408,9 @@ function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication,
               ))}
           </LineChart>
         </ResponsiveContainer>
-      </div>
+          </div>
+        );
+      })()}
 
       <div style={styles.sectionRow}>
         <span style={styles.sectionLabel}>{t("journal")}</span>
@@ -3456,9 +3478,23 @@ function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, applicat
       </button>
       {open && (
         <div style={styles.measureDetails}>
-          {measure.photo && (
-            <img src={measure.photo} alt="Photo de la mesure" style={styles.measurePhotoFull} />
-          )}
+          {/* Photos : measure.photos[] en priorité, sinon measure.photo */}
+          {(() => {
+            const allPhotos = measure.photos?.length ? measure.photos : (measure.photo ? [measure.photo] : []);
+            if (!allPhotos.length) return null;
+            return (
+              <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 10 }}>
+                {allPhotos.map((src, idx) => (
+                  <img
+                    key={idx}
+                    src={src}
+                    alt=""
+                    style={{ height: 110, borderRadius: 8, objectFit: "cover", flexShrink: 0, border: "1px solid #d0e4f5" }}
+                  />
+                ))}
+              </div>
+            );
+          })()}
           <div style={styles.measureChips}>
             {params.map((p) => {
               const status = statusFor(p, measure[p]);
@@ -4825,7 +4861,11 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
         </div>
 
         <div style={styles.reportSectionTitle}>{t("params_evolution")}</div>
-        {chartData.length > 0 ? (
+        {chartData.length > 0 ? (() => {
+          const timestamps = chartData.map((d) => d.timestamp);
+          const spanMs = timestamps.length > 1 ? Math.max(...timestamps) - Math.min(...timestamps) : 0;
+          const showTime = spanMs < 86400000 * 2;
+          return (
           <div style={styles.reportChartWrap}>
             <LineChart
               width={760}
@@ -4839,7 +4879,11 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
                 type="number"
                 domain={["dataMin", "dataMax"]}
                 scale="time"
-                tickFormatter={(ts) => formatDateShort(new Date(ts).toISOString())}
+                tickFormatter={(ts) => {
+                  const d = new Date(ts);
+                  if (showTime) return `${d.getHours().toString().padStart(2,"0")}:${d.getMinutes().toString().padStart(2,"0")}`;
+                  return `${d.getDate().toString().padStart(2,"0")}/${(d.getMonth()+1).toString().padStart(2,"0")}`;
+                }}
                 tick={{ fontSize: 10, fill: "#2d4a6e" }}
               />
               <YAxis yAxisId="left" tick={{ fontSize: 10, fill: "#2d4a6e" }} width={30} />
@@ -4870,7 +4914,8 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
               ))}
             </LineChart>
           </div>
-        ) : (
+          );
+        })() : (
           <p style={styles.helpTextSmall}>{t("no_measures_report")}</p>
         )}
 
@@ -4926,6 +4971,34 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
               })}
             </tbody>
           </table>
+        )}
+
+        {/* Section photos des mesures */}
+        {rows.some(({ measure }) => (measure.photos?.length || measure.photo)) && (
+          <div style={{ marginTop: 24 }}>
+            <div style={styles.reportSectionTitle}>{t("photos_section")}</div>
+            {rows.map(({ measure }, i) => {
+              const allPhotos = measure.photos?.length ? measure.photos : (measure.photo ? [measure.photo] : []);
+              if (!allPhotos.length) return null;
+              return (
+                <div key={i} style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "#4a6480", marginBottom: 6 }}>
+                    {formatDate(measure.date)}
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {allPhotos.map((src, j) => (
+                      <img
+                        key={j}
+                        src={src}
+                        alt=""
+                        style={{ height: 120, borderRadius: 8, objectFit: "cover", border: "1px solid #d0e4f5" }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>
