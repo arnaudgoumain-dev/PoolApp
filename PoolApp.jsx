@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.58";
+const APP_VERSION = "0.59";
 
 const TRANSLATIONS = {
   fr: {
@@ -202,6 +202,9 @@ const TRANSLATIONS = {
     account_created_sub: "Bienvenue sur PoolApp. Tu peux maintenant utiliser l'app.",
     start_app: "Démarrer l'app",
     sign_out: "Se déconnecter",
+    delete_account: "Supprimer mon compte",
+    delete_account_confirm: "Supprimer définitivement ton compte et toutes tes données ? Cette action est irréversible.",
+    reauth_required: "Reconnecte-toi d'abord pour pouvoir supprimer ton compte.",
     not_signed_in: "Non connecté — mode hors-ligne",
     create_account: "Créer un compte",
     reset_password: "Mot de passe oublié",
@@ -487,6 +490,9 @@ const TRANSLATIONS = {
     account_created_sub: "Welcome to PoolApp. You can now use the app.",
     start_app: "Start the app",
     sign_out: "Sign out",
+    delete_account: "Delete my account",
+    delete_account_confirm: "Permanently delete your account and all your data? This action cannot be undone.",
+    reauth_required: "Please sign in again before deleting your account.",
     not_signed_in: "Not signed in — offline mode",
     create_account: "Create account",
     reset_password: "Forgot password",
@@ -772,6 +778,9 @@ const TRANSLATIONS = {
     account_created_sub: "Willkommen bei PoolApp. Du kannst die App jetzt nutzen.",
     start_app: "App starten",
     sign_out: "Abmelden",
+    delete_account: "Konto löschen",
+    delete_account_confirm: "Konto und alle Daten dauerhaft löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    reauth_required: "Bitte melde dich erneut an, bevor du dein Konto löschst.",
     not_signed_in: "Nicht angemeldet — Offline-Modus",
     create_account: "Konto erstellen",
     reset_password: "Passwort vergessen",
@@ -1057,6 +1066,9 @@ const TRANSLATIONS = {
     account_created_sub: "Benvenuto su PoolApp. Puoi usare l'app ora.",
     start_app: "Avvia l'app",
     sign_out: "Disconnetti",
+    delete_account: "Elimina account",
+    delete_account_confirm: "Eliminare definitivamente l'account e tutti i dati? Questa azione è irreversibile.",
+    reauth_required: "Accedi di nuovo prima di eliminare il tuo account.",
     not_signed_in: "Non connesso — modalità offline",
     create_account: "Crea account",
     reset_password: "Password dimenticata",
@@ -1342,6 +1354,9 @@ const TRANSLATIONS = {
     account_created_sub: "Bienvenido a PoolApp. Ya puedes usar la app.",
     start_app: "Iniciar la app",
     sign_out: "Cerrar sesión",
+    delete_account: "Eliminar mi cuenta",
+    delete_account_confirm: "¿Eliminar permanentemente tu cuenta y todos tus datos? Esta acción es irreversible.",
+    reauth_required: "Vuelve a iniciar sesión antes de eliminar tu cuenta.",
     not_signed_in: "No conectado — modo offline",
     create_account: "Crear cuenta",
     reset_password: "Contraseña olvidada",
@@ -1627,6 +1642,9 @@ const TRANSLATIONS = {
     account_created_sub: "Bem-vindo ao PoolApp. Já podes usar a app.",
     start_app: "Iniciar a app",
     sign_out: "Sair",
+    delete_account: "Eliminar minha conta",
+    delete_account_confirm: "Eliminar permanentemente a tua conta e todos os dados? Esta ação é irreversível.",
+    reauth_required: "Faz login novamente antes de eliminar a tua conta.",
     not_signed_in: "Não conectado — modo offline",
     create_account: "Criar conta",
     reset_password: "Senha esquecida",
@@ -2223,6 +2241,10 @@ const FB = {
   sendVerification: async (user) => {
     if (!window._fbSendEmailVerification) return;
     await window._fbSendEmailVerification(user);
+  },
+  deleteAccount: async () => {
+    if (!window._fbDeleteUser || !window._fbAuth?.currentUser) return;
+    await window._fbDeleteUser(window._fbAuth.currentUser);
   },
   signOut: () => window._fbSignOut(window._fbAuth),
   saveUser: async (uid, data) => {
@@ -2937,6 +2959,26 @@ function PoolApp() {
               setShowLogin(true);
             }}
             onSignIn={() => setShowLogin(true)}
+            onDeleteAccount={async () => {
+              try {
+                const uid = authUser?.uid;
+                await FB.deleteAccount();
+                // Supprime aussi le doc Firestore
+                if (uid && window._fbDb && window._fbDoc && window._fbDeleteDoc) {
+                  await window._fbDeleteDoc(window._fbDoc(window._fbDb, "users", uid)).catch(() => {});
+                }
+                window.storage.set("auth_skipped", "").catch(() => {});
+                setAuthUser(null);
+                setShowLogin(true);
+              } catch (e) {
+                // Firebase exige une ré-authentification récente pour supprimer
+                if (e.code === "auth/requires-recent-login") {
+                  alert("Reconnecte-toi d'abord pour pouvoir supprimer ton compte.");
+                } else {
+                  alert(e.message);
+                }
+              }
+            }}
             poolMeasureCount={poolMeasures.length}
             onGenerateReport={() => setShowReport(true)}
             onWantPremiumForReport={() => setShowPaywall(true)}
@@ -4889,7 +4931,7 @@ function ProductModal({ product, onClose, onSave, isPremium, onWantPremium, appl
 }
 
 // ---------- Réglages ----------
-function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitchPool, onWantAddPool, onDeleteAllMeasures: onDeleteAllMeasuresRaw, poolMeasureCount, onGenerateReport, onWantPremiumForReport, onWantPremium, isPremium, setIsPremium, apiKey, setApiKey, apiProvider, setApiProvider, lang, setLang, authUser, onSignOut, onSignIn }) {
+function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitchPool, onWantAddPool, onDeleteAllMeasures: onDeleteAllMeasuresRaw, poolMeasureCount, onGenerateReport, onWantPremiumForReport, onWantPremium, isPremium, setIsPremium, apiKey, setApiKey, apiProvider, setApiProvider, lang, setLang, authUser, onSignOut, onSignIn, onDeleteAccount }) {
   const t = useT(lang);
   const [showLangPicker, setShowLangPicker] = useState(false);
   const [pendingLang, setPendingLang] = useState(lang);
@@ -4962,16 +5004,28 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
         <span style={styles.sectionLabel}>{t("account_section")}</span>
       </div>
       {authUser ? (
-        <div style={{ background: "#f0f6fb", borderRadius: 12, padding: "12px 14px", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#0d2b4e" }}>{authUser.displayName || authUser.email}</div>
-            {authUser.displayName && <div style={{ fontSize: 11.5, color: "#6a7d90", marginTop: 2 }}>{authUser.email}</div>}
+        <div style={{ background: "#f0f6fb", borderRadius: 12, padding: "14px", marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#0d2b4e" }}>{authUser.displayName || authUser.email}</div>
+              {authUser.displayName && <div style={{ fontSize: 11.5, color: "#6a7d90", marginTop: 2 }}>{authUser.email}</div>}
+            </div>
+            <button
+              style={{ padding: "8px 14px", borderRadius: 10, border: "1.5px solid #d0e4f5", background: "#fff", color: "#c0392b", fontWeight: 600, fontSize: 12, cursor: "pointer", flexShrink: 0 }}
+              onClick={onSignOut}
+            >
+              {t("sign_out")}
+            </button>
           </div>
           <button
-            style={{ padding: "8px 14px", borderRadius: 10, border: "1.5px solid #d0e4f5", background: "#fff", color: "#c0392b", fontWeight: 600, fontSize: 12, cursor: "pointer" }}
-            onClick={onSignOut}
+            style={{ width: "100%", padding: "9px 0", borderRadius: 10, border: "1.5px solid #f5c6c2", background: "#fdf0ef", color: "#c0392b", fontWeight: 600, fontSize: 12, cursor: "pointer" }}
+            onClick={() => {
+              if (window.confirm(t("delete_account_confirm"))) {
+                onDeleteAccount();
+              }
+            }}
           >
-            {t("sign_out")}
+            🗑 {t("delete_account")}
           </button>
         </div>
       ) : (

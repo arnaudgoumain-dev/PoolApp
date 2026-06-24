@@ -269,8 +269,8 @@
 <!-- Firebase SDK (module) -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, deleteUser, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCZNXi1UPt6B69EVhd8nbTbh3YzM89Yo1s",
@@ -294,10 +294,12 @@
   window._fbSignUp = createUserWithEmailAndPassword;
   window._fbResetPwd = sendPasswordResetEmail;
   window._fbSendEmailVerification = sendEmailVerification;
+  window._fbDeleteUser = deleteUser;
   window._fbSignOut = signOut;
   window._fbDoc = doc;
   window._fbSetDoc = setDoc;
   window._fbGetDoc = getDoc;
+  window._fbDeleteDoc = deleteDoc;
   window._fbOnAuth = onAuthStateChanged;
 
   // Tente popup en premier, fallback redirect si bloqué (iOS Safari, etc.)
