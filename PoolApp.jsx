@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.65";
+const APP_VERSION = "0.66";
 
 const TRANSLATIONS = {
   fr: {
@@ -2877,18 +2877,20 @@ function PoolApp() {
   }
 
   return (
-    <div style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
+    <>
     {showLogin && (
-      <LoginScreen
-        lang={lang}
-        onSkip={() => {
-          track("auth_skip");
-          setShowLogin(false);
-          window.storage.set("auth_skipped", "true").catch(() => {});
-        }}
-      />
+      <div style={{ position: "fixed", inset: 0, zIndex: 1000, overflowY: "auto" }}>
+        <LoginScreen
+          lang={lang}
+          onSkip={() => {
+            track("auth_skip");
+            setShowLogin(false);
+            window.storage.set("auth_skipped", "true").catch(() => {});
+          }}
+        />
+      </div>
     )}
-    <div style={{ ...styles.app, display: showLogin ? "none" : undefined }} className="app">
+    <div style={styles.app} className="app">
       <Header
         poolName={activePool?.name}
         location={activePool?.location}
@@ -3103,7 +3105,7 @@ function PoolApp() {
         />
       )}
     </div>
-    </div>
+    </>
   );
 }
 
@@ -5866,8 +5868,8 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     color: "#0d2b4e",
-    minHeight: "100dvh",
-    flex: 1,
+    height: "100dvh",
+    overflow: "hidden",
   },
   header: {
     display: "flex",
@@ -6014,7 +6016,7 @@ const styles = {
     cursor: "pointer",
     flexShrink: 0,
   },
-  main: { flex: 1, padding: "16px 16px 24px" },
+  main: { flex: 1, padding: "16px 16px 24px", overflowY: "auto", WebkitOverflowScrolling: "touch" },
   sectionRow: {
     display: "flex",
     alignItems: "center",
@@ -6476,12 +6478,9 @@ const styles = {
     flexShrink: 0,
   },
   tabBar: {
-    position: "sticky",
-    bottom: 0,
     display: "flex",
     background: "#ffffff",
     borderTop: "1px solid #e6ebe9",
-    maxWidth: 480,
     width: "100%",
     alignItems: "center",
     zIndex: 10,
