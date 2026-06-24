@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.63";
+const APP_VERSION = "0.64";
 
 const TRANSLATIONS = {
   fr: {
@@ -2877,7 +2877,7 @@ function PoolApp() {
   }
 
   return (
-    <>
+    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
     {showLogin && (
       <LoginScreen
         lang={lang}
@@ -3103,7 +3103,7 @@ function PoolApp() {
         />
       )}
     </div>
-    </>
+    </div>
   );
 }
 
@@ -3224,7 +3224,7 @@ function TabBar({ tab, setTab, lang }) {
           </button>
         );
       })}
-      <div style={{ position: "absolute", top: 2, right: 8, fontSize: 9, color: "#c8d6e0" }}>v{APP_VERSION}</div>
+      <div style={{ position: "absolute", top: 2, right: 8, fontSize: 9, color: "transparent" }}></div>
     </nav>
   );
 }
@@ -5866,9 +5866,9 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     color: "#0d2b4e",
-    minHeight: "100vh",
-    minHeight: "100dvh",
+    height: "100%",
   },
+
   header: {
     display: "flex",
     alignItems: "center",
@@ -6014,7 +6014,7 @@ const styles = {
     cursor: "pointer",
     flexShrink: 0,
   },
-  main: { flex: 1, padding: "16px 16px 24px" },
+  main: { flex: 1, padding: "16px 16px 24px", overflowY: "auto" },
   sectionRow: {
     display: "flex",
     alignItems: "center",
