@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.68";
+const APP_VERSION = "0.69";
 
 const TRANSLATIONS = {
   fr: {
