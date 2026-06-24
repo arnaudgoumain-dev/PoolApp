@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.70";
+const APP_VERSION = "0.71";
 
 const TRANSLATIONS = {
   fr: {
@@ -5566,7 +5566,7 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
           <div style={styles.reportChartWrap}>
             <LineChart
               width={760}
-              height={showValues ? 320 : 280}
+              height={showValues ? 380 : 340}
               data={chartData}
               margin={{ top: showValues ? 24 : 8, right: 16, left: 0, bottom: 0 }}
             >
@@ -5581,13 +5581,13 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
                   if (showTime) return `${d.getHours().toString().padStart(2,"0")}:${d.getMinutes().toString().padStart(2,"0")}`;
                   return `${d.getDate().toString().padStart(2,"0")}/${(d.getMonth()+1).toString().padStart(2,"0")}`;
                 }}
-                tick={{ fontSize: 10, fill: "#2d4a6e" }}
+                tick={{ fontSize: 12, fill: "#2d4a6e" }}
               />
-              <YAxis yAxisId="left" tick={{ fontSize: 10, fill: "#2d4a6e" }} width={30} />
+              <YAxis yAxisId="left" tick={{ fontSize: 12, fill: "#2d4a6e" }} width={30} />
               <YAxis
                 yAxisId="right"
                 orientation="right"
-                tick={{ fontSize: 10, fill: "#2d4a6e" }}
+                tick={{ fontSize: 12, fill: "#2d4a6e" }}
                 width={30}
               />
               {chartParams.map((cp) => (
@@ -5603,7 +5603,7 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
                   connectNulls
                   label={
                     showValues
-                      ? { fontSize: 9, fill: cp.color, position: "top", offset: 6 }
+                      ? { fontSize: 11, fill: cp.color, position: "top", offset: 6 }
                       : false
                   }
                 />
@@ -5612,7 +5612,7 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px 16px", marginTop: 8, padding: "0 8px" }}>
             {chartParams.map((cp) => (
-              <div key={cp.key} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "#2d4a6e" }}>
+              <div key={cp.key} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, color: "#2d4a6e" }}>
                 <svg width="16" height="4"><line x1="0" y1="2" x2="16" y2="2" stroke={cp.color} strokeWidth="2"/><circle cx="8" cy="2" r="2" fill={cp.color}/></svg>
                 {cp.label}
               </div>
