@@ -269,7 +269,7 @@
 <!-- Firebase SDK (module) -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -295,6 +295,7 @@
   window._fbSignIn = signInWithEmailAndPassword;
   window._fbSignUp = createUserWithEmailAndPassword;
   window._fbResetPwd = sendPasswordResetEmail;
+  window._fbSendEmailVerification = sendEmailVerification;
   window._fbSignOut = signOut;
   window._fbDoc = doc;
   window._fbSetDoc = setDoc;

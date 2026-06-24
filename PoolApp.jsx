@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "0.56";
+const APP_VERSION = "0.57";
 
 const TRANSLATIONS = {
   fr: {
@@ -198,6 +198,7 @@ const TRANSLATIONS = {
     error_pwd_mismatch: "Les mots de passe ne correspondent pas.",
     error_email_required: "Email invalide.",
     account_created: "Compte créé !",
+    verify_email_notice: "Un email de confirmation a été envoyé à ton adresse. Clique sur le lien pour activer ton compte.",
     account_created_sub: "Bienvenue sur PoolApp. Tu peux maintenant utiliser l'app.",
     start_app: "Démarrer l'app",
     sign_out: "Se déconnecter",
@@ -482,6 +483,7 @@ const TRANSLATIONS = {
     error_pwd_mismatch: "Passwords do not match.",
     error_email_required: "Invalid email.",
     account_created: "Account created!",
+    verify_email_notice: "A confirmation email has been sent to your address. Click the link to activate your account.",
     account_created_sub: "Welcome to PoolApp. You can now use the app.",
     start_app: "Start the app",
     sign_out: "Sign out",
@@ -766,6 +768,7 @@ const TRANSLATIONS = {
     error_pwd_mismatch: "Passwörter stimmen nicht überein.",
     error_email_required: "Ungültige E-Mail.",
     account_created: "Konto erstellt!",
+    verify_email_notice: "Eine Bestätigungs-E-Mail wurde an deine Adresse gesendet. Klicke auf den Link, um dein Konto zu aktivieren.",
     account_created_sub: "Willkommen bei PoolApp. Du kannst die App jetzt nutzen.",
     start_app: "App starten",
     sign_out: "Abmelden",
@@ -1050,6 +1053,7 @@ const TRANSLATIONS = {
     error_pwd_mismatch: "Le password non corrispondono.",
     error_email_required: "Email non valida.",
     account_created: "Account creato!",
+    verify_email_notice: "Un'email di conferma è stata inviata al tuo indirizzo. Clicca sul link per attivare il tuo account.",
     account_created_sub: "Benvenuto su PoolApp. Puoi usare l'app ora.",
     start_app: "Avvia l'app",
     sign_out: "Disconnetti",
@@ -1334,6 +1338,7 @@ const TRANSLATIONS = {
     error_pwd_mismatch: "Las contraseñas no coinciden.",
     error_email_required: "Email inválido.",
     account_created: "¡Cuenta creada!",
+    verify_email_notice: "Se ha enviado un email de confirmación a tu dirección. Haz clic en el enlace para activar tu cuenta.",
     account_created_sub: "Bienvenido a PoolApp. Ya puedes usar la app.",
     start_app: "Iniciar la app",
     sign_out: "Cerrar sesión",
@@ -1618,6 +1623,7 @@ const TRANSLATIONS = {
     error_pwd_mismatch: "As senhas não coincidem.",
     error_email_required: "Email inválido.",
     account_created: "Conta criada!",
+    verify_email_notice: "Um email de confirmação foi enviado para o teu endereço. Clica no link para ativar a tua conta.",
     account_created_sub: "Bem-vindo ao PoolApp. Já podes usar a app.",
     start_app: "Iniciar a app",
     sign_out: "Sair",
@@ -2214,6 +2220,10 @@ const FB = {
   signIn: (email, pwd) => window._fbSignIn(window._fbAuth, email, pwd),
   signUp: (email, pwd) => window._fbSignUp(window._fbAuth, email, pwd),
   resetPwd: (email) => window._fbResetPwd(window._fbAuth, email),
+  sendVerification: async (user) => {
+    if (!window._fbSendEmailVerification) return;
+    await window._fbSendEmailVerification(user);
+  },
   signOut: () => window._fbSignOut(window._fbAuth),
   saveUser: async (uid, data) => {
     if (!window._fbDb) return;
@@ -2261,6 +2271,8 @@ function LoginScreen({ lang, onSkip, onSuccess }) {
         if (pwd.length < 6) { setError(t("weak_password")); setBusy(false); return; }
         if (pwd !== pwd2) { setError(t("error_pwd_mismatch")); setBusy(false); return; }
         const cred = await FB.signUp(email, pwd);
+        // Envoie l'email de vérification
+        await FB.sendVerification(cred.user).catch(() => {});
         // Enregistre le profil dans Firestore
         await FB.saveUser(cred.user.uid, {
           email: cred.user.email,
@@ -2293,7 +2305,10 @@ function LoginScreen({ lang, onSkip, onSuccess }) {
             <CheckCircle2 size={28} color="#1a8fd1" />
           </div>
           <div style={{ fontSize: 18, fontWeight: 800, color: "#0d2b4e", marginBottom: 8 }}>{t("account_created")}</div>
-          <div style={{ fontSize: 13, color: "#6a7d90", marginBottom: 24 }}>{t("account_created_sub")}</div>
+          <div style={{ fontSize: 13, color: "#6a7d90", marginBottom: 12 }}>{t("account_created_sub")}</div>
+          <div style={{ fontSize: 12, color: "#a8721a", background: "#fff8e1", border: "1px solid #ffe082", borderRadius: 10, padding: "10px 14px", marginBottom: 20, textAlign: "left" }}>
+            📧 {t("verify_email_notice")}
+          </div>
           <button
             style={{ width: "100%", padding: "13px 0", borderRadius: 12, border: "none", background: "#0a6ebd", color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer" }}
             onClick={onSkip}
@@ -2480,10 +2495,17 @@ function PoolApp() {
   // N'affiche le login qu'apres stabilisation Firebase
   useEffect(() => {
     if (!loaded || !authResolved) return;
-    if (!authUser && !window._fbAuth?.currentUser) {
+    // Vérifie authUser ET le currentUser Firebase en temps réel
+    const fbUser = window._fbAuth?.currentUser;
+    if (!authUser && !fbUser) {
       window.storage.get('auth_skipped').then(v => {
-        if (!v?.value) setShowLogin(true);
-      }).catch(() => {});
+        // Dernière vérification avant d'afficher le login
+        if (!v?.value && !window._fbAuth?.currentUser) {
+          setShowLogin(true);
+        }
+      }).catch(() => setShowLogin(true));
+    } else if (authUser || fbUser) {
+      setShowLogin(false);
     }
   }, [loaded, authResolved, authUser]);
 
@@ -3113,16 +3135,14 @@ function TabBar({ tab, setTab, lang }) {
     { id: "settings", label: t("tab_settings"), icon: Settings2 },
   ];
   return (
-    <>
-      <div style={styles.tabVersion}>v{APP_VERSION}</div>
-      <nav style={styles.tabBar}>
-      {tabs.map((t) => {
-        const Icon = t.icon;
-        const active = tab === t.id;
+    <nav style={styles.tabBar}>
+      {tabs.map((tb) => {
+        const Icon = tb.icon;
+        const active = tab === tb.id;
         return (
           <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
+            key={tb.id}
+            onClick={() => setTab(tb.id)}
             style={{
               ...styles.tabBtn,
               color: active ? "#0a6ebd" : "#6a7d90",
@@ -3130,13 +3150,13 @@ function TabBar({ tab, setTab, lang }) {
           >
             <Icon size={20} strokeWidth={active ? 2.4 : 1.8} />
             <span style={{ fontSize: 11, marginTop: 3, fontWeight: active ? 700 : 500 }}>
-              {t.label}
+              {tb.label}
             </span>
           </button>
         );
       })}
+      <div style={{ position: "absolute", top: 2, right: 8, fontSize: 9, color: "#c8d6e0" }}>v{APP_VERSION}</div>
     </nav>
-    </>
   );
 }
 
@@ -5912,7 +5932,7 @@ const styles = {
     cursor: "pointer",
     flexShrink: 0,
   },
-  main: { flex: 1, padding: "16px 16px 90px", overflowY: "auto" },
+  main: { flex: 1, padding: "16px 16px 0", paddingBottom: "calc(90px + env(safe-area-inset-bottom, 0px))", overflowY: "auto" },
   sectionRow: {
     display: "flex",
     alignItems: "center",
@@ -6374,15 +6394,19 @@ const styles = {
     flexShrink: 0,
   },
   tabBar: {
-    position: "sticky",
+    position: "fixed",
     bottom: 0,
+    left: "50%",
+    transform: "translateX(-50%)",
     display: "flex",
     background: "#ffffff",
     borderTop: "1px solid #e6ebe9",
     maxWidth: 480,
-    margin: "0 auto",
     width: "100%",
     alignItems: "center",
+    zIndex: 100,
+    paddingBottom: "env(safe-area-inset-bottom, 0px)",
+    boxShadow: "0 -1px 8px rgba(10,110,189,0.06)",
   },
   tabVersion: {
     textAlign: "center",
