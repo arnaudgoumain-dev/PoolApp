@@ -3568,14 +3568,7 @@ function PoolApp() {
       {showAddPool && (
         <AddPoolModal onClose={() => setShowAddPool(false)} onSave={addPool} lang={lang} />
       )}
-      {editingPool && (
-        <AddPoolModal
-          onClose={() => setEditingPool(null)}
-          onSave={(updated) => { updatePool(updated); setEditingPool(null); }}
-          lang={lang}
-          existingPool={editingPool}
-        />
-      )}
+
 
       {showWizard && activePlan && isPremium && (
         <TreatmentWizard
@@ -5922,7 +5915,7 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
             </button>
             <button
               style={{ background: "none", border: "none", color: "#0a6ebd", fontSize: 12, fontWeight: 600, cursor: "pointer", padding: "0 8px", flexShrink: 0 }}
-              onClick={() => onEditPool(p)}
+              onClick={() => setEditingPool(p)}
             >
               <Settings2 size={14} />
             </button>
@@ -6109,6 +6102,15 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
       </button>
 
       <div style={styles.versionTag}>PoolApp v{APP_VERSION}</div>
+
+      {editingPool && (
+        <AddPoolModal
+          onClose={() => setEditingPool(null)}
+          onSave={(updated) => { onUpdatePool(updated); setEditingPool(null); }}
+          lang={lang}
+          existingPool={editingPool}
+        />
+      )}
     </div>
   );
 }
