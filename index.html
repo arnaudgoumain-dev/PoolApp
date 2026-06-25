@@ -314,6 +314,12 @@
   };
 
   // Tente popup en premier, fallback redirect si bloqué (iOS Safari, etc.)
+  // Ré-authentification nécessaire avant suppression de compte
+  window._fbReauthGoogle = async () => {
+    const { reauthenticateWithPopup } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+    return reauthenticateWithPopup(auth, googleProvider);
+  };
+
   window._fbSignInWithPopup = async (auth, provider) => {
     try {
       return await signInWithPopup(auth, provider);

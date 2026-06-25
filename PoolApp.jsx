@@ -8,7 +8,8 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.2";
+const APP_VERSION = "1.3";
+const CGU_VERSION = "1.0"; // Incrémenter uniquement si le contenu des CGU change
 
 const TRANSLATIONS = {
   fr: {
@@ -54,6 +55,36 @@ const TRANSLATIONS = {
     report: "Rapport",
     time_col: "Horaire",
     advised_col: "Conseillé",
+    ccl_col: "CCL",
+    hard_col: "TH",
+    phos_col: "Phos.",
+    copper_col: "Cuivre",
+    iron_col: "Fer",
+    param_ccl: "Chlore combiné (CCL)",
+    param_hard: "Dureté (TH)",
+    param_phos: "Phosphates",
+    param_copper: "Cuivre",
+    param_iron: "Fer",
+    reco_hard_low: "Dureté trop basse ({val} mg/L)",
+    reco_hard_high: "Dureté trop élevée ({val} mg/L)",
+    reco_phos_high: "Phosphates trop élevés ({val} µg/L)",
+    reco_copper_high: "Cuivre trop élevé ({val} mg/L)",
+    reco_iron_high: "Fer trop élevé ({val} mg/L)",
+    reco_fallback_hard: "Chlorure de calcium",
+    reco_fallback_phos: "Anti-phosphates",
+    reco_fallback_sequestrant: "Séquestrant métaux",
+    note_tac_plus: "Ajouter progressivement, filtration en marche. Attendre 6h avant autre traitement.",
+    note_calcium: "Diluer avant ajout. Ne pas mélanger avec d'autres produits. Filtration en marche.",
+    note_anti_phos: "Verser devant la buse de refoulement, filtration en marche 24h.",
+    note_sequestrant: "Traitement cuivre/fer. Verser en périphérie du bassin, filtration en marche.",
+    action_hard_plus: "Monte la dureté (TH)",
+    action_phos_minus: "Réduit les phosphates",
+    action_sequestrant: "Séquestrant métaux (cuivre/fer)",
+    legal_notices: "Mentions légales",
+    cgu_version_label: "CGU version",
+    cgu_accepted_on: "Acceptées le",
+    cgu_updated_title: "Mise à jour des conditions",
+    cgu_updated_body: "Les conditions d'utilisation ont été mises à jour. Merci de les relire et de les accepter pour continuer.",
     applied_col: "Appliqué",
     disclaimer_title: "Mentions légales & Conditions d'utilisation",
     disclaimer_cgu: "J'accepte les conditions générales d'utilisation et la politique de confidentialité",
@@ -389,6 +420,36 @@ const TRANSLATIONS = {
     report: "Report",
     time_col: "Time",
     advised_col: "Advised",
+    ccl_col: "CCL",
+    hard_col: "TH",
+    phos_col: "Phos.",
+    copper_col: "Copper",
+    iron_col: "Iron",
+    param_ccl: "Combined chlorine (CCL)",
+    param_hard: "Hardness (TH)",
+    param_phos: "Phosphates",
+    param_copper: "Copper",
+    param_iron: "Iron",
+    reco_hard_low: "Hardness too low ({val} mg/L)",
+    reco_hard_high: "Hardness too high ({val} mg/L)",
+    reco_phos_high: "Phosphates too high ({val} µg/L)",
+    reco_copper_high: "Copper too high ({val} mg/L)",
+    reco_iron_high: "Iron too high ({val} mg/L)",
+    reco_fallback_hard: "Calcium chloride",
+    reco_fallback_phos: "Anti-phosphates",
+    reco_fallback_sequestrant: "Metal sequestrant",
+    note_tac_plus: "Add gradually, filtration running. Wait 6h before next treatment.",
+    note_calcium: "Dilute before adding. Do not mix with other products. Filtration running.",
+    note_anti_phos: "Pour in front of return jet, filtration running 24h.",
+    note_sequestrant: "Copper/iron treatment. Pour around pool perimeter, filtration running.",
+    action_hard_plus: "Increase hardness (TH)",
+    action_phos_minus: "Reduce phosphates",
+    action_sequestrant: "Metal sequestrant (copper/iron)",
+    legal_notices: "Legal notices",
+    cgu_version_label: "Terms version",
+    cgu_accepted_on: "Accepted on",
+    cgu_updated_title: "Terms updated",
+    cgu_updated_body: "The terms of use have been updated. Please read and accept them to continue.",
     applied_col: "Applied",
     disclaimer_title: "Legal Notice & Terms of Use",
     disclaimer_cgu: "I accept the terms of use and privacy policy",
@@ -714,6 +775,36 @@ const TRANSLATIONS = {
     report: "Bericht",
     time_col: "Uhrzeit",
     advised_col: "Empfohlen",
+    ccl_col: "CCL",
+    hard_col: "TH",
+    phos_col: "Phos.",
+    copper_col: "Kupfer",
+    iron_col: "Eisen",
+    param_ccl: "Gebundenes Chlor (CCL)",
+    param_hard: "Härte (TH)",
+    param_phos: "Phosphate",
+    param_copper: "Kupfer",
+    param_iron: "Eisen",
+    reco_hard_low: "Härte zu niedrig ({val} mg/L)",
+    reco_hard_high: "Härte zu hoch ({val} mg/L)",
+    reco_phos_high: "Phosphate zu hoch ({val} µg/L)",
+    reco_copper_high: "Kupfer zu hoch ({val} mg/L)",
+    reco_iron_high: "Eisen zu hoch ({val} mg/L)",
+    reco_fallback_hard: "Calciumchlorid",
+    reco_fallback_phos: "Anti-Phosphat",
+    reco_fallback_sequestrant: "Metallsequestriermittel",
+    note_tac_plus: "Schrittweise hinzufügen, Filtration läuft. 6h warten.",
+    note_calcium: "Vor der Zugabe verdünnen. Filtration läuft.",
+    note_anti_phos: "Vor der Rückflussdüse eingießen, Filtration 24h laufen lassen.",
+    note_sequestrant: "Kupfer/Eisen-Behandlung. Am Beckenrand eingießen.",
+    action_hard_plus: "Härte erhöhen (TH)",
+    action_phos_minus: "Phosphate reduzieren",
+    action_sequestrant: "Metallsequestriermittel (Kupfer/Eisen)",
+    legal_notices: "Rechtliche Hinweise",
+    cgu_version_label: "AGB-Version",
+    cgu_accepted_on: "Akzeptiert am",
+    cgu_updated_title: "AGB aktualisiert",
+    cgu_updated_body: "Die Nutzungsbedingungen wurden aktualisiert. Bitte lesen und akzeptieren Sie sie.",
     applied_col: "Angewendet",
     disclaimer_title: "Rechtliche Hinweise & Nutzungsbedingungen",
     disclaimer_cgu: "Ich akzeptiere die Nutzungsbedingungen und Datenschutzrichtlinie",
@@ -1038,6 +1129,36 @@ const TRANSLATIONS = {
     report: "Rapporto",
     time_col: "Orario",
     advised_col: "Consigliato",
+    ccl_col: "CCL",
+    hard_col: "TH",
+    phos_col: "Fos.",
+    copper_col: "Rame",
+    iron_col: "Ferro",
+    param_ccl: "Cloro combinato (CCL)",
+    param_hard: "Durezza (TH)",
+    param_phos: "Fosfati",
+    param_copper: "Rame",
+    param_iron: "Ferro",
+    reco_hard_low: "Durezza troppo bassa ({val} mg/L)",
+    reco_hard_high: "Durezza troppo alta ({val} mg/L)",
+    reco_phos_high: "Fosfati troppo alti ({val} µg/L)",
+    reco_copper_high: "Rame troppo alto ({val} mg/L)",
+    reco_iron_high: "Ferro troppo alto ({val} mg/L)",
+    reco_fallback_hard: "Cloruro di calcio",
+    reco_fallback_phos: "Anti-fosfati",
+    reco_fallback_sequestrant: "Sequestrante metalli",
+    note_tac_plus: "Aggiungere gradualmente, filtrazione in funzione. Attendere 6h.",
+    note_calcium: "Diluire prima dell'aggiunta. Filtrazione in funzione.",
+    note_anti_phos: "Versare davanti all'ugello di ritorno, filtrazione 24h.",
+    note_sequestrant: "Trattamento rame/ferro. Versare intorno alla vasca.",
+    action_hard_plus: "Aumenta la durezza (TH)",
+    action_phos_minus: "Riduce i fosfati",
+    action_sequestrant: "Sequestrante metalli (rame/ferro)",
+    legal_notices: "Note legali",
+    cgu_version_label: "Versione termini",
+    cgu_accepted_on: "Accettato il",
+    cgu_updated_title: "Termini aggiornati",
+    cgu_updated_body: "I termini di utilizzo sono stati aggiornati. Si prega di rileggerli e accettarli.",
     applied_col: "Applicato",
     disclaimer_title: "Note legali & Condizioni d'uso",
     disclaimer_cgu: "Accetto i termini di utilizzo e la politica sulla privacy",
@@ -1362,6 +1483,36 @@ const TRANSLATIONS = {
     report: "Informe",
     time_col: "Hora",
     advised_col: "Aconsejado",
+    ccl_col: "CCL",
+    hard_col: "TH",
+    phos_col: "Fos.",
+    copper_col: "Cobre",
+    iron_col: "Hierro",
+    param_ccl: "Cloro combinado (CCL)",
+    param_hard: "Dureza (TH)",
+    param_phos: "Fosfatos",
+    param_copper: "Cobre",
+    param_iron: "Hierro",
+    reco_hard_low: "Dureza demasiado baja ({val} mg/L)",
+    reco_hard_high: "Dureza demasiado alta ({val} mg/L)",
+    reco_phos_high: "Fosfatos demasiado altos ({val} µg/L)",
+    reco_copper_high: "Cobre demasiado alto ({val} mg/L)",
+    reco_iron_high: "Hierro demasiado alto ({val} mg/L)",
+    reco_fallback_hard: "Cloruro de calcio",
+    reco_fallback_phos: "Anti-fosfatos",
+    reco_fallback_sequestrant: "Secuestrante de metales",
+    note_tac_plus: "Añadir gradualmente, filtración en marcha. Esperar 6h.",
+    note_calcium: "Diluir antes de añadir. Filtración en marcha.",
+    note_anti_phos: "Verter delante del inyector de retorno, filtración 24h.",
+    note_sequestrant: "Tratamiento cobre/hierro. Verter alrededor de la piscina.",
+    action_hard_plus: "Aumentar dureza (TH)",
+    action_phos_minus: "Reducir fosfatos",
+    action_sequestrant: "Secuestrante de metales (cobre/hierro)",
+    legal_notices: "Avisos legales",
+    cgu_version_label: "Versión términos",
+    cgu_accepted_on: "Aceptado el",
+    cgu_updated_title: "Términos actualizados",
+    cgu_updated_body: "Los términos de uso han sido actualizados. Por favor léalos y acéptelos.",
     applied_col: "Aplicado",
     disclaimer_title: "Aviso legal & Condiciones de uso",
     disclaimer_cgu: "Acepto los términos de uso y la política de privacidad",
@@ -1686,6 +1837,36 @@ const TRANSLATIONS = {
     report: "Relatório",
     time_col: "Horário",
     advised_col: "Aconselhado",
+    ccl_col: "CCL",
+    hard_col: "TH",
+    phos_col: "Fos.",
+    copper_col: "Cobre",
+    iron_col: "Ferro",
+    param_ccl: "Cloro combinado (CCL)",
+    param_hard: "Dureza (TH)",
+    param_phos: "Fosfatos",
+    param_copper: "Cobre",
+    param_iron: "Ferro",
+    reco_hard_low: "Dureza muito baixa ({val} mg/L)",
+    reco_hard_high: "Dureza muito alta ({val} mg/L)",
+    reco_phos_high: "Fosfatos muito altos ({val} µg/L)",
+    reco_copper_high: "Cobre muito alto ({val} mg/L)",
+    reco_iron_high: "Ferro muito alto ({val} mg/L)",
+    reco_fallback_hard: "Cloreto de cálcio",
+    reco_fallback_phos: "Anti-fosfatos",
+    reco_fallback_sequestrant: "Sequestrante de metais",
+    note_tac_plus: "Adicionar gradualmente, filtração ligada. Aguardar 6h.",
+    note_calcium: "Diluir antes de adicionar. Filtração ligada.",
+    note_anti_phos: "Despejar na frente do injetor de retorno, filtração 24h.",
+    note_sequestrant: "Tratamento cobre/ferro. Despejar ao redor da piscina.",
+    action_hard_plus: "Aumentar dureza (TH)",
+    action_phos_minus: "Reduzir fosfatos",
+    action_sequestrant: "Sequestrante de metais (cobre/ferro)",
+    legal_notices: "Avisos legais",
+    cgu_version_label: "Versão termos",
+    cgu_accepted_on: "Aceito em",
+    cgu_updated_title: "Termos atualizados",
+    cgu_updated_body: "Os termos de uso foram atualizados. Por favor leia e aceite-os.",
     applied_col: "Aplicado",
     disclaimer_title: "Aviso legal & Termos de uso",
     disclaimer_cgu: "Aceito os termos de uso e a política de privacidade",
@@ -2002,8 +2183,13 @@ const TARGETS = {
   pH:     { min: 7.2, max: 7.4, unit: "",      label: "pH" },
   fCl:    { min: 1,   max: 3,   unit: "mg/L",  label: "Chlore libre" },
   tCl:    { min: 1,   max: 3,   unit: "mg/L",  label: "Chlore total" },
+  ccl:    { min: 0,   max: 0.5, unit: "mg/L",  label: "Chlore combiné (CCL)" },
   tac:    { min: 80,  max: 120, unit: "mg/L",  label: "TAC" },
   cya:    { min: 30,  max: 50,  unit: "mg/L",  label: "Stabilisant (CYA)" },
+  hard:   { min: 200, max: 400, unit: "mg/L",  label: "Dureté (TH)" },
+  phos:   { min: 0,   max: 100, unit: "µg/L",  label: "Phosphates" },
+  copper: { min: 0,   max: 0.2, unit: "mg/L",  label: "Cuivre" },
+  iron:   { min: 0,   max: 0.1, unit: "mg/L",  label: "Fer" },
   temp:   { min: 24,  max: 30,  unit: "°C",    label: "Température de l'eau" },
   sel:    { min: 3000,max: 5000,unit: "mg/L",  label: "Salinité (sel)" },
   brome:  { min: 2,   max: 4,   unit: "mg/L",  label: "Brome" },
@@ -2014,8 +2200,8 @@ const TARGETS = {
 // et si les cibles standard s'appliquent ou sont ajustées.
 // Structure de base sans labels (les labels sont traduits dynamiquement)
 const TREATMENT_TYPES_BASE = [
-  { value: "chlore",  labelKey: "treatment_chlore",  descKey: "treatment_chlore_desc",  params: ["pH", "fCl", "tCl", "tac", "cya", "temp"], targets: {} },
-  { value: "sel",     labelKey: "treatment_sel",     descKey: "treatment_sel_desc",     params: ["pH", "fCl", "tCl", "tac", "sel", "temp"], targets: { pH: { min: 7.2, max: 7.6 }, fCl: { min: 0.5, max: 2 }, sel: { min: 3000, max: 5000 } } },
+  { value: "chlore",  labelKey: "treatment_chlore",  descKey: "treatment_chlore_desc",  params: ["pH", "fCl", "tCl", "ccl", "tac", "cya", "hard", "phos", "copper", "iron", "temp"], targets: {} },
+  { value: "sel",     labelKey: "treatment_sel",     descKey: "treatment_sel_desc",     params: ["pH", "fCl", "tCl", "ccl", "tac", "sel", "hard", "phos", "copper", "iron", "temp"], targets: { pH: { min: 7.2, max: 7.6 }, fCl: { min: 0.5, max: 2 }, sel: { min: 3000, max: 5000 } } },
   { value: "brome",   labelKey: "treatment_brome",   descKey: "treatment_brome_desc",   params: ["pH", "brome", "tac", "temp"], targets: { pH: { min: 7.2, max: 7.6 }, brome: { min: 2, max: 4 } } },
   { value: "o2",      labelKey: "treatment_o2",      descKey: "treatment_o2_desc",      params: ["pH", "o2", "tac", "temp"], targets: { pH: { min: 6.8, max: 7.4 }, o2: { min: 10, max: 30 } } },
   { value: "autre",   labelKey: "treatment_autre",   descKey: "treatment_autre_desc",   params: ["pH", "fCl", "tac", "temp"], targets: {} },
@@ -2139,6 +2325,66 @@ const DEFAULT_PRODUCTS = [
     containerUnit: "kg",
     stockPercent: 100,
   },
+  {
+    id: "tac-plus",
+    name: "Produit TAC+ (bicarbonate de sodium)",
+    action: "tac+",
+    doseAmount: 200,
+    doseUnit: "g",
+    effectAmount: 10,
+    effectPer: 10,
+    waitHours: 6,
+    noteKey: "note_tac_plus",
+    note: "Ajouter progressivement, filtration en marche. Attendre 6h avant autre traitement.",
+    containerAmount: 5,
+    containerUnit: "kg",
+    stockPercent: 100,
+  },
+  {
+    id: "calcium-plus",
+    name: "Chlorure de calcium (dureté +)",
+    action: "hard+",
+    doseAmount: 160,
+    doseUnit: "g",
+    effectAmount: 10,
+    effectPer: 10,
+    waitHours: 4,
+    noteKey: "note_calcium",
+    note: "Diluer avant ajout. Ne pas mélanger avec d'autres produits. Filtration en marche.",
+    containerAmount: 5,
+    containerUnit: "kg",
+    stockPercent: 100,
+  },
+  {
+    id: "anti-phosphates",
+    name: "Anti-phosphates (PHOSfree type)",
+    action: "phos-",
+    doseAmount: 50,
+    doseUnit: "mL",
+    effectAmount: 100,
+    effectPer: 10,
+    waitHours: 24,
+    noteKey: "note_anti_phos",
+    note: "Verser directement devant la buse de refoulement, filtration en marche 24h.",
+    containerAmount: 1,
+    containerUnit: "L",
+    stockPercent: 100,
+  },
+  {
+    id: "sequestrant",
+    name: "Séquestrant métaux (Metal Free type)",
+    action: "sequestrant",
+    doseAmount: 100,
+    doseUnit: "mL",
+    effectAmount: 1,
+    effectPer: 10,
+    waitHours: 12,
+    noteKey: "note_sequestrant",
+    note: "Traitement préventif cuivre/fer. Verser en périphérie du bassin, filtration en marche.",
+    containerAmount: 1,
+    containerUnit: "L",
+    stockPercent: 100,
+  },
 ];
 
 function getProductActions(lang) {
@@ -2152,6 +2398,9 @@ function getProductActions(lang) {
     { value: "brome",            label: dict.action_brome || "Brome" },
     { value: "o2",               label: dict.action_o2 || "Oxygène actif" },
     { value: "sel",              label: dict.action_sel || "Sel (salinité)" },
+    { value: "hard+",            label: dict.action_hard_plus || "Monte la dureté (TH)" },
+    { value: "phos-",            label: dict.action_phos_minus || "Réduit les phosphates" },
+    { value: "sequestrant",      label: dict.action_sequestrant || "Séquestrant métaux (cuivre/fer)" },
   ];
 }
 // Fallback statique pour les usages sans lang (prompts IA)
@@ -2166,16 +2415,22 @@ const DEFAULT_WAIT_HOURS = {
   "brome": 6,
   "o2": 4,
   "sel": 24,
+  "hard+": 4,
+  "phos-": 24,
+  "sequestrant": 12,
 };
 
 const ACTION_PRIORITY = {
   "tac+": 1,
+  "hard+": 1,
   "ph-": 2,
   "ph+": 2,
   "chlore": 3,
   "chlore-stabilise": 4,
   "brome": 3,
   "o2": 3,
+  "phos-": 4,
+  "sequestrant": 5,
   "sel": 5,
 };
 
@@ -2192,6 +2447,8 @@ const STORAGE_KEYS = {
   activePlan: "pool:activePlan",
   gdprConsent: "pool:gdprConsent",
   dataConsent: "pool:dataConsent",
+  cguVersion: "pool:cguVersion",
+  cguAcceptedDate: "pool:cguAcceptedDate",
 };
 
 // ---------- Helpers ----------
@@ -2456,6 +2713,7 @@ const FB = {
   ready: () => !!window._fbAuth,
   onAuth: (cb) => window._fbOnAuth ? window._fbOnAuth(window._fbAuth, cb) : (() => {}),
   signInGoogle: () => window._fbSignInWithPopup(window._fbAuth, window._fbGoogle),
+  reauthGoogle: () => window._fbReauthGoogle ? window._fbReauthGoogle() : Promise.reject(new Error("not available")),
   signIn: (email, pwd) => window._fbSignIn(window._fbAuth, email, pwd),
   signUp: (email, pwd) => window._fbSignUp(window._fbAuth, email, pwd),
   resetPwd: (email) => window._fbResetPwd(window._fbAuth, email),
@@ -2535,7 +2793,7 @@ function LoginScreen({ lang, onSkip, onConsentChange, detectedLang }) {
           dataConsent: dataAccepted,
           dataConsentDate: dataAccepted ? new Date().toISOString() : null,
         }).catch(() => {});
-        if (onConsentChange) onConsentChange({ gdpr: true, data: dataAccepted });
+        if (onConsentChange) onConsentChange({ gdpr: true, data: dataAccepted, cguVersion: CGU_VERSION, cguDate: new Date().toISOString() });
         setMode("done");
         // onAuthStateChanged se déclenchera et appellera onSuccess via PoolApp
       } else {
@@ -2860,6 +3118,9 @@ function PoolApp() {
   const [gdprConsent, setGdprConsent] = useState(false);
   const [dataConsent, setDataConsent] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [acceptedCguVersion, setAcceptedCguVersion] = useState(null);
+  const [cguAcceptedDate, setCguAcceptedDate] = useState(null);
+  const [showCguUpdate, setShowCguUpdate] = useState(false);
   const detectedLang = (() => {
     const nav = (navigator.language || navigator.userLanguage || "fr").toLowerCase().slice(0, 2);
     return ["fr","en","de","it","es","pt"].includes(nav) ? nav : "fr";
@@ -2996,6 +3257,13 @@ function PoolApp() {
         if (gc?.value === "true") setGdprConsent(true);
         const dc = await window.storage.get(STORAGE_KEYS.dataConsent);
         if (dc?.value === "true") setDataConsent(true);
+        const cv = await window.storage.get(STORAGE_KEYS.cguVersion);
+        if (cv?.value) {
+          setAcceptedCguVersion(cv.value);
+          if (cv.value < CGU_VERSION) setShowCguUpdate(true);
+        }
+        const cd = await window.storage.get(STORAGE_KEYS.cguAcceptedDate);
+        if (cd?.value) setCguAcceptedDate(cd.value);
         const pr = await window.storage.get(STORAGE_KEYS.premium);
         if (pr?.value) setIsPremium(JSON.parse(pr.value) === true);
       } catch (e) {}
@@ -3068,6 +3336,16 @@ function PoolApp() {
     if (!loaded) return;
     window.storage.set(STORAGE_KEYS.dataConsent, String(dataConsent)).catch(() => {});
   }, [dataConsent, loaded]);
+
+  useEffect(() => {
+    if (!loaded || !acceptedCguVersion) return;
+    window.storage.set(STORAGE_KEYS.cguVersion, acceptedCguVersion).catch(() => {});
+  }, [acceptedCguVersion, loaded]);
+
+  useEffect(() => {
+    if (!loaded || !cguAcceptedDate) return;
+    window.storage.set(STORAGE_KEYS.cguAcceptedDate, cguAcceptedDate).catch(() => {});
+  }, [cguAcceptedDate, loaded]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -3364,10 +3642,14 @@ function PoolApp() {
       <div style={{ position: "fixed", inset: 0, zIndex: 1000, overflowY: "auto" }}>
         <LoginScreen
           lang={lang}
+          detectedLang={detectedLang}
           onSkip={() => {
             track("auth_skip");
             setShowLogin(false);
             window.storage.set("auth_skipped", "true").catch(() => {});
+          }}
+          onConsentChange={({ cguVersion: v, cguDate }) => {
+            if (v) { setAcceptedCguVersion(v); setCguAcceptedDate(cguDate || new Date().toISOString()); }
           }}
         />
       </div>
@@ -3464,8 +3746,16 @@ function PoolApp() {
             onDeleteAccount={async () => {
               try {
                 const uid = authUser?.uid;
+                const isGoogle = authUser?.providerData?.some(p => p.providerId === "google.com");
+                if (isGoogle) {
+                  try {
+                    await FB.reauthGoogle();
+                  } catch(reauthErr) {
+                    if (reauthErr.code !== "auth/cancelled-popup-request") throw reauthErr;
+                    return;
+                  }
+                }
                 await FB.deleteAccount();
-                // Supprime aussi le doc Firestore
                 if (uid && window._fbDb && window._fbDoc && window._fbDeleteDoc) {
                   await window._fbDeleteDoc(window._fbDoc(window._fbDb, "users", uid)).catch(() => {});
                 }
@@ -3473,7 +3763,6 @@ function PoolApp() {
                 setAuthUser(null);
                 setShowLogin(true);
               } catch (e) {
-                // Firebase exige une ré-authentification récente pour supprimer
                 if (e.code === "auth/requires-recent-login") {
                   alert("Reconnecte-toi d'abord pour pouvoir supprimer ton compte.");
                 } else {
@@ -3493,6 +3782,7 @@ function PoolApp() {
             setApiProvider={setApiProvider}
             lang={lang}
             setLang={setLang}
+            cguAcceptedDate={cguAcceptedDate}
             dataConsent={dataConsent}
             onRevokeDataConsent={() => {
               setDataConsent(false);
@@ -4281,6 +4571,98 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
     }
   }
 
+  // Dureté (TH / HARD)
+  const hardVal = parseFloat(latestLower.hard);
+  if (has("hard") && !Number.isNaN(hardVal) && targetsLower.hard) {
+    const hardT = targetsLower.hard;
+    if (hardVal < hardT.min) {
+      const diff = ((hardT.min + hardT.max) / 2) - hardVal;
+      const prod = products.find((p) => p.action === "hard+");
+      const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : Math.round(160 * (volume / 10) * (diff / 10));
+      steps.push({
+        action: "hard+",
+        title: _("reco_hard_low", { val: hardVal }),
+        productName: prod ? prod.name : _("reco_fallback_hard"),
+        productAvailable: !!prod,
+        productPhoto: prod?.photo || null,
+        doseText: prod ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)}` : _("missing_product_tip", { action: "hard+" }),
+        computedDoseAmount: computedDose,
+        doseUnit: prod?.doseUnit || "g",
+        note: prodNote(prod, "note_calcium"),
+        waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["hard+"],
+      });
+    } else if (hardVal > hardT.max) {
+      steps.push({
+        action: "hard-info",
+        title: _("reco_hard_high", { val: hardVal }),
+        productName: _("reco_no_product"),
+        productAvailable: true,
+        doseText: _("reco_cl_excess_text"),
+        computedDoseAmount: null,
+        doseUnit: null,
+        note: _("reco_note_cya"),
+        waitHours: 0,
+      });
+    }
+  }
+
+  // Phosphates
+  const phosVal = parseFloat(latestLower.phos);
+  if (has("phos") && !Number.isNaN(phosVal) && targetsLower.phos && phosVal > targetsLower.phos.max) {
+    const prod = products.find((p) => p.action === "phos-");
+    const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (phosVal / prod.effectAmount)) : Math.round(50 * (volume / 10) * (phosVal / 100));
+    steps.push({
+      action: "phos-",
+      title: _("reco_phos_high", { val: phosVal }),
+      productName: prod ? prod.name : _("reco_fallback_phos"),
+      productAvailable: !!prod,
+      productPhoto: prod?.photo || null,
+      doseText: prod ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)}` : _("missing_product_tip", { action: "phos-" }),
+      computedDoseAmount: computedDose,
+      doseUnit: prod?.doseUnit || "mL",
+      note: prodNote(prod, "note_anti_phos"),
+      waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["phos-"],
+    });
+  }
+
+  // Cuivre (informatif + séquestrant)
+  const copperVal = parseFloat(latestLower.copper);
+  if (has("copper") && !Number.isNaN(copperVal) && targetsLower.copper && copperVal > targetsLower.copper.max) {
+    const prod = products.find((p) => p.action === "sequestrant");
+    const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer)) : Math.round(100 * (volume / 10));
+    steps.push({
+      action: "sequestrant",
+      title: _("reco_copper_high", { val: copperVal }),
+      productName: prod ? prod.name : _("reco_fallback_sequestrant"),
+      productAvailable: !!prod,
+      productPhoto: prod?.photo || null,
+      doseText: prod ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)}` : _("missing_product_tip", { action: "sequestrant" }),
+      computedDoseAmount: computedDose,
+      doseUnit: prod?.doseUnit || "mL",
+      note: prodNote(prod, "note_sequestrant"),
+      waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["sequestrant"],
+    });
+  }
+
+  // Fer (informatif + séquestrant)
+  const ironVal = parseFloat(latestLower.iron);
+  if (has("iron") && !Number.isNaN(ironVal) && targetsLower.iron && ironVal > targetsLower.iron.max) {
+    const prod = products.find((p) => p.action === "sequestrant");
+    const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer)) : Math.round(100 * (volume / 10));
+    steps.push({
+      action: "sequestrant",
+      title: _("reco_iron_high", { val: ironVal }),
+      productName: prod ? prod.name : _("reco_fallback_sequestrant"),
+      productAvailable: !!prod,
+      productPhoto: prod?.photo || null,
+      doseText: prod ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)}` : _("missing_product_tip", { action: "sequestrant" }),
+      computedDoseAmount: computedDose,
+      doseUnit: prod?.doseUnit || "mL",
+      note: prodNote(prod, "note_sequestrant"),
+      waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["sequestrant"],
+    });
+  }
+
   // CYA
   const cya = parseFloat(latestLower.cya);
   if (has("cya") && !Number.isNaN(cya) && targetsLower.cya && cya > targetsLower.cya.max) {
@@ -4654,6 +5036,11 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
   const [sel, setSel] = useState(measure?.sel ?? "");
   const [brome, setBrome] = useState(measure?.brome ?? "");
   const [o2, setO2] = useState(measure?.o2 ?? "");
+  const [ccl, setCcl] = useState(measure?.ccl ?? "");
+  const [hard, setHard] = useState(measure?.hard ?? "");
+  const [phos, setPhos] = useState(measure?.phos ?? "");
+  const [copper, setCopper] = useState(measure?.copper ?? "");
+  const [iron, setIron] = useState(measure?.iron ?? "");
   const [note, setNote] = useState(measure?.note || "");
   const [photos, setPhotos] = useState(
     measure?.photo ? [measure.photo] : (measure?.photos || [])
@@ -4746,8 +5133,13 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
       pH,
       fCl,
       tCl,
+      ccl,
       tac,
       cya,
+      hard,
+      phos,
+      copper,
+      iron,
       temp,
       sel,
       brome,
@@ -4770,6 +5162,11 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
     { key: "sel",  label: t("param_sel"),   value: sel,   set: setSel,   step: "10",   placeholder: "4000" },
     { key: "brome",label: t("param_brome"), value: brome, set: setBrome, step: "0.1",  placeholder: "3.0" },
     { key: "o2",   label: t("param_o2"),    value: o2,    set: setO2,    step: "0.5",  placeholder: "20" },
+    { key: "ccl",   label: t("param_ccl"),   value: ccl,   set: setCcl,   step: "0.01", placeholder: "0.00" },
+    { key: "hard",  label: t("param_hard"),  value: hard,  set: setHard,  step: "1",    placeholder: "250" },
+    { key: "phos",  label: t("param_phos"),  value: phos,  set: setPhos,  step: "1",    placeholder: "100" },
+    { key: "copper",label: t("param_copper"),value: copper,set: setCopper,step: "0.01", placeholder: "0.10" },
+    { key: "iron",  label: t("param_iron"),  value: iron,  set: setIron,  step: "0.01", placeholder: "0.00" },
   ];
   const fields = activeParamKeys
     ? ALL_FIELDS.filter((f) => activeParamKeys.includes(f.key))
@@ -5022,8 +5419,11 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
     if (plan && plan.currentStepIdx >= 0) {
       const step = plan.steps[plan.currentStepIdx];
       if (step) {
-        const { value } = toDisplayUnit(step.computedDoseAmount || step.appliedAmount, step.doseUnit || "g");
-        setEditAmount(value != null ? String(value) : "");
+        // Pré-remplir avec computedDoseAmount même si le produit n'est pas en stock
+        const amount = step.computedDoseAmount ?? step.appliedAmount;
+        const unit = step.doseUnit || "g";
+        const { value } = toDisplayUnit(amount, unit);
+        setEditAmount(value != null && value !== "" ? String(value) : "");
       }
     }
   }, [plan?.currentStepIdx]);
@@ -5193,14 +5593,7 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
           >
             <CheckCircle2 size={18} /> {t("wizard_done")}
           </button>
-          {!isReady && (
-            <button
-              style={{ display:"flex",alignItems:"center",justifyContent:"center",gap:8,width:"100%",padding:"12px 0",borderRadius:12,border:"1px solid #b0d8f0",background:"#eaf4fb",color:"#0a6ebd",fontWeight:700,fontSize:14,cursor:"pointer" }}
-              onClick={handleApply}
-            >
-              {t("wizard_anticipate")}
-            </button>
-          )}
+
           <button
             style={{ background: "none", border: "none", color: "#9ab0c4", fontSize: 13, cursor: "pointer", padding: "8px 0" }}
             onClick={() => onSkipStep(currentIdx)}
@@ -5742,8 +6135,9 @@ function ProductModal({ product, onClose, onSave, isPremium, onWantPremium, appl
 }
 
 // ---------- Réglages ----------
-function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitchPool, onWantAddPool, onDeleteAllMeasures: onDeleteAllMeasuresRaw, poolMeasureCount, onGenerateReport, onWantPremiumForReport, onWantPremium, isPremium, setIsPremium, apiKey, setApiKey, apiProvider, setApiProvider, lang, setLang, authUser, onSignOut, onSignIn, onDeleteAccount, dataConsent, onRevokeDataConsent }) {
+function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitchPool, onWantAddPool, onDeleteAllMeasures: onDeleteAllMeasuresRaw, poolMeasureCount, onGenerateReport, onWantPremiumForReport, onWantPremium, isPremium, setIsPremium, apiKey, setApiKey, apiProvider, setApiProvider, lang, setLang, authUser, onSignOut, onSignIn, onDeleteAccount, dataConsent, onRevokeDataConsent, cguAcceptedDate }) {
   const [editingPool, setEditingPool] = useState(null);
+  const [showLegalModal, setShowLegalModal] = useState(false);
   const t = useT(lang);
   const [showLangPicker, setShowLangPicker] = useState(false);
   const [pendingLang, setPendingLang] = useState(lang);
@@ -6079,6 +6473,21 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
         </>
       )}
 
+      {/* Mentions légales */}
+      <div style={styles.sectionRow}>
+        <span style={styles.sectionLabel}>{t("legal_notices")}</span>
+      </div>
+      <div style={{ background: "#f5f8fc", borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontSize: 12, color: "#4a6480" }}>
+        <div>{t("cgu_version_label")} : <strong>CGU {CGU_VERSION}</strong></div>
+        {cguAcceptedDate && <div>{t("cgu_accepted_on")} : {new Date(cguAcceptedDate).toLocaleDateString()}</div>}
+      </div>
+      <button
+        style={{ width: "100%", padding: "10px 0", borderRadius: 10, border: "1px solid #d0e4f5", background: "#fff", color: "#0a6ebd", fontWeight: 600, fontSize: 13, cursor: "pointer", marginBottom: 16 }}
+        onClick={() => setShowLegalModal(true)}
+      >
+        {t("legal_notices")}
+      </button>
+
       {/* Révocation consentement données */}
       {dataConsent && (
         <div style={{ marginBottom: 16 }}>
@@ -6102,6 +6511,42 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
       </button>
 
       <div style={styles.versionTag}>PoolApp v{APP_VERSION}</div>
+
+      {showLegalModal && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(10,30,60,0.55)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+          <div style={{ background: "#fff", borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 480, padding: "20px 18px 32px", boxSizing: "border-box", maxHeight: "90dvh", display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <span style={{ fontSize: 15, fontWeight: 800, color: "#0d2b4e" }}>{t("legal_notices")} — CGU {CGU_VERSION}</span>
+              <button onClick={() => setShowLegalModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={20} /></button>
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", fontSize: 12, color: "#2d4a6e", lineHeight: 1.7, background: "#f5f8fc", borderRadius: 10, padding: "12px 14px", whiteSpace: "pre-wrap" }}>
+              {`PoolApp — Mentions légales & CGU v${CGU_VERSION}
+Éditeur : Arnaud Goumain
+
+1. Nature de l'application
+PoolApp est un outil d'aide à la gestion de la chimie de piscine à usage personnel. Les recommandations générées ne constituent pas un avis professionnel.
+
+2. Limitation de responsabilité
+L'éditeur décline toute responsabilité pour tout dommage résultant de l'application de traitements chimiques, erreur de dosage, réaction chimique ou dysfonctionnement.
+
+3. Responsabilité de l'utilisateur
+L'utilisateur est seul responsable de la vérification des dosages, du respect des notices d'utilisation, des réglementations locales et de la sécurité des personnes.
+
+4. Collecte de données
+PoolApp collecte les données de traitement (mesures, produits, photos) pour affiner les analyses. Ces données peuvent être exploitées et revendues à des organisations du secteur piscine/spa. Le consentement est optionnel et révocable depuis les Réglages.
+
+5. Usage réservé
+L'utilisation est réservée aux traitements d'eau de bassins piscine/spa.
+
+6. Professionnels
+Les professionnels utilisant PoolApp pour des tiers doivent obtenir le consentement des propriétaires des bassins.
+
+7. Absence de garantie
+L'application est fournie "en l'état", sans garantie d'exactitude ou d'adéquation à un usage particulier.`}
+            </div>
+          </div>
+        </div>
+      )}
 
       {editingPool && (
         <AddPoolModal
@@ -6234,12 +6679,8 @@ function AddPoolModal({ onClose, onSave, lang, existingPool }) {
     { value: "o2", label: t("treatment_o2") },
     { value: "autre", label: t("treatment_autre") },
   ];
-  const filtrationOptions = [
-    { value: "sable", label: t("filter_sand") },
-    { value: "cartouche", label: t("filter_cartridge") },
-    { value: "diatomees", label: t("filter_de") },
-    { value: "aucune", label: t("filter_none") },
-  ];
+  const filtrationTypes = getFiltrationTypes(lang || "fr");
+  const filtrationOptions = filtrationTypes.map(ft => ({ value: ft.value, label: ft.label }));
 
   return (
     <ModalShell onClose={onClose} title={isEdit ? t("edit_pool") : t("add_pool_title")}>
@@ -6290,12 +6731,6 @@ function AddPoolModal({ onClose, onSave, lang, existingPool }) {
       <select style={styles.input} value={filtration} onChange={e => setFiltration(e.target.value)}>
         {filtrationOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
-
-      {/* Gestion stock */}
-      <label style={{ ...styles.fieldLabel, display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-        <input type="checkbox" checked={manageStock} onChange={e => setManageStock(e.target.checked)} style={{ width: 18, height: 18, accentColor: "#0a6ebd" }} />
-        {t("manage_stock")}
-      </label>
 
       {/* Email rapport PDF */}
       <label style={styles.fieldLabel}>{t("pool_email")}</label>
@@ -6384,6 +6819,16 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
         <button style={styles.reportPrintBtn} onClick={() => window.print()}>
           <Download size={16} /> {t("report_print_btn")}
         </button>
+        {pool?.reportEmail && (
+          <button
+            style={{ ...styles.reportCloseBtn, background: "#0a6ebd", color: "#fff", border: "none", fontSize: 12, padding: "6px 12px" }}
+            onClick={() => {
+              window.open(`mailto:${pool.reportEmail}?subject=${encodeURIComponent("Rapport PoolApp — " + (pool.name || ""))}&body=${encodeURIComponent("Veuillez trouver ci-joint le rapport de suivi de votre piscine généré par PoolApp.")}`);
+            }}
+          >
+            ✉ {pool.reportEmail}
+          </button>
+        )}
       </div>
 
       <div style={styles.reportPage} id="report-printable">
@@ -6485,8 +6930,13 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
                 <th style={styles.reportThCell}>pH</th>
                 <th style={styles.reportThCell}>{t("cl_libre_col")}</th>
                 <th style={styles.reportThCell}>{t("cl_total_col")}</th>
+                <th style={styles.reportThCell}>{t("ccl_col")}</th>
                 <th style={styles.reportThCell}>{t("tac_col")}</th>
                 <th style={styles.reportThCell}>{t("cya_col")}</th>
+                <th style={styles.reportThCell}>{t("hard_col")}</th>
+                <th style={styles.reportThCell}>{t("phos_col")}</th>
+                <th style={styles.reportThCell}>{t("copper_col")}</th>
+                <th style={styles.reportThCell}>{t("iron_col")}</th>
                 <th style={styles.reportThCell}>{t("temp_col")}</th>
                 <th style={styles.reportThCell}>{t("product_col")}</th>
                 <th style={styles.reportThCell}>{t("advised_col")}</th>
@@ -6510,8 +6960,13 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
                           <td style={styles.reportTdCell} rowSpan={rowCount}>{measure.pH ?? "—"}</td>
                           <td style={styles.reportTdCell} rowSpan={rowCount}>{measure.fCl != null && measure.fCl !== "" ? `${measure.fCl} mg/L` : "—"}</td>
                           <td style={styles.reportTdCell} rowSpan={rowCount}>{measure.tCl != null && measure.tCl !== "" ? `${measure.tCl} mg/L` : "—"}</td>
+                          <td style={styles.reportTdCell} rowSpan={rowCount}>{measure.ccl != null && measure.ccl !== "" ? `${measure.ccl} mg/L` : "—"}</td>
                           <td style={styles.reportTdCell} rowSpan={rowCount}>{measure.tac != null && measure.tac !== "" ? `${measure.tac} mg/L` : "—"}</td>
                           <td style={styles.reportTdCell} rowSpan={rowCount}>{measure.cya != null && measure.cya !== "" ? `${measure.cya} mg/L` : "—"}</td>
+                          <td style={styles.reportTdCell} rowSpan={rowCount}>{measure.hard != null && measure.hard !== "" ? `${measure.hard} mg/L` : "—"}</td>
+                          <td style={styles.reportTdCell} rowSpan={rowCount}>{measure.phos != null && measure.phos !== "" ? `${measure.phos} µg/L` : "—"}</td>
+                          <td style={styles.reportTdCell} rowSpan={rowCount}>{measure.copper != null && measure.copper !== "" ? `${measure.copper} mg/L` : "—"}</td>
+                          <td style={styles.reportTdCell} rowSpan={rowCount}>{measure.iron != null && measure.iron !== "" ? `${measure.iron} mg/L` : "—"}</td>
                           <td style={styles.reportTdCell} rowSpan={rowCount}>{measure.temp != null && measure.temp !== "" ? `${measure.temp} °C` : "—"}</td>
                         </>
                       )}
@@ -6693,6 +7148,8 @@ const styles = {
     background: "#fafcfb",
     borderRadius: 12,
     padding: 8,
+    width: "100%",
+    boxSizing: "border-box",
   },
   reportRow: { marginBottom: 18 },
   reportRowDate: { fontSize: 14, fontWeight: 700, color: "#0d2b4e", marginBottom: 8 },
