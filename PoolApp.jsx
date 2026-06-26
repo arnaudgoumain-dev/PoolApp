@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.6.1";
+const APP_VERSION = "1.7.1";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -2825,21 +2825,35 @@ async function callAIText({ apiKey, apiProvider, prompt }) {
 
 async function analyzeStripPhoto({ apiKey, apiProvider, dataUrl }) {
   const prompt = `Tu es un expert en chimie de l'eau de piscine. Analyse cette photo qui montre soit :
-- Un écran de photomètre affichant des valeurs numériques
+- Un écran de photomètre (WaterLink SpinTouch, PoolLab, LaMotte, etc.) affichant des valeurs numériques
 - Une bandelette de test posée à côté de la légende colorée de son tube
 
-Lis toutes les valeurs visibles et retourne-les.
+Lis TOUTES les valeurs visibles et retourne-les dans le JSON ci-dessous.
+
+Correspondances des abréviations courantes :
+- FCL / Free Cl / Cl libre → fCl (chlore libre)
+- TCL / Total Cl / Cl total → tCl (chlore total)
+- CCL / Combined Cl / Chloramines → ccl (chlore combiné)
+- pH → pH
+- ALK / TAC / Alkalinity → tac (alcalinité totale)
+- CYA / Stabilizer / Cyanuric → cya (stabilisant)
+- HARD / TH / Hardness / Calcium → hard (dureté)
+- PHOS / Phosphates → phos (phosphates, en µg/L)
+- COPPER / Cu → copper (cuivre)
+- IRON / Fe → iron (fer)
+- TEMP / Temperature → temp (température en °C)
+- BROME / Br → brome
+- O2 / Active O2 → o2
 
 Réponds UNIQUEMENT en JSON valide, sans texte avant ou après, sans markdown, sans commentaires :
-{"pH": nombre ou null, "fCl": nombre ou null, "tCl": nombre ou null, "tac": nombre ou null, "cya": nombre ou null, "confidence": "haute" ou "moyenne" ou "basse", "note": "une phrase en français sur la lisibilité"}
+{"pH": nombre ou null, "fCl": nombre ou null, "tCl": nombre ou null, "ccl": nombre ou null, "tac": nombre ou null, "cya": nombre ou null, "hard": nombre ou null, "phos": nombre ou null, "copper": nombre ou null, "iron": nombre ou null, "temp": nombre ou null, "brome": nombre ou null, "o2": nombre ou null, "sel": nombre ou null, "confidence": "haute" ou "moyenne" ou "basse", "note": "une phrase en français sur la lisibilité"}
 
 Règles strictes :
 - Les valeurs doivent être des nombres (pas des chaînes)
-- null si le paramètre n'est pas visible
+- null si le paramètre n'est pas visible sur la photo
 - JSON pur, rien d'autre`;
 
   const text = await callAIWithImage({ apiKey, apiProvider, prompt, imageDataUrl: dataUrl });
-  // Extraction robuste du JSON même si l'IA ajoute du texte autour
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) throw new Error("Réponse IA non parseable : " + text.slice(0, 200));
   return JSON.parse(match[0]);
@@ -3266,12 +3280,8 @@ By creating an account, the user acknowledges having read this document in full 
           </>
         )}
 
-        {/* Skip */}
-        <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid #f0f4f8", textAlign: "center" }}>
-          <button onClick={onSkip} style={{ background: "none", border: "none", color: "#b0bec5", fontSize: 12, cursor: "pointer" }}>
-            {t("skip_login")}
-          </button>
-          <div style={{ marginTop: 8, fontSize: 10, color: "#d0d8e0" }}>v{APP_VERSION}</div>
+        <div style={{ marginTop: 20, textAlign: "center" }}>
+          <div style={{ fontSize: 10, color: "#d0d8e0" }}>v{APP_VERSION}</div>
         </div>
       </div>
     </div>
@@ -3370,9 +3380,8 @@ function PoolApp() {
     if (!loaded || !authResolved) return;
     const fbUser = window._fbAuth?.currentUser;
     if (!authUser && !fbUser) {
-      window.storage.get("auth_skipped").then(v => {
-        if (!v?.value && !window._fbAuth?.currentUser) setShowLogin(true);
-      }).catch(() => {});
+      // auth_skipped désactivé — connexion obligatoire
+      if (!window._fbAuth?.currentUser) setShowLogin(true);
     } else {
       setShowLogin(false);
     }
@@ -3847,9 +3856,7 @@ function PoolApp() {
           lang={lang}
           detectedLang={detectedLang}
           onSkip={() => {
-            track("auth_skip");
-            setShowLogin(false);
-            window.storage.set("auth_skipped", "true").catch(() => {});
+            // Désactivé — connexion obligatoire
           }}
           onConsentChange={({ cguVersion: v, cguDate }) => {
             if (v) { setAcceptedCguVersion(v); setCguAcceptedDate(cguDate || new Date().toISOString()); }
@@ -4970,22 +4977,32 @@ function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication,
       .map((m) => ({
         date: formatDateShort(m.date),
         timestamp: new Date(m.date).getTime(),
-        pH: m.pH !== undefined && m.pH !== "" ? parseFloat(m.pH) : null,
-        fCl: m.fCl !== undefined && m.fCl !== "" ? parseFloat(m.fCl) : null,
-        tCl: m.tCl !== undefined && m.tCl !== "" ? parseFloat(m.tCl) : null,
-        tac: m.tac !== undefined && m.tac !== "" ? parseFloat(m.tac) : null,
-        cya: m.cya !== undefined && m.cya !== "" ? parseFloat(m.cya) : null,
-        temp: m.temp !== undefined && m.temp !== "" ? parseFloat(m.temp) : null,
+        pH:     m.pH     !== undefined && m.pH     !== "" ? parseFloat(m.pH)     : null,
+        fCl:    m.fCl    !== undefined && m.fCl    !== "" ? parseFloat(m.fCl)    : null,
+        tCl:    m.tCl    !== undefined && m.tCl    !== "" ? parseFloat(m.tCl)    : null,
+        ccl:    m.ccl    !== undefined && m.ccl    !== "" ? parseFloat(m.ccl)    : null,
+        tac:    m.tac    !== undefined && m.tac    !== "" ? parseFloat(m.tac)    : null,
+        cya:    m.cya    !== undefined && m.cya    !== "" ? parseFloat(m.cya)    : null,
+        hard:   m.hard   !== undefined && m.hard   !== "" ? parseFloat(m.hard)   : null,
+        phos:   m.phos   !== undefined && m.phos   !== "" ? parseFloat(m.phos)   : null,
+        copper: m.copper !== undefined && m.copper !== "" ? parseFloat(m.copper) : null,
+        iron:   m.iron   !== undefined && m.iron   !== "" ? parseFloat(m.iron)   : null,
+        temp:   m.temp   !== undefined && m.temp   !== "" ? parseFloat(m.temp)   : null,
       }));
   }, [measures]);
 
   const chartParams = [
-    { key: "pH", color: "#1a8fd1", label: "pH", axis: "left" },
-    { key: "fCl", color: "#2b7fd9", label: t("param_fcl").replace(" (mg/L)", ""), axis: "left" },
-    { key: "tCl", color: "#8a6fd1", label: t("param_tcl").replace(" (mg/L)", ""), axis: "left" },
-    { key: "tac", color: "#d98c2b", label: t("tac_col"), axis: "right" },
-    { key: "cya", color: "#c4502f", label: t("cya_col"), axis: "right" },
-    { key: "temp", color: "#e0578a", label: t("temp_col"), axis: "right" },
+    { key: "pH",    color: "#1a8fd1", label: "pH",                                  axis: "left" },
+    { key: "fCl",   color: "#2b7fd9", label: t("param_fcl").replace(" (mg/L)", ""), axis: "left" },
+    { key: "tCl",   color: "#8a6fd1", label: t("param_tcl").replace(" (mg/L)", ""), axis: "left" },
+    { key: "ccl",   color: "#6a4fd1", label: t("ccl_col"),                          axis: "left" },
+    { key: "tac",   color: "#d98c2b", label: t("tac_col"),                          axis: "right" },
+    { key: "cya",   color: "#c4502f", label: t("cya_col"),                          axis: "right" },
+    { key: "hard",  color: "#2b9c8a", label: t("hard_col"),                         axis: "right" },
+    { key: "phos",  color: "#8a2b9c", label: t("phos_col"),                         axis: "right" },
+    { key: "copper",color: "#b8860b", label: t("copper_col"),                       axis: "left" },
+    { key: "iron",  color: "#8b4513", label: t("iron_col"),                         axis: "left" },
+    { key: "temp",  color: "#e0578a", label: t("temp_col"),                         axis: "right" },
   ];
 
   const allKeys = chartParams.map((cp) => cp.key);
@@ -5373,11 +5390,20 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
         });
         if (result.note) notes.push(result.note);
       }
-      if (merged.pH !== undefined) setPH(String(merged.pH));
-      if (merged.fCl !== undefined) setFCl(String(merged.fCl));
-      if (merged.tCl !== undefined) setTCl(String(merged.tCl));
-      if (merged.tac !== undefined) setTac(String(merged.tac));
-      if (merged.cya !== undefined) setCya(String(merged.cya));
+      if (merged.pH     !== undefined) setPH(String(merged.pH));
+      if (merged.fCl    !== undefined) setFCl(String(merged.fCl));
+      if (merged.tCl    !== undefined) setTCl(String(merged.tCl));
+      if (merged.ccl    !== undefined) setCcl(String(merged.ccl));
+      if (merged.tac    !== undefined) setTac(String(merged.tac));
+      if (merged.cya    !== undefined) setCya(String(merged.cya));
+      if (merged.hard   !== undefined) setHard(String(merged.hard));
+      if (merged.phos   !== undefined) setPhos(String(merged.phos));
+      if (merged.copper !== undefined) setCopper(String(merged.copper));
+      if (merged.iron   !== undefined) setIron(String(merged.iron));
+      if (merged.temp   !== undefined) setTemp(String(merged.temp));
+      if (merged.brome  !== undefined) setBrome(String(merged.brome));
+      if (merged.o2     !== undefined) setO2(String(merged.o2));
+      if (merged.sel    !== undefined) setSel(String(merged.sel));
       setAnalyzeNote(
         `${photos.length} photo(s) — ${notes.join(" / ") || t("verify_connection")}`
       );
@@ -7500,7 +7526,7 @@ const styles = {
     fontFamily:
       "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
     background: "#f0f6fb",
-    maxWidth: 480,
+    maxWidth: "100vw",
     margin: "0 auto",
     display: "flex",
     flexDirection: "column",
@@ -7653,7 +7679,7 @@ const styles = {
     cursor: "pointer",
     flexShrink: 0,
   },
-  main: { flex: 1, padding: "16px 16px 24px", overflowY: "auto", WebkitOverflowScrolling: "touch" },
+  main: { flex: 1, padding: "16px 16px 24px", overflowY: "auto", WebkitOverflowScrolling: "touch", maxWidth: 768, width: "100%", alignSelf: "center", boxSizing: "border-box" },
   sectionRow: {
     display: "flex",
     alignItems: "center",
