@@ -8,8 +8,8 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.3";
-const CGU_VERSION = "1.0"; // Incrémenter uniquement si le contenu des CGU change
+const APP_VERSION = "1.4";
+const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
   fr: {
@@ -81,6 +81,28 @@ const TRANSLATIONS = {
     action_phos_minus: "Réduit les phosphates",
     action_sequestrant: "Séquestrant métaux (cuivre/fer)",
     legal_notices: "Mentions légales",
+    lcen_title: "Mentions légales (LCEN)",
+    lcen_editor: "Éditeur",
+    lcen_editor_val: "Arnaud Goumain — Particulier",
+    lcen_host: "Hébergement",
+    lcen_host_val: "GitHub Inc. / Microsoft Corporation\n88 Colin P Kelly Jr St\nSan Francisco, CA 94107, USA",
+    lcen_contact: "Contact",
+    lcen_contact_val: "poolapp.support@gmail.com",
+    lcen_cgu_title: "Conditions générales d'utilisation",
+    lcen_ai_title: "Intelligence artificielle",
+    lcen_ai_val: "Lorsque vous utilisez l'analyse IA, vos données sont transmises directement à Anthropic ou OpenAI via votre clé API personnelle. L'éditeur ne stocke pas vos clés et n'a pas accès aux échanges. Consultez les CGU de votre fournisseur IA avant activation.",
+    lcen_photos_title: "Photos",
+    lcen_photos_val: "Ne soumettez que des photos de matériel de mesure ou d'eau du bassin. Sont exclus : personnes identifiables, éléments de localisation du domicile, données personnelles visibles.",
+    lcen_gdpr: "Données personnelles",
+    lcen_gdpr_val: "Conformément au RGPD et à la loi Informatique et Libertés, vous disposez d'un droit d'accès, de rectification, d'effacement et de portabilité de vos données. Pour exercer ces droits, contactez-nous à l'adresse ci-dessus. Vous pouvez également déposer une réclamation auprès de la CNIL : www.cnil.fr",
+    photo_warning_title: "Attention avant de photographier",
+    photo_warning_body: "Assurez-vous que la photo ne contient pas :\n• de personnes identifiables\n• d'éléments permettant de localiser votre domicile\n• de données personnelles visibles\n\nNous recommandons de désactiver la géolocalisation dans les paramètres de votre appareil photo.",
+    photo_warning_confirm: "J'ai compris, continuer",
+    ai_clause_title: "Analyse par intelligence artificielle",
+    ai_clause_body: "Lorsque vous activez l'analyse IA, vos données (mesures et photos) sont transmises directement à Anthropic ou OpenAI via votre clé API personnelle. PoolApp ne stocke pas votre clé et n'a pas accès aux échanges. Consultez les CGU de votre fournisseur d'IA avant utilisation.",
+    cgu_update_title: "Conditions mises à jour",
+    cgu_update_body: "Les conditions d'utilisation ont été mises à jour (v{version}). Merci de les relire et de les accepter pour continuer.",
+    cgu_update_accept: "Lire et accepter",
     cgu_version_label: "CGU version",
     cgu_accepted_on: "Acceptées le",
     cgu_updated_title: "Mise à jour des conditions",
@@ -446,6 +468,28 @@ const TRANSLATIONS = {
     action_phos_minus: "Reduce phosphates",
     action_sequestrant: "Metal sequestrant (copper/iron)",
     legal_notices: "Legal notices",
+    lcen_title: "Legal notices",
+    lcen_editor: "Publisher",
+    lcen_editor_val: "Arnaud Goumain — Private individual",
+    lcen_host: "Hosting",
+    lcen_host_val: "GitHub Inc. / Microsoft Corporation\n88 Colin P Kelly Jr St\nSan Francisco, CA 94107, USA",
+    lcen_contact: "Contact",
+    lcen_contact_val: "poolapp.support@gmail.com",
+    lcen_cgu_title: "Terms of use",
+    lcen_ai_title: "Artificial intelligence",
+    lcen_ai_val: "When using AI analysis, your data is transmitted directly to Anthropic or OpenAI via your personal API key. The publisher does not store your keys and has no access to exchanges. Consult your AI provider's terms before activating.",
+    lcen_photos_title: "Photos",
+    lcen_photos_val: "Only submit photos of measuring equipment or pool water. Excluded: identifiable persons, home location elements, visible personal data.",
+    lcen_gdpr: "Personal data",
+    lcen_gdpr_val: "Under GDPR and applicable data protection law, you have the right to access, rectify, erase and port your data. To exercise these rights, contact us at the address above. You may also file a complaint with your national data protection authority.",
+    photo_warning_title: "Warning before taking photos",
+    photo_warning_body: "Make sure the photo does not contain:\n• identifiable persons\n• elements that could locate your home\n• visible personal data\n\nWe recommend disabling geotagging in your camera settings.",
+    photo_warning_confirm: "I understand, continue",
+    ai_clause_title: "AI analysis",
+    ai_clause_body: "When you enable AI analysis, your data (measurements and photos) are sent directly to Anthropic or OpenAI via your personal API key. PoolApp does not store your key and has no access to the exchanges. Please review your AI provider's terms before use.",
+    cgu_update_title: "Terms updated",
+    cgu_update_body: "The terms of use have been updated (v{version}). Please read and accept them to continue.",
+    cgu_update_accept: "Read and accept",
     cgu_version_label: "Terms version",
     cgu_accepted_on: "Accepted on",
     cgu_updated_title: "Terms updated",
@@ -801,6 +845,28 @@ const TRANSLATIONS = {
     action_phos_minus: "Phosphate reduzieren",
     action_sequestrant: "Metallsequestriermittel (Kupfer/Eisen)",
     legal_notices: "Rechtliche Hinweise",
+    lcen_title: "Rechtliche Hinweise",
+    lcen_editor: "Herausgeber",
+    lcen_editor_val: "Arnaud Goumain — Privatperson",
+    lcen_host: "Hosting",
+    lcen_host_val: "GitHub Inc. / Microsoft Corporation\n88 Colin P Kelly Jr St\nSan Francisco, CA 94107, USA",
+    lcen_contact: "Kontakt",
+    lcen_contact_val: "poolapp.support@gmail.com",
+    lcen_cgu_title: "Nutzungsbedingungen",
+    lcen_ai_title: "Künstliche Intelligenz",
+    lcen_ai_val: "Bei der KI-Analyse werden Ihre Daten direkt über Ihren persönlichen API-Schlüssel an Anthropic oder OpenAI übertragen. Der Herausgeber speichert keine Schlüssel und hat keinen Zugang zu den Austauschen.",
+    lcen_photos_title: "Fotos",
+    lcen_photos_val: "Senden Sie nur Fotos von Messgeräten oder Poolwasser. Ausgeschlossen: identifizierbare Personen, Standortelemente, sichtbare persönliche Daten.",
+    lcen_gdpr: "Personenbezogene Daten",
+    lcen_gdpr_val: "Gemäß DSGVO haben Sie das Recht auf Zugang, Berichtigung, Löschung und Übertragbarkeit Ihrer Daten. Wenden Sie sich an uns unter der oben genannten Adresse oder reichen Sie eine Beschwerde bei Ihrer Datenschutzbehörde ein.",
+    photo_warning_title: "Warnung vor dem Fotografieren",
+    photo_warning_body: "Stellen Sie sicher, dass das Foto nicht enthält:\n• erkennbare Personen\n• Elemente, die Ihren Wohnort identifizieren könnten\n• sichtbare personenbezogene Daten\n\nWir empfehlen, die Geolokalisierung in den Kameraeinstellungen zu deaktivieren.",
+    photo_warning_confirm: "Verstanden, weiter",
+    ai_clause_title: "KI-Analyse",
+    ai_clause_body: "Wenn Sie die KI-Analyse aktivieren, werden Ihre Daten direkt über Ihren persönlichen API-Schlüssel an Anthropic oder OpenAI übermittelt. PoolApp speichert Ihren Schlüssel nicht.",
+    cgu_update_title: "AGB aktualisiert",
+    cgu_update_body: "Die Nutzungsbedingungen wurden aktualisiert (v{version}). Bitte lesen und akzeptieren Sie sie.",
+    cgu_update_accept: "Lesen und akzeptieren",
     cgu_version_label: "AGB-Version",
     cgu_accepted_on: "Akzeptiert am",
     cgu_updated_title: "AGB aktualisiert",
@@ -1155,6 +1221,28 @@ const TRANSLATIONS = {
     action_phos_minus: "Riduce i fosfati",
     action_sequestrant: "Sequestrante metalli (rame/ferro)",
     legal_notices: "Note legali",
+    lcen_title: "Note legali",
+    lcen_editor: "Editore",
+    lcen_editor_val: "Arnaud Goumain — Privato",
+    lcen_host: "Hosting",
+    lcen_host_val: "GitHub Inc. / Microsoft Corporation\n88 Colin P Kelly Jr St\nSan Francisco, CA 94107, USA",
+    lcen_contact: "Contatto",
+    lcen_contact_val: "poolapp.support@gmail.com",
+    lcen_cgu_title: "Termini di utilizzo",
+    lcen_ai_title: "Intelligenza artificiale",
+    lcen_ai_val: "Quando si utilizza l'analisi IA, i dati vengono trasmessi direttamente ad Anthropic o OpenAI tramite la chiave API personale dell'utente. L'editore non memorizza le chiavi e non ha accesso agli scambi.",
+    lcen_photos_title: "Foto",
+    lcen_photos_val: "Inviare solo foto di apparecchiature di misurazione o acqua della piscina. Esclusi: persone identificabili, elementi di localizzazione, dati personali visibili.",
+    lcen_gdpr: "Dati personali",
+    lcen_gdpr_val: "Ai sensi del RGPD, hai il diritto di accedere, rettificare, cancellare e trasferire i tuoi dati. Contattaci all'indirizzo sopra o presenta un reclamo all'autorità di protezione dei dati.",
+    photo_warning_title: "Attenzione prima di fotografare",
+    photo_warning_body: "Assicurati che la foto non contenga:\n• persone identificabili\n• elementi che possano localizzare la tua abitazione\n• dati personali visibili\n\nTi consigliamo di disattivare la geolocalizzazione nelle impostazioni della fotocamera.",
+    photo_warning_confirm: "Ho capito, continua",
+    ai_clause_title: "Analisi IA",
+    ai_clause_body: "Quando attivi l'analisi IA, i tuoi dati vengono trasmessi direttamente ad Anthropic o OpenAI tramite la tua chiave API personale. PoolApp non memorizza la tua chiave.",
+    cgu_update_title: "Termini aggiornati",
+    cgu_update_body: "I termini di utilizzo sono stati aggiornati (v{version}). Per favore leggili e accettali per continuare.",
+    cgu_update_accept: "Leggi e accetta",
     cgu_version_label: "Versione termini",
     cgu_accepted_on: "Accettato il",
     cgu_updated_title: "Termini aggiornati",
@@ -1509,6 +1597,28 @@ const TRANSLATIONS = {
     action_phos_minus: "Reducir fosfatos",
     action_sequestrant: "Secuestrante de metales (cobre/hierro)",
     legal_notices: "Avisos legales",
+    lcen_title: "Avisos legales",
+    lcen_editor: "Editor",
+    lcen_editor_val: "Arnaud Goumain — Particular",
+    lcen_host: "Alojamiento",
+    lcen_host_val: "GitHub Inc. / Microsoft Corporation\n88 Colin P Kelly Jr St\nSan Francisco, CA 94107, USA",
+    lcen_contact: "Contacto",
+    lcen_contact_val: "poolapp.support@gmail.com",
+    lcen_cgu_title: "Condiciones de uso",
+    lcen_ai_title: "Inteligencia artificial",
+    lcen_ai_val: "Al usar el análisis de IA, sus datos se transmiten directamente a Anthropic u OpenAI a través de su clave API personal. El editor no almacena las claves y no tiene acceso a los intercambios.",
+    lcen_photos_title: "Fotos",
+    lcen_photos_val: "Solo envíe fotos de equipos de medición o agua de la piscina. Excluidos: personas identificables, elementos de localización, datos personales visibles.",
+    lcen_gdpr: "Datos personales",
+    lcen_gdpr_val: "De acuerdo con el RGPD, tiene derecho a acceder, rectificar, suprimir y portar sus datos. Contáctenos en la dirección anterior o presente una reclamación ante la autoridad de protección de datos.",
+    photo_warning_title: "Atención antes de fotografiar",
+    photo_warning_body: "Asegúrese de que la foto no contenga:\n• personas identificables\n• elementos que puedan localizar su domicilio\n• datos personales visibles\n\nRecomendamos desactivar la geolocalización en los ajustes de la cámara.",
+    photo_warning_confirm: "Entendido, continuar",
+    ai_clause_title: "Análisis IA",
+    ai_clause_body: "Al activar el análisis IA, sus datos se transmiten directamente a Anthropic u OpenAI a través de su clave API personal. PoolApp no almacena su clave.",
+    cgu_update_title: "Términos actualizados",
+    cgu_update_body: "Los términos de uso han sido actualizados (v{version}). Por favor léalos y acéptelos para continuar.",
+    cgu_update_accept: "Leer y aceptar",
     cgu_version_label: "Versión términos",
     cgu_accepted_on: "Aceptado el",
     cgu_updated_title: "Términos actualizados",
@@ -1863,6 +1973,28 @@ const TRANSLATIONS = {
     action_phos_minus: "Reduzir fosfatos",
     action_sequestrant: "Sequestrante de metais (cobre/ferro)",
     legal_notices: "Avisos legais",
+    lcen_title: "Avisos legais",
+    lcen_editor: "Editor",
+    lcen_editor_val: "Arnaud Goumain — Particular",
+    lcen_host: "Hospedagem",
+    lcen_host_val: "GitHub Inc. / Microsoft Corporation\n88 Colin P Kelly Jr St\nSan Francisco, CA 94107, USA",
+    lcen_contact: "Contato",
+    lcen_contact_val: "poolapp.support@gmail.com",
+    lcen_cgu_title: "Termos de uso",
+    lcen_ai_title: "Inteligência artificial",
+    lcen_ai_val: "Ao usar a análise de IA, seus dados são transmitidos diretamente para Anthropic ou OpenAI através de sua chave API pessoal. O editor não armazena chaves e não tem acesso às trocas.",
+    lcen_photos_title: "Fotos",
+    lcen_photos_val: "Envie apenas fotos de equipamentos de medição ou água da piscina. Excluídos: pessoas identificáveis, elementos de localização, dados pessoais visíveis.",
+    lcen_gdpr: "Dados pessoais",
+    lcen_gdpr_val: "De acordo com o RGPD, você tem o direito de acessar, retificar, apagar e portar seus dados. Entre em contato conosco no endereço acima ou apresente uma reclamação à autoridade de proteção de dados.",
+    photo_warning_title: "Atenção antes de fotografar",
+    photo_warning_body: "Certifique-se de que a foto não contenha:\n• pessoas identificáveis\n• elementos que possam localizar sua residência\n• dados pessoais visíveis\n\nRecomendamos desativar a geolocalização nas configurações da câmera.",
+    photo_warning_confirm: "Entendi, continuar",
+    ai_clause_title: "Análise IA",
+    ai_clause_body: "Ao ativar a análise IA, seus dados são transmitidos diretamente à Anthropic ou OpenAI via sua chave API pessoal. O PoolApp não armazena sua chave.",
+    cgu_update_title: "Termos atualizados",
+    cgu_update_body: "Os termos de uso foram atualizados (v{version}). Por favor leia e aceite-os para continuar.",
+    cgu_update_accept: "Ler e aceitar",
     cgu_version_label: "Versão termos",
     cgu_accepted_on: "Aceito em",
     cgu_updated_title: "Termos atualizados",
@@ -2792,6 +2924,8 @@ function LoginScreen({ lang, onSkip, onConsentChange, detectedLang }) {
           gdprConsentDate: new Date().toISOString(),
           dataConsent: dataAccepted,
           dataConsentDate: dataAccepted ? new Date().toISOString() : null,
+          cguVersion: CGU_VERSION,
+          cguAcceptedDate: new Date().toISOString(),
         }).catch(() => {});
         if (onConsentChange) onConsentChange({ gdpr: true, data: dataAccepted, cguVersion: CGU_VERSION, cguDate: new Date().toISOString() });
         setMode("done");
@@ -2815,68 +2949,78 @@ function LoginScreen({ lang, onSkip, onConsentChange, detectedLang }) {
   if (mode === "disclaimer") {
     const tDisc = t; // t est déjà défini via useT au dessus
     const disclaimerText = {
-      fr: `AVIS DE NON-RESPONSABILITÉ — POOLAPP
-Éditeur : Arnaud Goumain — Version ${APP_VERSION}
+      fr: `CONDITIONS GÉNÉRALES D'UTILISATION — POOLAPP CGU v1.1
+Éditeur : Arnaud Goumain — Particulier
+Contact : [voir Réglages > Mentions légales]
+Hébergement : GitHub Inc. / Microsoft Corporation, San Francisco, USA
 
 1. NATURE DE L'APPLICATION
-PoolApp est un outil d'aide à la gestion de la chimie de piscine à usage personnel. Les recommandations générées sont automatiques et ne constituent pas un avis professionnel.
+PoolApp est un outil d'aide à la gestion de la chimie de piscine à usage strictement personnel. Les recommandations générées sont automatiques et ne constituent pas un avis professionnel, technique ou sanitaire.
 
 2. LIMITATION DE RESPONSABILITÉ
-L'éditeur décline toute responsabilité pour tout dommage résultant de l'application de traitements chimiques, erreur de dosage, réaction chimique ou dysfonctionnement de l'application.
+Dans les limites autorisées par la loi applicable, la responsabilité de l'éditeur est limitée au montant effectivement versé par l'utilisateur pour l'accès au service au cours des douze derniers mois (soit zéro euro, l'application étant gratuite). L'éditeur ne saurait être tenu responsable des dommages indirects, immatériels, consécutifs ou punitifs, y compris la perte de données, la perte de profits ou tout préjudice résultant de l'application de traitements chimiques basés sur les recommandations de l'application.
 
 3. RESPONSABILITÉ DE L'UTILISATEUR
-L'utilisateur est seul responsable de la vérification des dosages, du respect des notices d'utilisation des produits, des réglementations locales et de la sécurité des personnes.
+L'utilisateur est seul responsable de la vérification des dosages recommandés, du respect des notices d'utilisation des produits chimiques, des réglementations locales relatives au traitement de l'eau, et de la sécurité des personnes fréquentant le bassin traité.
 
 4. PRODUITS CHIMIQUES
-Les produits de traitement peuvent être dangereux. L'utilisateur doit lire les fiches de données de sécurité (FDS) et respecter les précautions prescrites.
+Les produits de traitement de l'eau peuvent être dangereux. L'utilisateur doit lire les fiches de données de sécurité (FDS) et respecter les précautions d'emploi, de stockage et d'élimination prescrites par les fabricants.
 
-5. COLLECTE DE DONNÉES
-PoolApp collecte les données de traitement (mesures, produits utilisés, photos) afin d'affiner les analyses et recommandations. Ces données peuvent être exploitées et revendues par l'éditeur à des organisations du secteur du traitement de l'eau (piscines, spas, équipements et produits de traitement). Le consentement à la collecte est optionnel et révocable à tout moment depuis les Réglages.
+5. INTELLIGENCE ARTIFICIELLE (ANALYSE PAR IA)
+Lorsque l'utilisateur active la fonctionnalité d'analyse par intelligence artificielle, les données saisies (valeurs de mesure et photos) sont transmises directement au fournisseur d'IA dont l'utilisateur a fourni la clé API personnelle (Anthropic ou OpenAI). Cette transmission s'effectue de façon directe entre l'appareil de l'utilisateur et le serveur du fournisseur, sous la seule responsabilité de l'utilisateur. L'éditeur de PoolApp ne stocke pas les clés API et n'a pas accès aux échanges entre l'utilisateur et le fournisseur d'IA. L'utilisateur est invité à consulter les conditions d'utilisation de son fournisseur d'IA avant d'activer cette fonctionnalité.
 
-6. DONNÉES IA
-Les analyses photo par intelligence artificielle sont indicatives. L'utilisateur doit vérifier les valeurs par des méthodes certifiées avant tout traitement.
+6. PHOTOS ET DONNÉES PERSONNELLES
+L'utilisateur s'engage à ne soumettre à l'analyse par intelligence artificielle que des photos du matériel de mesure (photomètre, bandelettes) ou de l'eau du bassin. Sont strictement exclus : toute image permettant d'identifier des personnes, de localiser un domicile (façade, plaque d'immatriculation, rue visible) ou contenant des données personnelles visibles. L'éditeur décline toute responsabilité quant au contenu des photos soumises par l'utilisateur.
 
 7. USAGE RÉSERVÉ
-L'utilisation de PoolApp est réservée aux traitements d'eau de bassins de type piscine ou spa. Tout autre usage est exclu.
+L'utilisation de PoolApp est réservée aux traitements d'eau de bassins de type piscine ou spa. Tout autre usage est exclu de la présente licence.
 
 8. PROFESSIONNELS
-Les professionnels utilisant PoolApp pour des prestations réalisées pour le compte de tiers sont tenus de faire valider aux propriétaires desdits bassins la collecte par l'éditeur des données de traitement.
+Les professionnels utilisant PoolApp pour des prestations réalisées pour le compte de tiers sont tenus d'informer les propriétaires des bassins traités des conditions du présent document et d'obtenir leur accord exprès avant toute collecte de données les concernant.
 
-9. ABSENCE DE GARANTIE
-L'application est fournie "en l'état", sans garantie d'exactitude, de fiabilité ou d'adéquation à un usage particulier.
+9. DONNÉES PERSONNELLES ET RGPD
+Conformément au RGPD et à la loi Informatique et Libertés, l'utilisateur dispose d'un droit d'accès, de rectification, d'effacement et de portabilité de ses données. Pour exercer ces droits ou déposer une réclamation, l'utilisateur peut contacter l'éditeur via les Réglages > Mentions légales, ou s'adresser à la CNIL : www.cnil.fr
 
-En créant un compte, l'utilisateur reconnaît avoir pris connaissance du présent avis et en accepte les termes.`,
-      en: `DISCLAIMER — POOLAPP
-Publisher: Arnaud Goumain — Version ${APP_VERSION}
+10. ABSENCE DE GARANTIE
+L'application est fournie "en l'état", sans garantie d'aucune sorte, expresse ou implicite, quant à son exactitude, sa fiabilité ou son adéquation à un usage particulier.
+
+En créant un compte, l'utilisateur reconnaît avoir pris connaissance de l'intégralité du présent document (CGU v1.1) et en accepte les termes.`,
+      en: `TERMS OF USE — POOLAPP CGU v1.1
+Publisher: Arnaud Goumain — Private individual
+Contact: [see Settings > Legal notices]
+Hosting: GitHub Inc. / Microsoft Corporation, San Francisco, USA
 
 1. NATURE OF THE APPLICATION
-PoolApp is a personal pool chemistry management tool. Generated recommendations are automatic and do not constitute professional advice.
+PoolApp is a personal pool chemistry management tool. Generated recommendations are automatic and do not constitute professional, technical or health advice.
 
 2. LIMITATION OF LIABILITY
-The publisher disclaims all liability for any damage resulting from chemical treatments, dosage errors, chemical reactions or application malfunctions.
+To the extent permitted by applicable law, the publisher's liability is limited to the amount actually paid by the user for access to the service in the preceding twelve months (i.e. zero euros, as the application is free). The publisher shall not be liable for indirect, immaterial, consequential or punitive damages, including loss of data, loss of profits, or any damage resulting from the application of chemical treatments based on the application's recommendations.
 
 3. USER RESPONSIBILITY
-The user is solely responsible for verifying dosages, following product instructions, complying with local regulations and ensuring the safety of persons.
+The user is solely responsible for verifying recommended dosages, following product instructions, complying with local water treatment regulations, and ensuring the safety of persons using the treated pool.
 
 4. CHEMICAL PRODUCTS
-Treatment products may be hazardous. The user must read safety data sheets (SDS) and follow prescribed precautions.
+Water treatment products may be hazardous. The user must read safety data sheets (SDS) and follow the precautions prescribed by manufacturers.
 
-5. DATA COLLECTION
-PoolApp collects treatment data (measurements, products, photos) to improve analysis and recommendations. This data may be used and sold by the publisher to pool/spa industry organizations. Consent is optional and revocable at any time from Settings.
+5. ARTIFICIAL INTELLIGENCE (AI ANALYSIS)
+When the user activates the artificial intelligence analysis feature, the data entered (measurement values and photos) are transmitted directly to the AI provider whose personal API key the user has provided (Anthropic or OpenAI). This transmission occurs directly between the user's device and the provider's server, under the user's sole responsibility. The PoolApp publisher does not store API keys and has no access to exchanges between the user and the AI provider. The user is invited to consult their AI provider's terms of use before activating this feature.
 
-6. AI DATA
-Photo analysis by AI is indicative. Users must verify values by certified methods before any treatment.
+6. PHOTOS AND PERSONAL DATA
+The user undertakes to submit to AI analysis only photos of measuring equipment (photometer, test strips) or pool water. Strictly excluded are: any image that could identify persons, locate a residence (facade, license plate, visible street) or contain visible personal data. The publisher accepts no liability for the content of photos submitted by the user.
 
 7. PERMITTED USE
-PoolApp is intended exclusively for pool and spa water treatment. Any other use is excluded.
+Use of PoolApp is reserved for water treatment of pool or spa type basins. Any other use is excluded from this licence.
 
 8. PROFESSIONALS
-Professionals using PoolApp for services on behalf of third parties must obtain the pool owners' consent for data collection by the publisher.
+Professionals using PoolApp for services performed on behalf of third parties must inform the owners of treated pools of the terms of this document and obtain their express agreement before any collection of data concerning them.
 
-9. NO WARRANTY
-The application is provided "as is" without warranty of accuracy, reliability or fitness for a particular purpose.
+9. PERSONAL DATA AND GDPR
+In accordance with the GDPR and the French Data Protection Act, users have the right to access, rectify, erase and port their data. To exercise these rights or lodge a complaint, users may contact the publisher via Settings > Legal notices, or contact the CNIL: www.cnil.fr
 
-By creating an account, the user acknowledges having read and accepted these terms.`,
+10. NO WARRANTY
+The application is provided "as is" without warranty of any kind, express or implied, as to its accuracy, reliability or fitness for a particular purpose.
+
+By creating an account, the user acknowledges having read this document in full (Terms v1.1) and accepts its terms.`,
     };
     const text = disclaimerText[detectedLang || lang] || disclaimerText.en;
     return (
@@ -3115,6 +3259,8 @@ function PoolApp() {
   const [validatingMeasure, setValidatingMeasure] = useState(null);
   const [activePlan, setActivePlan] = useState(null); // { measureId, steps: [{...rec, appliedAt, skipped, scheduledAt}], currentStepIdx }
   const [showWizard, setShowWizard] = useState(false);
+  const [showPhotoWarning, setShowPhotoWarning] = useState(false);
+  const [photoWarningCallback, setPhotoWarningCallback] = useState(null);
   const [gdprConsent, setGdprConsent] = useState(false);
   const [dataConsent, setDataConsent] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
@@ -3805,6 +3951,10 @@ function PoolApp() {
           }}
           onSave={addMeasure}
           isPremium={isPremium}
+          onRequestPhotoAccess={(cb) => {
+            setPhotoWarningCallback(() => cb);
+            setShowPhotoWarning(true);
+          }}
           onWantPremium={() => {
             setShowAddMeasure(false);
             setEditingMeasure(null);
@@ -3859,6 +4009,66 @@ function PoolApp() {
         <AddPoolModal onClose={() => setShowAddPool(false)} onSave={addPool} lang={lang} />
       )}
 
+
+      {showPhotoWarning && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 600, background: "rgba(10,30,60,0.65)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div style={{ background: "#fff", borderRadius: 20, padding: 24, maxWidth: 420, width: "100%", boxShadow: "0 8px 32px #0a6ebd22" }}>
+            <div style={{ fontSize: 28, textAlign: "center", marginBottom: 8 }}>📸</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#0d2b4e", textAlign: "center", marginBottom: 12 }}>
+              {tFn("photo_warning_title")}
+            </div>
+            <div style={{ fontSize: 13, color: "#4a6480", lineHeight: 1.7, background: "#f5f8fc", borderRadius: 10, padding: "12px 14px", marginBottom: 16, whiteSpace: "pre-line" }}>
+              {tFn("photo_warning_body")}
+            </div>
+            <button
+              style={{ width: "100%", padding: "13px 0", borderRadius: 12, border: "none", background: "#0a6ebd", color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer" }}
+              onClick={() => {
+                setShowPhotoWarning(false);
+                if (photoWarningCallback) { photoWarningCallback(); setPhotoWarningCallback(null); }
+              }}
+            >
+              {tFn("photo_warning_confirm")}
+            </button>
+            <button
+              onClick={() => { setShowPhotoWarning(false); setPhotoWarningCallback(null); }}
+              style={{ width: "100%", background: "none", border: "none", color: "#9ab0c4", fontSize: 13, cursor: "pointer", marginTop: 8, padding: "6px 0" }}
+            >
+              {tFn("cancel")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modale re-acceptation CGU si nouvelle version */}
+      {showCguUpdate && !showLogin && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 900, background: "rgba(10,30,60,0.8)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div style={{ background: "#fff", borderRadius: 20, padding: 24, maxWidth: 440, width: "100%", boxShadow: "0 8px 32px #0a6ebd22" }}>
+            <div style={{ fontSize: 24, textAlign: "center", marginBottom: 8 }}>📋</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#0d2b4e", textAlign: "center", marginBottom: 8 }}>
+              {tFn("cgu_updated_title")}
+            </div>
+            <div style={{ fontSize: 13, color: "#4a6480", lineHeight: 1.6, marginBottom: 16, textAlign: "center" }}>
+              {tFn("cgu_updated_body")}
+            </div>
+            <div style={{ fontSize: 11, color: "#9ab0c4", textAlign: "center", marginBottom: 16 }}>
+              CGU {CGU_VERSION}
+            </div>
+            <button
+              style={{ width: "100%", padding: "13px 0", borderRadius: 12, border: "none", background: "#0a6ebd", color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer" }}
+              onClick={() => {
+                setAcceptedCguVersion(CGU_VERSION);
+                setCguAcceptedDate(new Date().toISOString());
+                setShowCguUpdate(false);
+                if (authUser?.uid) {
+                  FB.saveUser(authUser.uid, { cguVersion: CGU_VERSION, cguAcceptedDate: new Date().toISOString() }).catch(() => {});
+                }
+              }}
+            >
+              {tFn("disclaimer_cgu")}
+            </button>
+          </div>
+        </div>
+      )}
 
       {showWizard && activePlan && isPremium && (
         <TreatmentWizard
@@ -5020,7 +5230,7 @@ function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, applicat
 }
 
 // ---------- Modal Ajout mesure ----------
-function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, apiKey, apiProvider, activeParamKeys, lang }) {
+function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, apiKey, apiProvider, activeParamKeys, lang, onRequestPhotoAccess }) {
   const t = useT(lang || "fr");
   const isEditing = !!measure;
   const [date, setDate] = useState(
@@ -5211,7 +5421,10 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
             <button
               type="button"
               style={styles.photoCaptureBtnHalf}
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                if (onRequestPhotoAccess) onRequestPhotoAccess(() => fileInputRef.current?.click());
+                else fileInputRef.current?.click();
+              }}
             >
               <Camera size={17} />
               {photoBusy ? t("loading") : photos.length ? t("other_photo") : t("camera_btn")}
@@ -5219,7 +5432,10 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
             <button
               type="button"
               style={styles.photoCaptureBtnHalf}
-              onClick={() => galleryInputRef.current?.click()}
+              onClick={() => {
+                if (onRequestPhotoAccess) onRequestPhotoAccess(() => galleryInputRef.current?.click());
+                else galleryInputRef.current?.click();
+              }}
             >
               <ImageOff size={17} />
               {photoBusy ? t("loading") : photos.length ? t("other_gallery") : t("gallery_btn")}
@@ -6519,30 +6735,29 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
               <span style={{ fontSize: 15, fontWeight: 800, color: "#0d2b4e" }}>{t("legal_notices")} — CGU {CGU_VERSION}</span>
               <button onClick={() => setShowLegalModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={20} /></button>
             </div>
-            <div style={{ flex: 1, overflowY: "auto", fontSize: 12, color: "#2d4a6e", lineHeight: 1.7, background: "#f5f8fc", borderRadius: 10, padding: "12px 14px", whiteSpace: "pre-wrap" }}>
-              {`PoolApp — Mentions légales & CGU v${CGU_VERSION}
-Éditeur : Arnaud Goumain
-
-1. Nature de l'application
-PoolApp est un outil d'aide à la gestion de la chimie de piscine à usage personnel. Les recommandations générées ne constituent pas un avis professionnel.
-
-2. Limitation de responsabilité
-L'éditeur décline toute responsabilité pour tout dommage résultant de l'application de traitements chimiques, erreur de dosage, réaction chimique ou dysfonctionnement.
-
-3. Responsabilité de l'utilisateur
-L'utilisateur est seul responsable de la vérification des dosages, du respect des notices d'utilisation, des réglementations locales et de la sécurité des personnes.
-
-4. Collecte de données
-PoolApp collecte les données de traitement (mesures, produits, photos) pour affiner les analyses. Ces données peuvent être exploitées et revendues à des organisations du secteur piscine/spa. Le consentement est optionnel et révocable depuis les Réglages.
-
-5. Usage réservé
-L'utilisation est réservée aux traitements d'eau de bassins piscine/spa.
-
-6. Professionnels
-Les professionnels utilisant PoolApp pour des tiers doivent obtenir le consentement des propriétaires des bassins.
-
-7. Absence de garantie
-L'application est fournie "en l'état", sans garantie d'exactitude ou d'adéquation à un usage particulier.`}
+            <div style={{ flex: 1, overflowY: "auto", fontSize: 12, color: "#2d4a6e", lineHeight: 1.7, background: "#f5f8fc", borderRadius: 10, padding: "12px 14px" }}>
+              {/* Éditeur */}
+              <div style={{ fontWeight: 700, color: "#0d2b4e", marginBottom: 2 }}>{t("lcen_editor")}</div>
+              <div style={{ marginBottom: 12 }}>{t("lcen_editor_val")}</div>
+              <div style={{ fontWeight: 700, color: "#0d2b4e", marginBottom: 2 }}>{t("lcen_contact")}</div>
+              <div style={{ marginBottom: 12 }}><a href={`mailto:${t("lcen_contact_val")}`} style={{ color: "#0a6ebd" }}>{t("lcen_contact_val")}</a></div>
+              {/* Hébergement */}
+              <div style={{ fontWeight: 700, color: "#0d2b4e", marginBottom: 2 }}>{t("lcen_host")}</div>
+              <div style={{ whiteSpace: "pre-wrap", marginBottom: 12 }}>{t("lcen_host_val")}</div>
+              {/* CGU */}
+              <div style={{ fontWeight: 700, color: "#0d2b4e", marginTop: 8, marginBottom: 4 }}>{t("lcen_cgu_title")} — CGU {CGU_VERSION}</div>
+              <div style={{ marginBottom: 10, fontSize: 11, color: "#4a6480" }}>
+                {[
+                  { title: t("lcen_ai_title"), body: t("lcen_ai_val") },
+                  { title: t("lcen_photos_title"), body: t("lcen_photos_val") },
+                  { title: t("lcen_gdpr"), body: t("lcen_gdpr_val") },
+                ].map((s, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <div style={{ fontWeight: 700, color: "#0d2b4e", marginBottom: 2 }}>{i+1}. {s.title}</div>
+                    <div style={{ lineHeight: 1.6 }}>{s.body}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
