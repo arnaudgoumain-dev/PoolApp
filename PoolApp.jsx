@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.5";
+const APP_VERSION = "1.5.1";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -5007,9 +5007,6 @@ function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication,
         <History size={40} color="#7ab8e8" strokeWidth={1.5} />
         <p style={styles.emptyTitle}>{t("no_history")}</p>
         <p style={styles.emptyText}>{t("no_history_sub")}</p>
-        <button style={styles.primaryBtn} onClick={onAdd}>
-          <Plus size={18} /> {t("add_measure")}
-        </button>
       </div>
     );
   }
@@ -5131,9 +5128,6 @@ function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication,
 
       <div style={styles.sectionRow}>
         <span style={styles.sectionLabel}>{t("journal")}</span>
-        <button style={styles.smallAddBtn} onClick={onAdd}>
-          <Plus size={16} />
-        </button>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -6793,7 +6787,7 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
         {cguAcceptedDate && <div>{t("cgu_accepted_on")} : {new Date(cguAcceptedDate).toLocaleDateString()}</div>}
       </div>
       <button
-        style={{ width: "100%", padding: "10px 0", borderRadius: 10, border: "1px solid #d0e4f5", background: "#fff", color: "#0a6ebd", fontWeight: 600, fontSize: 13, cursor: "pointer", marginBottom: 16 }}
+        style={{ width: "100%", padding: "10px 0", borderRadius: 10, border: "none", background: "#0a6ebd", color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer", marginBottom: 16 }}
         onClick={() => setShowLegalModal(true)}
       >
         {t("legal_notices")}
@@ -7609,9 +7603,9 @@ const styles = {
     marginTop: 6,
     padding: "10px 0",
     borderRadius: 11,
-    border: "1.5px dashed #90c4e8",
-    background: "transparent",
-    color: "#0a6ebd",
+    border: "none",
+    background: "#0a6ebd",
+    color: "#fff",
     fontWeight: 700,
     fontSize: 13,
     cursor: "pointer",
@@ -7696,9 +7690,9 @@ const styles = {
     gap: 6,
     padding: "11px 0",
     borderRadius: 12,
-    border: "1.5px dashed #90c4e8",
-    background: "transparent",
-    color: "#0a6ebd",
+    border: "none",
+    background: "#0a6ebd",
+    color: "#fff",
     fontWeight: 700,
     fontSize: 13.5,
     marginBottom: 22,
@@ -7761,9 +7755,9 @@ const styles = {
     padding: "13px 0",
     marginTop: 4,
     borderRadius: 12,
-    border: "1.5px solid #0a6ebd",
-    background: "#ffffff",
-    color: "#0a6ebd",
+    border: "none",
+    background: "#0a6ebd",
+    color: "#fff",
     fontWeight: 700,
     fontSize: 13.5,
     cursor: "pointer",
@@ -7776,9 +7770,9 @@ const styles = {
     width: "100%",
     padding: "9px 0",
     borderRadius: 10,
-    border: "1.5px solid #0a6ebd",
-    background: "#ffffff",
-    color: "#0a6ebd",
+    border: "none",
+    background: "#0a6ebd",
+    color: "#fff",
     fontWeight: 600,
     fontSize: 12.5,
     cursor: "pointer",
