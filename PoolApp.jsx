@@ -8,7 +8,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.7.3";
+const APP_VERSION = "1.7.4";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -654,8 +654,8 @@ const TRANSLATIONS = {
     add_pool_title: "New pool",
     edit_pool_title: "Edit pool",
     pool_name_placeholder: "My pool",
-    pool_location_placeholder: "Garden, te    ai_no_values: "Keine lesbaren Werte auf diesem Foto. Überprüfe Qualität und Ausrichtung des Bildes.",
-rrace...",
+    ai_no_values: "Keine lesbaren Werte auf diesem Foto. Überprüfe Qualität und Ausrichtung des Bildes.",
+    pool_location_placeholder: "Garden, terrace...",
     pool_volume_placeholder: "72",
     save_pool: "Save",
     loading: "Loading...",
@@ -1037,8 +1037,8 @@ rrace...",
     paywall_btn: "Unbegrenzte Version aktivieren",
     paywall_close: "Später",
     add_pool_title: "Neues Becken",
-    edit_pool_title: "    ai_no_values: "Nessun valore leggibile su questa foto. Controlla la qualità e l'orientamento dell'immagine.",
-Becken bearbeiten",
+    ai_no_values: "Nessun valore leggibile su questa foto. Controlla la qualità e l'orientamento dell'immagine.",
+    edit_pool_title: "Becken bearbeiten",
     pool_name_placeholder: "Mein Pool",
     pool_location_placeholder: "Garten, Terrasse...",
     pool_volume_placeholder: "72",
@@ -1419,8 +1419,8 @@ Becken bearbeiten",
     see_dosage: "Vedi dosaggio",
     paywall_title: "Passa all'illimitato",
     paywall_desc: "Misurazioni illimitate · Analisi IA strisce · Rapporto PDF · Gestione stock",
-    paywall_btn: "Attiva ver    ai_no_values: "Ningún valor legible en esta foto. Verifica la calidad y orientación de la imagen.",
-sione illimitata",
+    ai_no_values: "Ningún valor legible en esta foto. Verifica la calidad y orientación de la imagen.",
+    paywall_btn: "Attiva versione illimitata",
     paywall_close: "Più tardi",
     add_pool_title: "Nuova vasca",
     edit_pool_title: "Modifica vasca",
@@ -1803,8 +1803,8 @@ sione illimitata",
     missing_product_tip: "Sin producto {action} en tu lista — añade uno en la pestaña Productos.",
     see_dosage: "Ver dosaje",
     paywall_title: "Pasar a ilimitado",
-    paywall_desc    ai_no_values: "Nenhum valor legível nesta foto. Verifique a qualidade e orientação da imagem.",
-: "Mediciones ilimitadas · Análisis IA de tiras · Informe PDF · Gestión de stock",
+    ai_no_values: "Nenhum valor legível nesta foto. Verifique a qualidade e orientação da imagem.",
+    paywall_desc: "Mediciones ilimitadas · Análisis IA de tiras · Informe PDF · Gestión de stock",
     paywall_btn: "Activar versión ilimitada",
     paywall_close: "Más tarde",
     add_pool_title: "Nueva piscina",
@@ -2831,10 +2831,17 @@ async function callAIText({ apiKey, apiProvider, prompt }) {
 
 async function analyzeStripPhoto({ apiKey, apiProvider, dataUrl }) {
   const prompt = `Tu es un expert en chimie de l'eau de piscine. Analyse cette photo qui montre soit :
-- Un écran de photomètre (WaterLink SpinTouch, PoolLab, LaMotte, etc.) affichant des valeurs numériques
-- Une bandelette de test posée à côté de la légende colorée de son tube
 
-Lis TOUTES les valeurs visibles et retourne-les dans le JSON ci-dessous.
+CAS 1 — PHOTOMÈTRE NUMÉRIQUE (WaterLink SpinTouch, PoolLab, LaMotte, Hanna, etc.)
+Lis directement les valeurs numériques affichées à l'écran.
+
+CAS 2 — BANDELETTE DE TEST
+La bandelette a été trempée dans l'eau et présente des tampons colorés.
+Méthode de lecture :
+1. Le tube de bandelettes affiche une échelle de couleurs de référence pour chaque paramètre, avec les valeurs numériques associées à chaque couleur.
+2. Compare la couleur de chaque tampon de la bandelette avec l'échelle de référence visible sur le tube.
+3. Retourne la valeur numérique correspondant à la couleur la plus proche sur l'échelle.
+4. Si le tube de référence n'est pas visible sur la photo, indique confidence: "basse" et essaie quand même d'estimer.
 
 Correspondances des abréviations courantes :
 - FCL / Free Cl / Cl libre → fCl (chlore libre)
@@ -2852,11 +2859,11 @@ Correspondances des abréviations courantes :
 - O2 / Active O2 → o2
 
 Réponds UNIQUEMENT en JSON valide, sans texte avant ou après, sans markdown, sans commentaires :
-{"pH": nombre ou null, "fCl": nombre ou null, "tCl": nombre ou null, "ccl": nombre ou null, "tac": nombre ou null, "cya": nombre ou null, "hard": nombre ou null, "phos": nombre ou null, "copper": nombre ou null, "iron": nombre ou null, "temp": nombre ou null, "brome": nombre ou null, "o2": nombre ou null, "sel": nombre ou null, "confidence": "haute" ou "moyenne" ou "basse", "note": "une phrase en français sur la lisibilité"}
+{"pH": nombre ou null, "fCl": nombre ou null, "tCl": nombre ou null, "ccl": nombre ou null, "tac": nombre ou null, "cya": nombre ou null, "hard": nombre ou null, "phos": nombre ou null, "copper": nombre ou null, "iron": nombre ou null, "temp": nombre ou null, "brome": nombre ou null, "o2": nombre ou null, "sel": nombre ou null, "confidence": "haute" ou "moyenne" ou "basse", "note": "une phrase en français sur la lisibilité et la méthode utilisée"}
 
 Règles strictes :
 - Les valeurs doivent être des nombres (pas des chaînes)
-- null si le paramètre n'est pas visible sur la photo
+- null si le paramètre n'est pas visible ou pas lisible
 - JSON pur, rien d'autre`;
 
   const text = await callAIWithImage({ apiKey, apiProvider, prompt, imageDataUrl: dataUrl });
