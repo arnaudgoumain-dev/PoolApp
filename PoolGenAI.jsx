@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.11.3";
+const APP_VERSION = "1.12.0";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -123,6 +123,13 @@ const TRANSLATIONS = {
     generate_report: "Générer le rapport de ce bassin",
     report_locked: "Rapport PDF réservé à la version illimitée",
     report_desc: "Le rapport reprend l'historique des mesures, les conseils donnés et les quantités réellement appliquées pour ce bassin.",
+    diag_section: "DIAGNOSTIC IA",
+    diag_placeholder: "Décris le problème que tu rencontres avec ton bassin malgré les traitements (ex: eau trouble, chlore qui disparaît, algues persistantes...)",
+    diag_submit: "Analyser avec l'IA",
+    diag_analyzing: "Analyse en cours...",
+    diag_confidence: "Indice de confiance",
+    diag_off_topic: "Cette question ne concerne pas le traitement de l'eau de bassin. Je ne peux répondre qu'aux questions liées à la chimie de l'eau, aux produits de traitement et aux équipements de piscine.",
+    diag_error: "Analyse impossible",
     // Measure modal
     new_measure_title: "Nouvelle mesure",
     edit_measure_title: "Modifier la mesure",
@@ -537,6 +544,13 @@ const TRANSLATIONS = {
     generate_report: "Generate pool report",
     report_locked: "PDF report reserved for unlimited version",
     report_desc: "The report includes the reading history, advice given and quantities actually applied for this pool.",
+    diag_section: "AI DIAGNOSTIC",
+    diag_placeholder: "Describe the problem you're experiencing with your pool despite treatments (e.g. cloudy water, chlorine disappearing, persistent algae...)",
+    diag_submit: "Analyse with AI",
+    diag_analyzing: "Analysing...",
+    diag_confidence: "Confidence level",
+    diag_off_topic: "This question is not related to pool water treatment. I can only answer questions about water chemistry, treatment products and pool equipment.",
+    diag_error: "Analysis failed",
     new_measure_title: "New reading",
     edit_measure_title: "Edit reading",
     date_time: "Date and time",
@@ -941,6 +955,13 @@ const TRANSLATIONS = {
     generate_report: "Beckenbericht erstellen",
     report_locked: "PDF-Bericht nur in der unbegrenzten Version",
     report_desc: "Der Bericht enthält den Messverlauf, gegebene Ratschläge und tatsächlich angewendete Mengen.",
+    diag_section: "KI-DIAGNOSE",
+    diag_placeholder: "Beschreibe das Problem mit deinem Becken trotz Behandlungen (z.B. trübes Wasser, verschwindender Chlorgehalt, hartnäckige Algen...)",
+    diag_submit: "Mit KI analysieren",
+    diag_analyzing: "Analyse läuft...",
+    diag_confidence: "Vertrauensindex",
+    diag_off_topic: "Diese Frage betrifft nicht die Wasserbehandlung. Ich beantworte nur Fragen zur Wasserchemie, Behandlungsprodukten und Poolausrüstung.",
+    diag_error: "Analyse fehlgeschlagen",
     new_measure_title: "Neue Messung",
     edit_measure_title: "Messung bearbeiten",
     date_time: "Datum und Uhrzeit",
@@ -1347,6 +1368,13 @@ const TRANSLATIONS = {
     generate_report: "Genera rapporto della vasca",
     report_locked: "Rapporto PDF riservato alla versione illimitata",
     report_desc: "Il rapporto include lo storico delle misurazioni, i consigli dati e le quantità effettivamente applicate.",
+    diag_section: "DIAGNOSI IA",
+    diag_placeholder: "Descrivi il problema che stai riscontrando con la tua vasca nonostante i trattamenti (es. acqua torbida, cloro che scompare, alghe persistenti...)",
+    diag_submit: "Analizza con l'IA",
+    diag_analyzing: "Analisi in corso...",
+    diag_confidence: "Indice di fiducia",
+    diag_off_topic: "Questa domanda non riguarda il trattamento dell'acqua della piscina. Rispondo solo a domande sulla chimica dell'acqua, sui prodotti di trattamento e sulle attrezzature per piscine.",
+    diag_error: "Analisi impossibile",
     new_measure_title: "Nuova misurazione",
     edit_measure_title: "Modifica misurazione",
     date_time: "Data e ora",
@@ -1750,6 +1778,13 @@ const TRANSLATIONS = {
     generate_report: "Generar informe de la piscina",
     report_locked: "Informe PDF reservado para versión ilimitada",
     report_desc: "El informe incluye el historial de mediciones, consejos dados y cantidades realmente aplicadas.",
+    diag_section: "DIAGNÓSTICO IA",
+    diag_placeholder: "Describe el problema que tienes con tu piscina a pesar de los tratamientos (ej. agua turbia, cloro que desaparece, algas persistentes...)",
+    diag_submit: "Analizar con IA",
+    diag_analyzing: "Analizando...",
+    diag_confidence: "Índice de confianza",
+    diag_off_topic: "Esta pregunta no está relacionada con el tratamiento del agua de piscina. Solo respondo preguntas sobre química del agua, productos de tratamiento y equipos de piscina.",
+    diag_error: "Análisis fallido",
     new_measure_title: "Nueva medición",
     edit_measure_title: "Editar medición",
     date_time: "Fecha y hora",
@@ -2153,6 +2188,13 @@ const TRANSLATIONS = {
     generate_report: "Gerar relatório da piscina",
     report_locked: "Relatório PDF reservado para versão ilimitada",
     report_desc: "O relatório inclui o histórico de medições, conselhos dados e quantidades realmente aplicadas.",
+    diag_section: "DIAGNÓSTICO IA",
+    diag_placeholder: "Descreve o problema que estás a ter com a tua piscina apesar dos tratamentos (ex. água turva, cloro que desaparece, algas persistentes...)",
+    diag_submit: "Analisar com IA",
+    diag_analyzing: "A analisar...",
+    diag_confidence: "Índice de confiança",
+    diag_off_topic: "Esta pergunta não está relacionada com o tratamento da água da piscina. Só respondo a perguntas sobre química da água, produtos de tratamento e equipamentos de piscina.",
+    diag_error: "Análise impossível",
     new_measure_title: "Nova medição",
     edit_measure_title: "Editar medição",
     date_time: "Data e hora",
@@ -4060,6 +4102,10 @@ function PoolApp() {
             onGenerateReport={() => setShowReport(true)}
             onWantPremiumForReport={() => openPaywall()}
             lang={lang}
+            apiKey={aiEnabled ? apiKey : ""}
+            apiProvider={apiProvider}
+            authUid={authUser?.uid}
+            pool={activePool}
           />
         )}
         {tab === "products" && (
@@ -5260,8 +5306,68 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
 }
 
 // ---------- Historique ----------
-function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication, applications, isPremium, poolName, onGenerateReport, onWantPremiumForReport, lang }) {
+function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication, applications, isPremium, poolName, onGenerateReport, onWantPremiumForReport, lang, apiKey, apiProvider, authUid, pool }) {
   const t = useT(lang);
+  const [diagText, setDiagText] = useState("");
+  const [diagResult, setDiagResult] = useState(null);
+  const [diagLoading, setDiagLoading] = useState(false);
+  const [diagError, setDiagError] = useState(null);
+
+  async function handleDiag() {
+    if (!diagText.trim() || !apiKey) return;
+    setDiagLoading(true); setDiagError(null); setDiagResult(null);
+    try {
+      const last10 = [...measures].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+      const measuresStr = last10.map(m => {
+        const d = new Date(m.date).toLocaleDateString();
+        const vals = [];
+        if (m.pH != null && m.pH !== "") vals.push(`pH=${m.pH}`);
+        if (m.fCl != null && m.fCl !== "") vals.push(`FCL=${m.fCl}`);
+        if (m.tCl != null && m.tCl !== "") vals.push(`TCL=${m.tCl}`);
+        if (m.ccl != null && m.ccl !== "") vals.push(`CCL=${m.ccl}`);
+        if (m.tac != null && m.tac !== "") vals.push(`TAC=${m.tac}`);
+        if (m.cya != null && m.cya !== "") vals.push(`CYA=${m.cya}`);
+        if (m.hard != null && m.hard !== "") vals.push(`TH=${m.hard}`);
+        if (m.phos != null && m.phos !== "") vals.push(`Phos=${m.phos}`);
+        if (m.temp != null && m.temp !== "") vals.push(`T=${m.temp}°C`);
+        return `${d}: ${vals.join(", ")}`;
+      }).join("\n");
+
+      const prompt = `Tu es un expert en traitement de l'eau de piscine de baignade. Tu dois UNIQUEMENT répondre aux questions liées à la chimie de l'eau, aux produits de traitement (chlore, pH, TAC, CYA, phosphates, etc.) et aux équipements de piscine.
+
+Bassin: ${pool?.name || ""}, volume ${pool?.volume || "?"}m³, traitement: ${pool?.treatmentType || "chlore"}.
+
+Mesures récentes (les plus récentes en premier):
+${measuresStr}
+
+Problème signalé par l'utilisateur: "${diagText.trim()}"
+
+INSTRUCTIONS:
+1. Si la question n'est PAS liée au traitement de l'eau de piscine, réponds uniquement: {"off_topic": true}
+2. Sinon, analyse les mesures et le problème, puis réponds UNIQUEMENT en JSON valide:
+{
+  "suggestion": "texte de la suggestion (2-4 phrases concrètes et actionnables)",
+  "confidence": <entier de 1 à 5>,
+  "confidence_reason": "explication courte de ce niveau de confiance"
+}
+
+Réponds UNIQUEMENT avec le JSON, sans texte avant ni après.`;
+
+      const result = await callAIText({ apiKey, apiProvider, prompt, uid: authUid });
+      const clean = result.replace(/```json|```/g, "").trim();
+      const parsed = JSON.parse(clean);
+      if (parsed.off_topic) {
+        setDiagError(t("diag_off_topic"));
+      } else {
+        setDiagResult(parsed);
+      }
+    } catch (e) {
+      console.error("Diag error", e);
+      setDiagError(t("diag_error") + (e.message ? ` : ${e.message}` : ""));
+    } finally {
+      setDiagLoading(false);
+    }
+  }
   const [activeParams, setActiveParams] = useState(["pH", "fCl"]);
   const [showValues, setShowValues] = useState(false);
 
@@ -5470,6 +5576,55 @@ function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication,
         </button>
       )}
       <p style={styles.helpTextSmall}>{t("report_desc")}</p>
+
+      {apiKey && (
+        <div style={{ marginTop: 20 }}>
+          <div style={{ ...styles.sectionRow, marginTop: 0 }}>
+            <span style={styles.sectionLabel}>{t("diag_section")}</span>
+            <Sparkles size={14} color="#7c3aed" style={{ marginLeft: 6 }} />
+          </div>
+          <textarea
+            value={diagText}
+            onChange={e => { setDiagText(e.target.value); setDiagResult(null); setDiagError(null); }}
+            placeholder={t("diag_placeholder")}
+            style={{ ...styles.input, minHeight: 80, resize: "vertical", marginTop: 8 }}
+          />
+          <button
+            style={{ ...styles.validateApplyBtn, background: diagLoading ? "#6a7d90" : "#7c3aed", marginTop: 8 }}
+            onClick={handleDiag}
+            disabled={diagLoading || !diagText.trim()}
+          >
+            {diagLoading ? <Loader2 size={16} className="spin" /> : <Sparkles size={16} />}
+            {diagLoading ? t("diag_analyzing") : t("diag_submit")}
+          </button>
+          {diagError && (
+            <div style={{ marginTop: 10, padding: "10px 14px", background: "#fdf0ef", borderRadius: 10, border: "1px solid #f5c6c2", fontSize: 13, color: "#c0392b" }}>
+              {diagError}
+            </div>
+          )}
+          {diagResult && (
+            <div style={{ marginTop: 12, padding: "14px 16px", background: "#f4f0fc", borderRadius: 12, border: "1px solid #e2d9f3" }}>
+              <div style={{ fontSize: 13, color: "#2d1b69", lineHeight: 1.6, marginBottom: 10 }}>
+                {diagResult.suggestion}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 11, color: "#6a7d90", fontWeight: 600 }}>{t("diag_confidence")} :</span>
+                <span style={{ fontSize: 16, letterSpacing: 2 }}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <span key={i} style={{ color: i < diagResult.confidence ? "#f59e0b" : "#d1d5db" }}>★</span>
+                  ))}
+                </span>
+                <span style={{ fontSize: 11, color: "#6a7d90" }}>({diagResult.confidence}/5)</span>
+              </div>
+              {diagResult.confidence_reason && (
+                <div style={{ fontSize: 11, color: "#6a7d90", marginTop: 4, fontStyle: "italic" }}>
+                  {diagResult.confidence_reason}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -5939,30 +6094,30 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
 
           {analyzeNote && <div style={{ ...styles.analyzeNoteOk, marginTop: 8 }}>{analyzeNote}</div>}
           {analyzeError && <div style={{ ...styles.analyzeNoteError, marginTop: 8 }}>{analyzeError}</div>}
-
-          {/* Note de fiabilité étoiles */}
-          {analyzeReliability && (
-            <div style={{ marginTop: 10, padding: "10px 12px", background: "#f5f8fc", borderRadius: 10, border: "1px solid #d0e4f5" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#0d2b4e" }}>{t("ai_reliability")} :</span>
-                <span style={{ fontSize: 16, letterSpacing: 2 }}>
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <span key={i} style={{ color: i < analyzeReliability.score ? "#f5a623" : "#d0d8e0" }}>★</span>
-                  ))}
-                </span>
-                <span style={{ fontSize: 11, color: "#6a7d90" }}>{analyzeReliability.score}/5</span>
-              </div>
-              {analyzeReliability.reason && (
-                <div style={{ fontSize: 11, color: "#4a6480", lineHeight: 1.5 }}>{analyzeReliability.reason}</div>
-              )}
-            </div>
-          )}
         </div>
       ) : (
         <button style={styles.photoLockedBtn} onClick={onWantPremium}>
           <Lock size={16} />
           <span>{t("analyze_locked")}</span>
         </button>
+      )}
+
+      {/* Note de fiabilité étoiles — affichée même si les photos ont été retirées */}
+      {analyzeReliability && (
+        <div style={{ marginTop: 10, padding: "10px 12px", background: "#f5f8fc", borderRadius: 10, border: "1px solid #d0e4f5" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#0d2b4e" }}>{t("ai_reliability")} :</span>
+            <span style={{ fontSize: 16, letterSpacing: 2 }}>
+              {Array.from({ length: 5 }, (_, i) => (
+                <span key={i} style={{ color: i < analyzeReliability.score ? "#f5a623" : "#d0d8e0" }}>★</span>
+              ))}
+            </span>
+            <span style={{ fontSize: 11, color: "#6a7d90" }}>{analyzeReliability.score}/5</span>
+          </div>
+          {analyzeReliability.reason && (
+            <div style={{ fontSize: 11, color: "#4a6480", lineHeight: 1.5 }}>{analyzeReliability.reason}</div>
+          )}
+        </div>
       )}
 
       <div style={styles.fieldGrid}>
@@ -5987,7 +6142,7 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
         value={note}
         onChange={(e) => setNote(e.target.value)}
         placeholder={t("note_placeholder")}
-        style={{ ...styles.input, minHeight: 64, resize: "vertical" }}
+        style={{ ...styles.input, minHeight: 88, resize: "vertical" }}
       />
 
       {isPremium ? (
@@ -7825,10 +7980,6 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
         <button style={styles.reportCloseBtn} onClick={onClose}>
           <X size={18} /> {t("close")}
         </button>
-        <label style={styles.reportToolbarCheckbox}>
-          <input type="checkbox" checked={showValues} onChange={(e) => setShowValues(e.target.checked)} />
-          <span>{t("show_values")}</span>
-        </label>
         <button
           style={{ ...styles.reportPrintBtn, opacity: pdfLoading ? 0.7 : 1 }}
           onClick={handleDownloadPdf}
@@ -7874,6 +8025,10 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
         </div>
 
         <div style={styles.reportSectionTitle}>{t("params_evolution")}</div>
+        <label className="no-print" style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#4a6480", marginBottom: 8, cursor: "pointer", userSelect: "none" }}>
+          <input type="checkbox" checked={showValues} onChange={(e) => setShowValues(e.target.checked)} />
+          <span>{t("show_values")}</span>
+        </label>
         {chartData.length > 0 ? (() => {
           const timestamps = chartData.map((d) => d.timestamp);
           const spanMs = timestamps.length > 1 ? Math.max(...timestamps) - Math.min(...timestamps) : 0;
