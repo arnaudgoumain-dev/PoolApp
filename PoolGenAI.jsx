@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.13.1";
+const APP_VERSION = "1.13.2";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -9188,9 +9188,9 @@ const styles = {
   modalBody: { padding: "8px 18px 0" },
   fieldLabel: {
     display: "block",
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 700,
-    color: "#5d6e6a",
+    color: "#0d2b4e",
     margin: "12px 2px 5px",
   },
   fieldGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 },
@@ -9418,7 +9418,7 @@ const styles = {
     border: "1.5px solid #d0e4f5",
     fontSize: 14,
     fontFamily: "inherit",
-    background: "#fafcfb",
+    background: "#ffffff",
     color: "#0d2b4e",
     outline: "none",
   },
