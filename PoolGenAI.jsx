@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.9.4";
+const APP_VERSION = "1.9.5";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -321,6 +321,14 @@ const TRANSLATIONS = {
     note_ph_plus: "Répartir sur tout le bassin, filtration en marche.",
     note_chlore_choc: "À verser le soir, soleil couché. Ne stabilise pas (n'augmente pas le CYA).",
     note_galets: "Augmente le CYA à chaque utilisation. À éviter si CYA déjà > 50 mg/L.",
+    prod_name_ph_minus: "pH moins (acide / Reva Minus type)",
+    prod_name_ph_plus: "pH plus",
+    prod_name_chlore_choc: "Chlore choc non stabilisé (type Chloryte)",
+    prod_name_galets: "Galets chlore stabilisé 5-en-1 (type Chlorilong)",
+    prod_name_tac_plus: "Produit TAC+ (bicarbonate de sodium)",
+    prod_name_calcium: "Chlorure de calcium (dureté +)",
+    prod_name_anti_phos: "Anti-phosphates (PHOSfree type)",
+    prod_name_sequestrant: "Séquestrant métaux (Metal Free type)",
     action_ph_plus: "Monte le pH",
     action_chlore: "Chlore non stabilisé (choc)",
     action_chlore_stabilise: "Chlore stabilisé (CYA +)",
@@ -371,6 +379,13 @@ const TRANSLATIONS = {
     paywall_test_note: "Ceci est une version de test. Aucun paiement réel n'est effectué.",
     report_print_btn: "Imprimer / Enregistrer en PDF",
     share_report: "Partager le rapport",
+    report_email_subject: "Rapport PoolGenAI — {pool}",
+    report_email_greeting: "Bonjour,",
+    report_email_body: "Veuillez trouver ci-dessous les instructions pour obtenir le rapport PDF de la piscine \"{pool}\" :",
+    report_email_step1: "1. Ouvrez l'application PoolGenAI",
+    report_email_step2: "2. Onglet Historique → Générer le rapport",
+    report_email_step3: "3. Cliquez sur \"Imprimer / Enregistrer en PDF\"",
+    report_email_sign: "Cordialement,",
     pool_photo: "Photo du bassin",
     remove: "Retirer",
     create_pool: "Créer le bassin",
@@ -710,6 +725,14 @@ const TRANSLATIONS = {
     note_ph_plus: "Spread across the pool with filtration running.",
     note_chlore_choc: "Pour in the evening after sunset. Does not stabilise (does not raise CYA).",
     note_galets: "Raises CYA with each use. Avoid if CYA is already above 50 mg/L.",
+    prod_name_ph_minus: "pH reducer (acid / Reva Minus type)",
+    prod_name_ph_plus: "pH increaser",
+    prod_name_chlore_choc: "Unstabilised shock chlorine (Chloryte type)",
+    prod_name_galets: "5-in-1 stabilised chlorine tablets (Chlorilong type)",
+    prod_name_tac_plus: "TAC+ product (sodium bicarbonate)",
+    prod_name_calcium: "Calcium chloride (hardness +)",
+    prod_name_anti_phos: "Anti-phosphates (PHOSfree type)",
+    prod_name_sequestrant: "Metal sequestrant (Metal Free type)",
     action_ph_plus: "Raises pH",
     action_chlore: "Unstabilised chlorine (shock)",
     action_chlore_stabilise: "Stabilised chlorine (CYA +)",
@@ -760,6 +783,13 @@ const TRANSLATIONS = {
     paywall_test_note: "This is a test version. No real payment is made.",
     report_print_btn: "Print / Save as PDF",
     share_report: "Share report",
+    report_email_subject: "PoolGenAI report — {pool}",
+    report_email_greeting: "Hello,",
+    report_email_body: "Please find below the instructions to get the PDF report for the pool \"{pool}\":",
+    report_email_step1: "1. Open the PoolGenAI app",
+    report_email_step2: "2. History tab → Generate report",
+    report_email_step3: "3. Click \"Print / Save as PDF\"",
+    report_email_sign: "Best regards,",
     pool_photo: "Pool photo",
     remove: "Remove",
     create_pool: "Create pool",
@@ -1101,6 +1131,14 @@ const TRANSLATIONS = {
     note_ph_plus: "Im gesamten Becken verteilen, Filtration in Betrieb.",
     note_chlore_choc: "Abends nach Sonnenuntergang zugeben. Stabilisiert nicht (erhöht CYA nicht).",
     note_galets: "Erhöht CYA bei jeder Nutzung. Vermeiden wenn CYA bereits über 50 mg/L.",
+    prod_name_ph_minus: "pH-Senker (Säure / Reva Minus Typ)",
+    prod_name_ph_plus: "pH-Heber",
+    prod_name_chlore_choc: "Nicht stabilisiertes Schockchlor (Chloryte Typ)",
+    prod_name_galets: "5-in-1 stabilisierte Chlortabletten (Chlorilong Typ)",
+    prod_name_tac_plus: "KH+-Produkt (Natriumbicarbonat)",
+    prod_name_calcium: "Calciumchlorid (Härte +)",
+    prod_name_anti_phos: "Anti-Phosphat (PHOSfree Typ)",
+    prod_name_sequestrant: "Metallsequestriermittel (Metal Free Typ)",
     action_ph_plus: "pH erhöhen",
     action_chlore: "Nicht stabilisiertes Chlor (Schock)",
     action_chlore_stabilise: "Stabilisiertes Chlor (CYA +)",
@@ -1151,6 +1189,13 @@ const TRANSLATIONS = {
     paywall_test_note: "Dies ist eine Testversion. Es wird keine echte Zahlung vorgenommen.",
     report_print_btn: "Drucken / Als PDF speichern",
     share_report: "Bericht teilen",
+    report_email_subject: "PoolGenAI-Bericht — {pool}",
+    report_email_greeting: "Hallo,",
+    report_email_body: "Anbei finden Sie die Anweisungen zum Abrufen des PDF-Berichts für das Becken \"{pool}\":",
+    report_email_step1: "1. Öffnen Sie die PoolGenAI-App",
+    report_email_step2: "2. Verlauf-Tab → Bericht generieren",
+    report_email_step3: "3. Klicken Sie auf \"Drucken / Als PDF speichern\"",
+    report_email_sign: "Mit freundlichen Grüßen,",
     pool_photo: "Beckenfoto",
     remove: "Entfernen",
     create_pool: "Becken erstellen",
@@ -1489,6 +1534,14 @@ const TRANSLATIONS = {
     note_ph_plus: "Distribuire in tutta la vasca con filtrazione in funzione.",
     note_chlore_choc: "Versare la sera dopo il tramonto. Non stabilizza (non aumenta il CYA).",
     note_galets: "Aumenta il CYA ad ogni utilizzo. Evitare se il CYA è già sopra 50 mg/L.",
+    prod_name_ph_minus: "Riduttore pH (acido / tipo Reva Minus)",
+    prod_name_ph_plus: "Aumentatore pH",
+    prod_name_chlore_choc: "Cloro shock non stabilizzato (tipo Chloryte)",
+    prod_name_galets: "Pastiglie cloro stabilizzato 5-in-1 (tipo Chlorilong)",
+    prod_name_tac_plus: "Prodotto TAC+ (bicarbonato di sodio)",
+    prod_name_calcium: "Cloruro di calcio (durezza +)",
+    prod_name_anti_phos: "Anti-fosfati (tipo PHOSfree)",
+    prod_name_sequestrant: "Sequestrante metalli (tipo Metal Free)",
     action_ph_plus: "Alza il pH",
     action_chlore: "Cloro non stabilizzato (shock)",
     action_chlore_stabilise: "Cloro stabilizzato (CYA +)",
@@ -1539,6 +1592,13 @@ const TRANSLATIONS = {
     paywall_test_note: "Questa è una versione di test. Nessun pagamento reale viene effettuato.",
     report_print_btn: "Stampa / Salva come PDF",
     share_report: "Condividi il rapporto",
+    report_email_subject: "Rapporto PoolGenAI — {pool}",
+    report_email_greeting: "Salve,",
+    report_email_body: "Di seguito le istruzioni per ottenere il rapporto PDF della piscina \"{pool}\":",
+    report_email_step1: "1. Aprire l'app PoolGenAI",
+    report_email_step2: "2. Scheda Cronologia → Genera rapporto",
+    report_email_step3: "3. Fare clic su \"Stampa / Salva come PDF\"",
+    report_email_sign: "Cordiali saluti,",
     pool_photo: "Foto vasca",
     remove: "Rimuovi",
     create_pool: "Crea vasca",
@@ -1877,6 +1937,14 @@ const TRANSLATIONS = {
     note_ph_plus: "Distribuir por toda la piscina con filtración en marcha.",
     note_chlore_choc: "Verter por la noche después del atardecer. No estabiliza (no aumenta el CYA).",
     note_galets: "Aumenta el CYA con cada uso. Evitar si el CYA ya supera los 50 mg/L.",
+    prod_name_ph_minus: "Reductor de pH (ácido / tipo Reva Minus)",
+    prod_name_ph_plus: "Incrementador de pH",
+    prod_name_chlore_choc: "Cloro choque no estabilizado (tipo Chloryte)",
+    prod_name_galets: "Pastillas cloro estabilizado 5-en-1 (tipo Chlorilong)",
+    prod_name_tac_plus: "Producto TAC+ (bicarbonato de sodio)",
+    prod_name_calcium: "Cloruro de calcio (dureza +)",
+    prod_name_anti_phos: "Anti-fosfatos (tipo PHOSfree)",
+    prod_name_sequestrant: "Secuestrante de metales (tipo Metal Free)",
     action_ph_plus: "Sube el pH",
     action_chlore: "Cloro no estabilizado (choque)",
     action_chlore_stabilise: "Cloro estabilizado (CYA +)",
@@ -1927,6 +1995,13 @@ const TRANSLATIONS = {
     paywall_test_note: "Esta es una versión de prueba. No se realiza ningún pago real.",
     report_print_btn: "Imprimir / Guardar como PDF",
     share_report: "Compartir informe",
+    report_email_subject: "Informe PoolGenAI — {pool}",
+    report_email_greeting: "Hola,",
+    report_email_body: "A continuación encontrará las instrucciones para obtener el informe PDF de la piscina \"{pool}\":",
+    report_email_step1: "1. Abra la app PoolGenAI",
+    report_email_step2: "2. Pestaña Historial → Generar informe",
+    report_email_step3: "3. Haga clic en \"Imprimir / Guardar como PDF\"",
+    report_email_sign: "Atentamente,",
     pool_photo: "Foto piscina",
     remove: "Quitar",
     create_pool: "Crear piscina",
@@ -2262,6 +2337,14 @@ const TRANSLATIONS = {
     note_ph_plus: "Distribuir por toda a piscina com filtração em funcionamento.",
     note_chlore_choc: "Adicionar à noite após o pôr do sol. Não estabiliza (não aumenta o CYA).",
     note_galets: "Aumenta o CYA a cada uso. Evitar se o CYA já estiver acima de 50 mg/L.",
+    prod_name_ph_minus: "Redutor de pH (ácido / tipo Reva Minus)",
+    prod_name_ph_plus: "Aumentador de pH",
+    prod_name_chlore_choc: "Cloro choque não estabilizado (tipo Chloryte)",
+    prod_name_galets: "Pastilhas cloro estabilizado 5-em-1 (tipo Chlorilong)",
+    prod_name_tac_plus: "Produto TAC+ (bicarbonato de sódio)",
+    prod_name_calcium: "Cloreto de cálcio (dureza +)",
+    prod_name_anti_phos: "Anti-fosfatos (tipo PHOSfree)",
+    prod_name_sequestrant: "Sequestrador de metais (tipo Metal Free)",
     action_ph_plus: "Sobe o pH",
     action_chlore: "Cloro não estabilizado (choque)",
     action_chlore_stabilise: "Cloro estabilizado (CYA +)",
@@ -2312,6 +2395,13 @@ const TRANSLATIONS = {
     paywall_test_note: "Esta é uma versão de teste. Nenhum pagamento real é efetuado.",
     report_print_btn: "Imprimir / Salvar como PDF",
     share_report: "Partilhar relatório",
+    report_email_subject: "Relatório PoolGenAI — {pool}",
+    report_email_greeting: "Olá,",
+    report_email_body: "Encontra abaixo as instruções para obter o relatório PDF da piscina \"{pool}\":",
+    report_email_step1: "1. Abra a app PoolGenAI",
+    report_email_step2: "2. Aba Histórico → Gerar relatório",
+    report_email_step3: "3. Clique em \"Imprimir / Salvar como PDF\"",
+    report_email_sign: "Com os melhores cumprimentos,",
     pool_photo: "Foto piscina",
     remove: "Remover",
     create_pool: "Criar piscina",
@@ -2473,6 +2563,7 @@ const DEFAULT_PRODUCTS = [
   {
     id: "ph-minus",
     name: "pH moins (acide / Reva Minus type)",
+    nameKey: "prod_name_ph_minus",
     action: "ph-",
     doseAmount: 30,
     doseUnit: "g",
@@ -2488,6 +2579,7 @@ const DEFAULT_PRODUCTS = [
   {
     id: "ph-plus",
     name: "pH plus",
+    nameKey: "prod_name_ph_plus",
     action: "ph+",
     doseAmount: 20,
     doseUnit: "g",
@@ -2503,6 +2595,7 @@ const DEFAULT_PRODUCTS = [
   {
     id: "chlore-choc",
     name: "Chlore choc non stabilisé (type Chloryte)",
+    nameKey: "prod_name_chlore_choc",
     action: "chlore",
     doseAmount: 150,
     doseUnit: "g",
@@ -2518,6 +2611,7 @@ const DEFAULT_PRODUCTS = [
   {
     id: "galets-stabilises",
     name: "Galets chlore stabilisé 5-en-1 (type Chlorilong)",
+    nameKey: "prod_name_galets",
     action: "chlore-stabilise",
     doseAmount: 250,
     doseUnit: "g",
@@ -2533,6 +2627,7 @@ const DEFAULT_PRODUCTS = [
   {
     id: "tac-plus",
     name: "Produit TAC+ (bicarbonate de sodium)",
+    nameKey: "prod_name_tac_plus",
     action: "tac+",
     doseAmount: 200,
     doseUnit: "g",
@@ -2548,6 +2643,7 @@ const DEFAULT_PRODUCTS = [
   {
     id: "calcium-plus",
     name: "Chlorure de calcium (dureté +)",
+    nameKey: "prod_name_calcium",
     action: "hard+",
     doseAmount: 160,
     doseUnit: "g",
@@ -2563,6 +2659,7 @@ const DEFAULT_PRODUCTS = [
   {
     id: "anti-phosphates",
     name: "Anti-phosphates (PHOSfree type)",
+    nameKey: "prod_name_anti_phos",
     action: "phos-",
     doseAmount: 50,
     doseUnit: "mL",
@@ -2578,6 +2675,7 @@ const DEFAULT_PRODUCTS = [
   {
     id: "sequestrant",
     name: "Séquestrant métaux (Metal Free type)",
+    nameKey: "prod_name_sequestrant",
     action: "sequestrant",
     doseAmount: 100,
     doseUnit: "mL",
@@ -4440,31 +4538,36 @@ function TabBar({ tab, setTab, lang }) {
     { id: "settings", label: t("tab_settings"), icon: Settings2 },
   ];
   return (
-    <nav style={styles.tabBar}>
-      {tabs.map((tb) => {
-        const Icon = tb.icon;
-        const active = tab === tb.id;
-        return (
-          <button
-            key={tb.id}
-            onClick={() => {
-              setTab(tb.id);
-              track("screen_view", { screen_name: tb.id });
-            }}
-            style={{
-              ...styles.tabBtn,
-              color: active ? "#0a6ebd" : "#6a7d90",
-            }}
-          >
-            <Icon size={20} strokeWidth={active ? 2.4 : 1.8} />
-            <span style={{ fontSize: 11, marginTop: 3, fontWeight: active ? 700 : 500 }}>
-              {tb.label}
-            </span>
-          </button>
-        );
-      })}
-      <div style={{ position: "absolute", top: 2, right: 8, fontSize: 9, color: "transparent" }}></div>
-    </nav>
+    <div style={{ width: "100%", flexShrink: 0 }}>
+      <div style={{ textAlign: "center", fontSize: 9.5, color: "#b0bec8", padding: "2px 0", background: "#f5f8fc", letterSpacing: 0.3, borderTop: "1px solid #e8eef2" }}>
+        PoolGenAI v{APP_VERSION}
+      </div>
+      <nav style={styles.tabBar}>
+        {tabs.map((tb) => {
+          const Icon = tb.icon;
+          const active = tab === tb.id;
+          return (
+            <button
+              key={tb.id}
+              onClick={() => {
+                setTab(tb.id);
+                track("screen_view", { screen_name: tb.id });
+              }}
+              style={{
+                ...styles.tabBtn,
+                color: active ? "#0a6ebd" : "#6a7d90",
+              }}
+            >
+              <Icon size={20} strokeWidth={active ? 2.4 : 1.8} />
+              <span style={{ fontSize: 11, marginTop: 3, fontWeight: active ? 700 : 500 }}>
+                {tb.label}
+              </span>
+            </button>
+          );
+        })}
+        <div style={{ position: "absolute", top: 2, right: 8, fontSize: 9, color: "transparent" }}></div>
+      </nav>
+    </div>
   );
 }
 
@@ -4541,7 +4644,6 @@ Réponds directement en français, sans titre ni introduction.`;
         <button style={styles.primaryBtn} onClick={onAddMeasure}>
           <Plus size={18} /> {t("add_measure")}
         </button>
-        <div style={styles.versionTag}>PoolGenAI v{APP_VERSION}</div>
       </div>
     );
   }
@@ -4700,7 +4802,6 @@ Réponds directement en français, sans titre ni introduction.`;
           </div>
         )}
       </div>
-      <div style={styles.versionTag}>PoolGenAI v{APP_VERSION}</div>
     </div>
   );
 }
@@ -4844,13 +4945,16 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
   // Traduit la note d'un produit : utilise noteKey si c'est un produit par défaut, sinon la note brute
   const prodNote = (prod, fallbackKey) =>
     prod ? (prod.noteKey ? _(prod.noteKey) : prod.note) || _(fallbackKey) : _(fallbackKey);
+  // Traduit le nom d'un produit : utilise nameKey si disponible, sinon le nom brut
+  const prodName = (prod, fallbackKey) =>
+    prod ? (prod.nameKey ? _(prod.nameKey) : prod.name) || _(fallbackKey) : _(fallbackKey);
   const tac = parseFloat(latestLower.tac);
   if (has("tac") && !Number.isNaN(tac) && targetsLower.tac && tac < targetsLower.tac.min) {
     const prod = products.find((p) => p.action === "tac+");
     steps.push({
       action: "tac+",
       title: _("reco_tac_low", { val: tac }),
-      productName: prod ? prod.name : _("reco_fallback_tac"),
+      productName: prodName(prod, "reco_fallback_tac"),
       productAvailable: !!prod,
       productPhoto: prod?.photo || null,
       doseText: prod
@@ -4875,7 +4979,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
       steps.push({
         action: "ph-",
         title: _("reco_ph_high", { val: phVal }),
-        productName: prod ? prod.name : _("reco_fallback_ph_minus"),
+        productName: prodName(prod, "reco_fallback_ph_minus"),
         productAvailable: !!prod,
         productPhoto: prod?.photo || null,
         doseText: prod
@@ -4893,7 +4997,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
       steps.push({
         action: "ph+",
         title: _("reco_ph_low", { val: phVal }),
-        productName: prod ? prod.name : _("reco_fallback_ph_plus"),
+        productName: prodName(prod, "reco_fallback_ph_plus"),
         productAvailable: !!prod,
         productPhoto: prod?.photo || null,
         doseText: prod
@@ -4921,7 +5025,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
       steps.push({
         action: "chlore",
         title: _("reco_cl_combined", { val: combined.toFixed(2) }),
-        productName: prod ? prod.name : _("reco_fallback_chlore"),
+        productName: prodName(prod, "reco_fallback_chlore"),
         productAvailable: !!prod,
         productPhoto: prod?.photo || null,
         doseText: prod
@@ -4940,7 +5044,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
       steps.push({
         action: "chlore",
         title: _("reco_cl_low", { val: fCl }),
-        productName: prod ? prod.name : _("reco_fallback_chlore"),
+        productName: prodName(prod, "reco_fallback_chlore"),
         productAvailable: !!prod,
         productPhoto: prod?.photo || null,
         doseText: prod
@@ -4976,7 +5080,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
       steps.push({
         action: "brome",
         title: _("reco_brome_low", { val: bromeVal }),
-        productName: prod ? prod.name : _("reco_fallback_brome"),
+        productName: prodName(prod, "reco_fallback_brome"),
         productAvailable: !!prod,
         productPhoto: prod?.photo || null,
         doseText: prod
@@ -5001,7 +5105,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
       steps.push({
         action: "o2",
         title: _("reco_o2_low", { val: o2Val }),
-        productName: prod ? prod.name : _("reco_fallback_o2"),
+        productName: prodName(prod, "reco_fallback_o2"),
         productAvailable: !!prod,
         productPhoto: prod?.photo || null,
         doseText: prod
@@ -5048,7 +5152,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
       steps.push({
         action: "hard+",
         title: _("reco_hard_low", { val: hardVal }),
-        productName: prod ? prod.name : _("reco_fallback_hard"),
+        productName: prodName(prod, "reco_fallback_hard"),
         productAvailable: !!prod,
         productPhoto: prod?.photo || null,
         doseText: prod ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)}` : _("missing_product_tip", { action: "hard+" }),
@@ -5080,7 +5184,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
     steps.push({
       action: "phos-",
       title: _("reco_phos_high", { val: phosVal }),
-      productName: prod ? prod.name : _("reco_fallback_phos"),
+      productName: prodName(prod, "reco_fallback_phos"),
       productAvailable: !!prod,
       productPhoto: prod?.photo || null,
       doseText: prod ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)}` : _("missing_product_tip", { action: "phos-" }),
@@ -5099,7 +5203,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
     steps.push({
       action: "sequestrant",
       title: _("reco_copper_high", { val: copperVal }),
-      productName: prod ? prod.name : _("reco_fallback_sequestrant"),
+      productName: prodName(prod, "reco_fallback_sequestrant"),
       productAvailable: !!prod,
       productPhoto: prod?.photo || null,
       doseText: prod ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)}` : _("missing_product_tip", { action: "sequestrant" }),
@@ -5118,7 +5222,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
     steps.push({
       action: "sequestrant",
       title: _("reco_iron_high", { val: ironVal }),
-      productName: prod ? prod.name : _("reco_fallback_sequestrant"),
+      productName: prodName(prod, "reco_fallback_sequestrant"),
       productAvailable: !!prod,
       productPhoto: prod?.photo || null,
       doseText: prod ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)}` : _("missing_product_tip", { action: "sequestrant" }),
@@ -5214,7 +5318,6 @@ function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication,
         <History size={40} color="#7ab8e8" strokeWidth={1.5} />
         <p style={styles.emptyTitle}>{t("no_history")}</p>
         <p style={styles.emptyText}>{t("no_history_sub")}</p>
-        <div style={styles.versionTag}>PoolGenAI v{APP_VERSION}</div>
       </div>
     );
   }
@@ -5367,7 +5470,6 @@ function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication,
         </button>
       )}
       <p style={styles.helpTextSmall}>{t("report_desc")}</p>
-      <div style={styles.versionTag}>PoolGenAI v{APP_VERSION}</div>
     </div>
   );
 }
@@ -6503,7 +6605,6 @@ function ProductsView({ products, onEdit, onAddNew, onDelete, onResetAll, isPrem
           )}
         </>
       )}
-      <div style={styles.versionTag}>PoolGenAI v{APP_VERSION}</div>
     </div>
   );
 }
@@ -6744,6 +6845,7 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
   const filtrationTypes = getFiltrationTypes(lang);
   const activePool = pools.find((p) => p.id === activePoolId) || pools[0];
   const [showAiPwd, setShowAiPwd] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
 
   function onDeleteAllMeasures() {
     if (!poolMeasureCount) return;
@@ -6985,11 +7087,11 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
                 onKeyDown={e => {
                   if (e.key === "Enter") {
                     if (aiPasswordInput === AI_PASSWORD) {
+                      setAiEnabled(true);
                       setShowAiPasswordModal(false);
                       setAiPasswordInput("");
                       setShowAiPwd(false);
-                      setAiEnabled(true);
-                      setShowAiConfig(true);
+                      setTimeout(() => setShowAiConfig(true), 100);
                     } else {
                       setAiPasswordError(true);
                     }
@@ -7021,11 +7123,11 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
                 style={{ flex: 1, padding: "11px 0", borderRadius: 10, border: "none", background: "#0a6ebd", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
                 onClick={() => {
                   if (aiPasswordInput === AI_PASSWORD) {
+                    setAiEnabled(true);
                     setShowAiPasswordModal(false);
                     setAiPasswordInput("");
                     setShowAiPwd(false);
-                    setAiEnabled(true);
-                    setShowAiConfig(true);
+                    setTimeout(() => setShowAiConfig(true), 100);
                   } else {
                     setAiPasswordError(true);
                   }
@@ -7502,17 +7604,10 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
             style={{ ...styles.reportCloseBtn, background: "#0a6ebd", color: "#fff", border: "none", fontSize: 12, padding: "6px 12px" }}
             onClick={() => {
               const poolName = pool.name || "Ma piscine";
-              const subject = encodeURIComponent(`Rapport PoolGenAI — ${poolName}`);
-              const body = encodeURIComponent(`Bonjour,
-
-Veuillez trouver ci-dessous les instructions pour obtenir le rapport PDF de la piscine "${poolName}" :
-
-1. Ouvrez l'application PoolGenAI
-2. Onglet Historique → Générer le rapport
-3. Cliquez sur "Imprimer / Enregistrer en PDF"
-
-Cordialement,
-PoolGenAI`);
+              const subject = encodeURIComponent(t("report_email_subject").replace("{pool}", poolName));
+              const body = encodeURIComponent(
+                `${t("report_email_greeting")}\n\n${t("report_email_body").replace("{pool}", poolName)}\n\n${t("report_email_step1")}\n${t("report_email_step2")}\n${t("report_email_step3")}\n\n${t("report_email_sign")}\nPoolGenAI`
+              );
               window.open(`mailto:${pool.reportEmail}?subject=${subject}&body=${body}`);
             }}
           >
