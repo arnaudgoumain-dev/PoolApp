@@ -4,11 +4,12 @@ const {
 } = Recharts;
 const {
   Plus, Trash2, Droplets, X, ChevronRight, ChevronDown, Settings2, AlertTriangle, CheckCircle2,
-  History, Beaker, Camera, Lock, Crown, ImageOff, Sparkles, Loader2, Clock, FileText, Download
+  History, Beaker, Camera, Lock, Crown, ImageOff, Sparkles, Loader2, Clock, FileText, Download,
+  Eye, EyeOff, Share2
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.8.3";
+const APP_VERSION = "1.9.0";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -369,6 +370,7 @@ const TRANSLATIONS = {
     paywall_perk7: "Multi-bassins",
     paywall_test_note: "Ceci est une version de test. Aucun paiement réel n'est effectué.",
     report_print_btn: "Imprimer / Enregistrer en PDF",
+    share_report: "Partager le rapport",
     pool_photo: "Photo du bassin",
     remove: "Retirer",
     create_pool: "Créer le bassin",
@@ -757,6 +759,7 @@ const TRANSLATIONS = {
     paywall_perk7: "Multi-pool",
     paywall_test_note: "This is a test version. No real payment is made.",
     report_print_btn: "Print / Save as PDF",
+    share_report: "Share report",
     pool_photo: "Pool photo",
     remove: "Remove",
     create_pool: "Create pool",
@@ -1147,6 +1150,7 @@ const TRANSLATIONS = {
     paywall_perk7: "Mehrere Becken",
     paywall_test_note: "Dies ist eine Testversion. Es wird keine echte Zahlung vorgenommen.",
     report_print_btn: "Drucken / Als PDF speichern",
+    share_report: "Bericht teilen",
     pool_photo: "Beckenfoto",
     remove: "Entfernen",
     create_pool: "Becken erstellen",
@@ -1534,6 +1538,7 @@ const TRANSLATIONS = {
     paywall_perk7: "Multi-vasca",
     paywall_test_note: "Questa è una versione di test. Nessun pagamento reale viene effettuato.",
     report_print_btn: "Stampa / Salva come PDF",
+    share_report: "Condividi il rapporto",
     pool_photo: "Foto vasca",
     remove: "Rimuovi",
     create_pool: "Crea vasca",
@@ -1921,6 +1926,7 @@ const TRANSLATIONS = {
     paywall_perk7: "Multi-piscina",
     paywall_test_note: "Esta es una versión de prueba. No se realiza ningún pago real.",
     report_print_btn: "Imprimir / Guardar como PDF",
+    share_report: "Compartir informe",
     pool_photo: "Foto piscina",
     remove: "Quitar",
     create_pool: "Crear piscina",
@@ -2305,6 +2311,7 @@ const TRANSLATIONS = {
     paywall_perk7: "Multi-piscina",
     paywall_test_note: "Esta é uma versão de teste. Nenhum pagamento real é efetuado.",
     report_print_btn: "Imprimir / Salvar como PDF",
+    share_report: "Partilhar relatório",
     pool_photo: "Foto piscina",
     remove: "Remover",
     create_pool: "Criar piscina",
@@ -2720,7 +2727,7 @@ function parseDataUrl(dataUrl) {
 
 // ---------- Helpers IA (Anthropic + OpenAI) ----------
 
-async function callAIWithImage({ apiKey, apiProvider, prompt, imageDataUrl }) {
+async function callAIWithImage({ apiKey, apiProvider, prompt, imageDataUrl, uid: callerUid }) {
   const parsed = parseDataUrl(imageDataUrl);
   if (!parsed) throw new Error("Image invalide");
 
@@ -2759,6 +2766,7 @@ async function callAIWithImage({ apiKey, apiProvider, prompt, imageDataUrl }) {
     const authHeaders = apiKey.startsWith("http")
       ? {}
       : { "x-api-key": apiKey, "anthropic-dangerous-direct-browser-access": "true" };
+    const uidHeaders = (apiKey.startsWith("http") && callerUid) ? { "x-uid": callerUid } : {};
 
     const response = await fetch(endpoint, {
       method: "POST",
@@ -2766,6 +2774,7 @@ async function callAIWithImage({ apiKey, apiProvider, prompt, imageDataUrl }) {
         "Content-Type": "application/json",
         "anthropic-version": "2023-06-01",
         ...authHeaders,
+        ...uidHeaders,
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
@@ -2790,7 +2799,7 @@ async function callAIWithImage({ apiKey, apiProvider, prompt, imageDataUrl }) {
   }
 }
 
-async function callAIText({ apiKey, apiProvider, prompt }) {
+async function callAIText({ apiKey, apiProvider, prompt, uid: callerUid }) {
   if (apiProvider === "openai") {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -2818,6 +2827,7 @@ async function callAIText({ apiKey, apiProvider, prompt }) {
     const authHeaders = isProxy
       ? {}
       : { "x-api-key": apiKey, "anthropic-dangerous-direct-browser-access": "true" };
+    const uidHeaders = (isProxy && callerUid) ? { "x-uid": callerUid } : {};
 
     const response = await fetch(endpoint, {
       method: "POST",
@@ -2825,6 +2835,7 @@ async function callAIText({ apiKey, apiProvider, prompt }) {
         "Content-Type": "application/json",
         "anthropic-version": "2023-06-01",
         ...authHeaders,
+        ...uidHeaders,
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
@@ -2841,7 +2852,7 @@ async function callAIText({ apiKey, apiProvider, prompt }) {
   }
 }
 
-async function analyzeStripPhoto({ apiKey, apiProvider, dataUrl }) {
+async function analyzeStripPhoto({ apiKey, apiProvider, dataUrl, uid: callerUid }) {
   const prompt = `Tu es un expert en chimie de l'eau de piscine. Analyse cette photo qui montre soit :
 
 CAS 1 — PHOTOMÈTRE NUMÉRIQUE (WaterLink SpinTouch, PoolLab, LaMotte, Hanna, etc.)
@@ -2880,7 +2891,7 @@ Règles strictes :
 - null uniquement si le paramètre est vraiment impossible à lire ou absent de la bandelette
 - JSON pur, rien d'autre`;
 
-  const text = await callAIWithImage({ apiKey, apiProvider, prompt, imageDataUrl: dataUrl });
+  const text = await callAIWithImage({ apiKey, apiProvider, prompt, imageDataUrl: dataUrl, uid: callerUid });
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) throw new Error("Réponse IA non parseable : " + text.slice(0, 200));
   return JSON.parse(match[0]);
@@ -3359,12 +3370,19 @@ function PoolApp() {
   })();
   const [validatingSelectedRecs, setValidatingSelectedRecs] = useState(null);
   const [showReport, setShowReport] = useState(false);
+  const [lightboxSrc, setLightboxSrc] = useState(null);
   const [apiKey, setApiKey] = useState("https://poolgenai-proxy.support-poolgenai.workers.dev");
   const [apiProvider, setApiProvider] = useState("anthropic"); // "anthropic" | "openai"
   const [aiEnabled, setAiEnabled] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   const [authResolved, setAuthResolved] = useState(false);
+
+  // Lightbox globale — accessible via window._openLightbox(src) depuis n'importe quel composant
+  useEffect(() => {
+    window._openLightbox = (src) => setLightboxSrc(src);
+    return () => { delete window._openLightbox; };
+  }, []);
 
   // --- Firebase Auth ---
   useEffect(() => {
@@ -3928,6 +3946,7 @@ function PoolApp() {
             activeParamKeys={activeParamKeys}
             activePlan={activePlan}
             onResumePlan={() => setShowWizard(true)}
+            authUid={authUser?.uid}
           />
         )}
         {tab === "history" && (
@@ -4060,6 +4079,7 @@ function PoolApp() {
           apiProvider={apiProvider}
           activeParamKeys={activeParamKeys}
           lang={lang}
+          authUid={authUser?.uid}
         />
       )}
 
@@ -4191,8 +4211,138 @@ function PoolApp() {
           lang={lang}
         />
       )}
+
+      {lightboxSrc && (
+        <PhotoLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
+      )}
     </div>
     </>
+  );
+}
+
+// ---------- Photo Lightbox ----------
+function PhotoLightbox({ src, onClose }) {
+  const [scale, setScale] = useState(1);
+  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const lastDist = useRef(null);
+  const lastPos = useRef(null);
+  const isDragging = useRef(false);
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  function getDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  function handleTouchStart(e) {
+    if (e.touches.length === 2) {
+      lastDist.current = getDistance(e.touches);
+    } else if (e.touches.length === 1) {
+      lastPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      isDragging.current = false;
+    }
+  }
+
+  function handleTouchMove(e) {
+    e.preventDefault();
+    if (e.touches.length === 2) {
+      const dist = getDistance(e.touches);
+      if (lastDist.current) {
+        const delta = dist / lastDist.current;
+        setScale(s => Math.min(Math.max(s * delta, 1), 5));
+      }
+      lastDist.current = dist;
+    } else if (e.touches.length === 1 && scale > 1) {
+      if (lastPos.current) {
+        const dx = e.touches[0].clientX - lastPos.current.x;
+        const dy = e.touches[0].clientY - lastPos.current.y;
+        setTranslate(t => ({ x: t.x + dx, y: t.y + dy }));
+        isDragging.current = true;
+      }
+      lastPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+  }
+
+  function handleTouchEnd(e) {
+    lastDist.current = null;
+    if (scale <= 1) setTranslate({ x: 0, y: 0 });
+  }
+
+  function handleOverlayClick() {
+    if (!isDragging.current) onClose();
+    isDragging.current = false;
+  }
+
+  function handleDoubleTap() {
+    if (scale > 1) {
+      setScale(1);
+      setTranslate({ x: 0, y: 0 });
+    } else {
+      setScale(2.5);
+    }
+  }
+
+  return (
+    <div
+      onClick={handleOverlayClick}
+      style={{
+        position: "fixed", inset: 0, zIndex: 1000,
+        background: "rgba(0,0,0,0.92)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        touchAction: "none",
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      <img
+        src={src}
+        alt=""
+        onDoubleClick={(e) => { e.stopPropagation(); handleDoubleTap(); }}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          maxWidth: "100vw",
+          maxHeight: "100vh",
+          objectFit: "contain",
+          transform: `scale(${scale}) translate(${translate.x / scale}px, ${translate.y / scale}px)`,
+          transformOrigin: "center center",
+          transition: scale === 1 ? "transform 0.25s ease" : "none",
+          userSelect: "none",
+          pointerEvents: "auto",
+        }}
+        draggable={false}
+      />
+      <button
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        style={{
+          position: "fixed", top: 16, right: 16,
+          background: "rgba(0,0,0,0.55)", border: "none", borderRadius: "50%",
+          width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center",
+          cursor: "pointer", color: "#fff", zIndex: 1001,
+        }}
+      >
+        <X size={20} />
+      </button>
+      {scale > 1 && (
+        <button
+          onClick={(e) => { e.stopPropagation(); setScale(1); setTranslate({ x: 0, y: 0 }); }}
+          style={{
+            position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)",
+            background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)",
+            borderRadius: 20, padding: "6px 18px", color: "#fff", fontSize: 12,
+            fontWeight: 600, cursor: "pointer", zIndex: 1001,
+          }}
+        >
+          1×
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -4319,7 +4469,7 @@ function TabBar({ tab, setTab, lang }) {
 }
 
 // ---------- Dashboard ----------
-function Dashboard({ latest, volume, products, manageStock, onAddMeasure, onEditMeasure, onValidateApplication, applicationForLatest, blockedByLimit, isPremium, onWantPremium, apiKey, apiProvider, recentMeasures, effectiveTargets, activeParamKeys, lang, activePlan, onResumePlan }) {
+function Dashboard({ latest, volume, products, manageStock, onAddMeasure, onEditMeasure, onValidateApplication, applicationForLatest, blockedByLimit, isPremium, onWantPremium, apiKey, apiProvider, recentMeasures, effectiveTargets, activeParamKeys, lang, activePlan, onResumePlan, authUid }) {
   const t = useT(lang);
   const [aiComment, setAiComment] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
@@ -4369,7 +4519,7 @@ En tenant compte de l'historique, fournis une analyse concise (5–8 phrases max
 
 Réponds directement en français, sans titre ni introduction.`;
 
-      const text = await callAIText({ apiKey, apiProvider, prompt });
+      const text = await callAIText({ apiKey, apiProvider, prompt, uid: authUid });
       setAiComment(text.trim());
     } catch (e) {
       setAiError(e.message || "Erreur lors de l'analyse IA");
@@ -4416,7 +4566,12 @@ Réponds directement en français, sans titre ni introduction.`;
 
       {latest.photo && (
         <div style={styles.measurePhotoWrap}>
-          <img src={latest.photo} alt="Photo de la mesure" style={styles.measurePhoto} />
+          <img
+            src={latest.photo}
+            alt="Photo de la mesure"
+            style={{ ...styles.measurePhoto, cursor: "zoom-in" }}
+            onClick={() => window._openLightbox?.(latest.photo)}
+          />
         </div>
       )}
 
@@ -4544,6 +4699,7 @@ Réponds directement en français, sans titre ni introduction.`;
           </div>
         )}
       </div>
+      <div style={styles.versionTag}>PoolGenAI v{APP_VERSION}</div>
     </div>
   );
 }
@@ -5209,6 +5365,7 @@ function HistoryView({ measures, onDelete, onEdit, onAdd, onValidateApplication,
         </button>
       )}
       <p style={styles.helpTextSmall}>{t("report_desc")}</p>
+      <div style={styles.versionTag}>PoolGenAI v{APP_VERSION}</div>
     </div>
   );
 }
@@ -5227,7 +5384,12 @@ function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, applicat
       >
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
           {measure.photo && (
-            <img src={measure.photo} alt="" style={styles.measureThumb} />
+            <img
+              src={measure.photo}
+              alt=""
+              style={{ ...styles.measureThumb, cursor: "zoom-in" }}
+              onClick={(e) => { e.stopPropagation(); window._openLightbox?.(measure.photo); }}
+            />
           )}
           <span style={styles.measureDate}>{formatDate(measure.date)}</span>
         </div>
@@ -5246,7 +5408,13 @@ function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, applicat
             return (
               <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 10 }}>
                 {allPhotos.map((src, idx) => (
-                  <img key={idx} src={src} alt="" style={{ height: 110, borderRadius: 8, objectFit: "cover", flexShrink: 0, border: "1px solid #d0e4f5" }} />
+                  <img
+                    key={idx}
+                    src={src}
+                    alt=""
+                    style={{ height: 110, borderRadius: 8, objectFit: "cover", flexShrink: 0, border: "1px solid #d0e4f5", cursor: "zoom-in" }}
+                    onClick={() => window._openLightbox?.(src)}
+                  />
                 ))}
               </div>
             );
@@ -5255,7 +5423,13 @@ function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, applicat
           {measure.poolPhotos?.length > 0 && (
             <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 10 }}>
               {measure.poolPhotos.map((src, idx) => (
-                <img key={idx} src={src} alt="" style={{ height: 110, borderRadius: 8, objectFit: "cover", flexShrink: 0, border: "1px solid #d0e4f5" }} />
+                <img
+                  key={idx}
+                  src={src}
+                  alt=""
+                  style={{ height: 110, borderRadius: 8, objectFit: "cover", flexShrink: 0, border: "1px solid #d0e4f5", cursor: "zoom-in" }}
+                  onClick={() => window._openLightbox?.(src)}
+                />
               ))}
             </div>
           )}
@@ -5333,7 +5507,7 @@ function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, applicat
 }
 
 // ---------- Modal Ajout mesure ----------
-function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, apiKey, apiProvider, activeParamKeys, lang, onRequestPhotoAccess }) {
+function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, apiKey, apiProvider, activeParamKeys, lang, onRequestPhotoAccess, authUid }) {
   const t = useT(lang || "fr");
   const isEditing = !!measure;
   const [date, setDate] = useState(
@@ -5426,7 +5600,7 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
       const allResults = [];
       const notes = [];
       for (const dataUrl of photos) {
-        const result = await analyzeStripPhoto({ apiKey, apiProvider, dataUrl });
+        const result = await analyzeStripPhoto({ apiKey, apiProvider, dataUrl, uid: authUid });
         allResults.push(result);
         if (result.note) notes.push(result.note);
       }
@@ -5567,7 +5741,12 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
             <div style={styles.photoGrid}>
               {photos.map((src, idx) => (
                 <div key={idx} style={styles.photoThumbWrap}>
-                  <img src={src} alt={`Photo ${idx + 1}`} style={styles.photoThumb} />
+                  <img
+                    src={src}
+                    alt={`Photo ${idx + 1}`}
+                    style={{ ...styles.photoThumb, cursor: "zoom-in" }}
+                    onClick={() => window._openLightbox?.(src)}
+                  />
                   <button style={styles.photoThumbRemove} onClick={() => removePhoto(idx)}>
                     <X size={12} />
                   </button>
@@ -6322,6 +6501,7 @@ function ProductsView({ products, onEdit, onAddNew, onDelete, onResetAll, isPrem
           )}
         </>
       )}
+      <div style={styles.versionTag}>PoolGenAI v{APP_VERSION}</div>
     </div>
   );
 }
@@ -6561,7 +6741,7 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
   const treatmentTypes = getTreatmentTypes(lang);
   const filtrationTypes = getFiltrationTypes(lang);
   const activePool = pools.find((p) => p.id === activePoolId) || pools[0];
-  const [showApiKey, setShowApiKey] = useState(false);
+  const [showAiPwd, setShowAiPwd] = useState(false);
 
   function onDeleteAllMeasures() {
     if (!poolMeasureCount) return;
@@ -6795,26 +6975,36 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
           <div style={{ background: "#fff", borderRadius: 20, padding: 24, maxWidth: 380, width: "100%", boxShadow: "0 8px 32px #0a6ebd22" }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: "#0d2b4e", marginBottom: 6 }}>{t("ai_password_title")}</div>
             <div style={{ fontSize: 13, color: "#4a6480", marginBottom: 14 }}>{t("ai_password_prompt")}</div>
-            <input
-              type="password"
-              value={aiPasswordInput}
-              onChange={e => { setAiPasswordInput(e.target.value); setAiPasswordError(false); }}
-              onKeyDown={e => {
-                if (e.key === "Enter") {
-                  if (aiPasswordInput === AI_PASSWORD) {
-                    setAiEnabled(true);
-                    setShowAiPasswordModal(false);
-                    setAiPasswordInput("");
-                    setTimeout(() => setShowAiConfig(true), 100);
-                  } else {
-                    setAiPasswordError(true);
+            <div style={{ position: "relative", marginBottom: aiPasswordError ? 6 : 14 }}>
+              <input
+                type={showAiPwd ? "text" : "password"}
+                value={aiPasswordInput}
+                onChange={e => { setAiPasswordInput(e.target.value); setAiPasswordError(false); }}
+                onKeyDown={e => {
+                  if (e.key === "Enter") {
+                    if (aiPasswordInput === AI_PASSWORD) {
+                      setAiEnabled(true);
+                      setShowAiPasswordModal(false);
+                      setAiPasswordInput("");
+                      setShowAiPwd(false);
+                      setTimeout(() => setShowAiConfig(true), 100);
+                    } else {
+                      setAiPasswordError(true);
+                    }
                   }
-                }
-              }}
-              style={{ ...styles.input, marginBottom: aiPasswordError ? 6 : 14 }}
-              placeholder="••••••••"
-              autoFocus
-            />
+                }}
+                style={{ ...styles.input, marginBottom: 0, paddingRight: 40 }}
+                placeholder="••••••••"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={() => setShowAiPwd(v => !v)}
+                style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#6a7d90", display: "flex", alignItems: "center", padding: 2 }}
+              >
+                {showAiPwd ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
             {aiPasswordError && (
               <div style={{ fontSize: 12, color: "#c0392b", marginBottom: 12 }}>{t("ai_password_error")}</div>
             )}
@@ -6832,6 +7022,7 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
                     setAiEnabled(true);
                     setShowAiPasswordModal(false);
                     setAiPasswordInput("");
+                    setShowAiPwd(false);
                     setTimeout(() => setShowAiConfig(true), 100);
                   } else {
                     setAiPasswordError(true);
@@ -7198,6 +7389,26 @@ function AddPoolModal({ onClose, onSave, lang, existingPool }) {
 function ReportView({ pool, measures, applications, products, onClose, manageStock, lang }) {
   const t = useT(lang);
   const [showValues, setShowValues] = useState(false);
+  const [shareSupported] = useState(() => !!navigator.share);
+
+  // Inject print CSS so the chart goes full width and toolbar is hidden
+  useEffect(() => {
+    const id = "poolgenai-print-css";
+    if (document.getElementById(id)) return;
+    const style = document.createElement("style");
+    style.id = id;
+    style.textContent = `
+      @media print {
+        body > * { display: none !important; }
+        .report-print-root { display: block !important; position: static !important; overflow: visible !important; }
+        .no-print { display: none !important; }
+        #report-printable { max-width: 100% !important; padding: 12px !important; }
+        .report-chart-wrap { width: 100% !important; page-break-inside: avoid; }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => { const el = document.getElementById(id); if (el) el.remove(); };
+  }, []);
 
   const sortedMeasures = useMemo(
     () => [...measures].sort((a, b) => new Date(a.date) - new Date(b.date)),
@@ -7264,6 +7475,25 @@ function ReportView({ pool, measures, applications, products, onClose, manageSto
         <button style={styles.reportPrintBtn} onClick={() => window.print()}>
           <Download size={16} /> {t("report_print_btn")}
         </button>
+        {shareSupported && (
+          <button
+            className="no-print"
+            style={{ ...styles.reportPrintBtn, background: "#0d7a3e" }}
+            onClick={async () => {
+              try {
+                await navigator.share({
+                  title: `Rapport PoolGenAI — ${pool?.name || ""}`,
+                  text: `Rapport de qualité d'eau — ${pool?.name || ""} · ${pool?.location || ""} · ${pool?.volume || ""}m³`,
+                  url: window.location.href,
+                });
+              } catch (e) {
+                if (e.name !== "AbortError") console.warn("share failed", e);
+              }
+            }}
+          >
+            <Share2 size={16} /> {t("share_report")}
+          </button>
+        )}
         {pool?.reportEmail && (
           <button
             className="no-print"
@@ -7316,7 +7546,7 @@ PoolGenAI`);
           const showTime = spanMs < 86400000 * 2;
           return (
           <React.Fragment>
-          <div style={styles.reportChartWrap}>
+          <div style={styles.reportChartWrap} className="report-chart-wrap">
             <ResponsiveContainer width="100%" height={showValues ? 380 : 340}>
             <LineChart
               data={chartData}
