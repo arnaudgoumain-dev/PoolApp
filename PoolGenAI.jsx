@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.15.0";
+const APP_VERSION = "1.15.1";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -221,6 +221,7 @@ const TRANSLATIONS = {
     wizard_reminder_no: "Non merci",
     wizard_next_step: "Prochaine étape",
     wizard_start: "Démarrer le plan",
+    plan_in_progress: "Plan de traitement en cours",
     wizard_resume: "Reprendre le plan",
     wizard_completed: "Plan de traitement terminé ✓",
     wizard_partial: "Plan en cours",
@@ -650,6 +651,7 @@ const TRANSLATIONS = {
     wizard_reminder_no: "No thanks",
     wizard_next_step: "Next step",
     wizard_start: "Start plan",
+    plan_in_progress: "Treatment plan in progress",
     wizard_resume: "Resume plan",
     wizard_completed: "Treatment plan completed ✓",
     wizard_partial: "Plan in progress",
@@ -1072,6 +1074,7 @@ const TRANSLATIONS = {
     wizard_reminder_no: "Nein danke",
     wizard_next_step: "Nächster Schritt",
     wizard_start: "Plan starten",
+    plan_in_progress: "Behandlungsplan läuft",
     wizard_resume: "Plan fortsetzen",
     wizard_completed: "Behandlungsplan abgeschlossen ✓",
     wizard_partial: "Plan läuft",
@@ -1497,6 +1500,7 @@ const TRANSLATIONS = {
     wizard_reminder_no: "No grazie",
     wizard_next_step: "Prossimo passo",
     wizard_start: "Avvia piano",
+    plan_in_progress: "Piano di trattamento in corso",
     wizard_resume: "Riprendi piano",
     wizard_completed: "Piano di trattamento completato ✓",
     wizard_partial: "Piano in corso",
@@ -1919,6 +1923,7 @@ const TRANSLATIONS = {
     wizard_reminder_no: "No gracias",
     wizard_next_step: "Siguiente paso",
     wizard_start: "Iniciar plan",
+    plan_in_progress: "Plan de tratamiento en curso",
     wizard_resume: "Reanudar plan",
     wizard_completed: "Plan de tratamiento completado ✓",
     wizard_partial: "Plan en curso",
@@ -2341,6 +2346,7 @@ const TRANSLATIONS = {
     wizard_reminder_no: "Não, obrigado",
     wizard_next_step: "Próximo passo",
     wizard_start: "Iniciar plano",
+    plan_in_progress: "Plano de tratamento em curso",
     wizard_resume: "Retomar plano",
     wizard_completed: "Plano de tratamento concluído ✓",
     wizard_partial: "Plano em andamento",
@@ -4276,6 +4282,7 @@ function PoolApp() {
             apiProvider={apiProvider}
             authUid={authUser?.uid}
             pool={activePool}
+            activePlan={activePlan}
           />
         )}
         {tab === "products" && (
@@ -5439,7 +5446,7 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
 }
 
 // ---------- Historique ----------
-function HistoryView({ measures, onDelete, onEdit, onAdd, onAddPrefilled, onValidateApplication, applications, isPremium, poolName, onGenerateReport, onWantPremiumForReport, lang, apiKey, apiProvider, authUid, pool }) {
+function HistoryView({ measures, onDelete, onEdit, onAdd, onAddPrefilled, onValidateApplication, applications, isPremium, poolName, onGenerateReport, onWantPremiumForReport, lang, apiKey, apiProvider, authUid, pool, activePlan }) {
   const t = useT(lang);
   const [diagText, setDiagText] = useState("");
   const [diagResult, setDiagResult] = useState(null);
@@ -5886,6 +5893,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ni après.`;
             application={applications.find((a) => a.measureId === m.id)}
             isPremium={isPremium}
             lang={lang}
+            activePlan={activePlan}
           />
         ))}
       </div>
@@ -5957,7 +5965,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ni après.`;
   );
 }
 
-function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, application, isPremium, lang }) {
+function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, application, isPremium, lang, activePlan }) {
   const t = useT(lang || "fr");
   const [open, setOpen] = useState(false);
   const params = ["pH", "fCl", "tCl", "tac", "cya", "temp"].filter(
@@ -6074,10 +6082,17 @@ function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, applicat
             </div>
           ) : (
             !measure.importedFromPdf && (
-              <button style={styles.validateApplyBtnSmall} onClick={onValidateApplication}>
-                <CheckCircle2 size={14} /> {t("wizard_start")}
-                {!isPremium && <Lock size={12} style={{ marginLeft: 2 }} />}
-              </button>
+              activePlan && activePlan.measureId === measure.id ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#0a6ebd", fontWeight: 600, padding: "6px 0" }}>
+                  <Clock size={14} color="#0a6ebd" />
+                  {t("plan_in_progress")}
+                </div>
+              ) : (
+                <button style={styles.validateApplyBtnSmall} onClick={onValidateApplication}>
+                  <CheckCircle2 size={14} /> {t("wizard_start")}
+                  {!isPremium && <Lock size={12} style={{ marginLeft: 2 }} />}
+                </button>
+              )
             )
           )}
 
