@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.15.3";
+const APP_VERSION = "1.15.4";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -4144,6 +4144,7 @@ function PoolApp() {
     const allDone = nextIdx >= recalcSteps.length;
     const finalSteps = recalcSteps.map(s => ({
       action: s.action, title: s.title, productName: s.productName,
+      computedDoseAmount: s.computedDoseAmount,
       appliedAmount: s.appliedAmount, doseUnit: s.doseUnit,
       appliedAt: s.appliedAt, skipped: s.skipped, scheduledAt: s.scheduledAt,
     }));
@@ -4167,6 +4168,7 @@ function PoolApp() {
     while (nextIdx < newSteps.length && (newSteps[nextIdx].appliedAt || newSteps[nextIdx].skipped)) nextIdx++;
     const finalSteps = newSteps.map(s => ({
       action: s.action, title: s.title, productName: s.productName,
+      computedDoseAmount: s.computedDoseAmount,
       appliedAmount: s.appliedAmount, doseUnit: s.doseUnit,
       appliedAt: s.appliedAt, skipped: s.skipped, scheduledAt: s.scheduledAt,
     }));
@@ -6460,7 +6462,7 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
         type="datetime-local"
         value={date}
         onChange={(e) => setDate(e.target.value)}
-        style={styles.input}
+        style={{ ...styles.input, fontWeight: 600, color: "#0a6ebd" }}
       />
 
       {isPremium ? (
