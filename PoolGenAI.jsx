@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.15.7";
+const APP_VERSION = "1.15.8";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -161,6 +161,8 @@ const TRANSLATIONS = {
     note_optional: "Note (optionnel)",
     note_placeholder: "Eau trouble, fort ensoleillement, baignade prévue...",
     save_measure: "Enregistrer la mesure",
+    save: "Enregistrer",
+    cancel: "Annuler",
     save_changes: "Enregistrer les modifications",
     // Products
     my_products: "MES PRODUITS",
@@ -596,6 +598,8 @@ const TRANSLATIONS = {
     note_optional: "Note (optional)",
     note_placeholder: "Cloudy water, strong sun, swimming planned...",
     save_measure: "Save reading",
+    save: "Save",
+    cancel: "Cancel",
     save_changes: "Save changes",
     my_products: "MY PRODUCTS",
     products_formula: "Dosage calculated as: {quantity} to change parameter by {effect} per {volume} m³. These products are specific to this pool.",
@@ -1022,6 +1026,8 @@ const TRANSLATIONS = {
     note_optional: "Notiz (optional)",
     note_placeholder: "Trübes Wasser, starke Sonne, Schwimmen geplant...",
     save_measure: "Messung speichern",
+    save: "Speichern",
+    cancel: "Abbrechen",
     save_changes: "Änderungen speichern",
     my_products: "MEINE PRODUKTE",
     products_formula: "Dosierung berechnet als: {Menge} um Parameter um {Effekt} pro {Volumen} m³ zu ändern.",
@@ -1450,6 +1456,8 @@ const TRANSLATIONS = {
     note_optional: "Nota (opzionale)",
     note_placeholder: "Acqua torbida, sole forte, nuoto previsto...",
     save_measure: "Salva misurazione",
+    save: "Salva",
+    cancel: "Annulla",
     save_changes: "Salva modifiche",
     my_products: "I MIEI PRODOTTI",
     products_formula: "Il dosaggio è calcolato come: {quantità} per variare il parametro di {effetto} per {volume} m³.",
@@ -1875,6 +1883,8 @@ const TRANSLATIONS = {
     note_optional: "Nota (opcional)",
     note_placeholder: "Agua turbia, sol fuerte, natación prevista...",
     save_measure: "Guardar medición",
+    save: "Guardar",
+    cancel: "Cancelar",
     save_changes: "Guardar cambios",
     my_products: "MIS PRODUCTOS",
     products_formula: "El dosaje se calcula como: {cantidad} para variar el parámetro en {efecto} por {volumen} m³.",
@@ -2300,6 +2310,8 @@ const TRANSLATIONS = {
     note_optional: "Nota (opcional)",
     note_placeholder: "Água turva, sol forte, natação prevista...",
     save_measure: "Salvar medição",
+    save: "Guardar",
+    cancel: "Cancelar",
     save_changes: "Salvar alterações",
     my_products: "MEUS PRODUTOS",
     products_formula: "A dosagem é calculada como: {quantidade} para variar o parâmetro em {efeito} por {volume} m³.",
