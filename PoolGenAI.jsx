@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.20.0";
+const APP_VERSION = "1.20.2";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -356,7 +356,8 @@ const TRANSLATIONS = {
     reset_sent: "Email de réinitialisation envoyé.",
     skip_login: "Continuer sans compte",
     wrong_password: "Mot de passe incorrect.",
-    user_not_found: "Aucun compte avec cet email.",
+    user_not_found: "Aucun compte avec cet email. Si tu penses que c'est une erreur, contacte support.poolgenai@gmail.com",
+    account_disabled: "Ce compte a été désactivé. Contacte support.poolgenai@gmail.com pour plus d'informations.",
     email_in_use: "Cet email est déjà utilisé.",
     weak_password: "Mot de passe trop court (6 caractères min).",
     firebase_not_configured: "⚠️ Firebase non configuré — fonctionnement hors-ligne uniquement.",
@@ -803,7 +804,8 @@ const TRANSLATIONS = {
     reset_sent: "Password reset email sent.",
     skip_login: "Continue without account",
     wrong_password: "Wrong password.",
-    user_not_found: "No account with this email.",
+    user_not_found: "No account with this email. If you think this is a mistake, contact support.poolgenai@gmail.com",
+    account_disabled: "This account has been disabled. Contact support.poolgenai@gmail.com for more information.",
     email_in_use: "This email is already in use.",
     weak_password: "Password too short (min 6 characters).",
     firebase_not_configured: "⚠️ Firebase not configured — offline mode only.",
@@ -1252,7 +1254,8 @@ const TRANSLATIONS = {
     reset_sent: "Zurücksetz-E-Mail gesendet.",
     skip_login: "Ohne Konto fortfahren",
     wrong_password: "Falsches Passwort.",
-    user_not_found: "Kein Konto mit dieser E-Mail.",
+    user_not_found: "Kein Konto mit dieser E-Mail. Falls das ein Irrtum ist, kontaktiere support.poolgenai@gmail.com",
+    account_disabled: "Dieses Konto wurde gesperrt. Kontaktiere support.poolgenai@gmail.com für weitere Informationen.",
     email_in_use: "Diese E-Mail wird bereits verwendet.",
     weak_password: "Passwort zu kurz (mind. 6 Zeichen).",
     firebase_not_configured: "⚠️ Firebase nicht konfiguriert — nur Offline-Modus.",
@@ -1698,7 +1701,8 @@ const TRANSLATIONS = {
     reset_sent: "Email di reset inviata.",
     skip_login: "Continua senza account",
     wrong_password: "Password errata.",
-    user_not_found: "Nessun account con questa email.",
+    user_not_found: "Nessun account con questa email. Se pensi sia un errore, contatta support.poolgenai@gmail.com",
+    account_disabled: "Questo account è stato disattivato. Contatta support.poolgenai@gmail.com per maggiori informazioni.",
     email_in_use: "Questa email è già in uso.",
     weak_password: "Password troppo corta (min 6 caratteri).",
     firebase_not_configured: "⚠️ Firebase non configurato — solo modalità offline.",
@@ -2144,7 +2148,8 @@ const TRANSLATIONS = {
     reset_sent: "Email de restablecimiento enviado.",
     skip_login: "Continuar sin cuenta",
     wrong_password: "Contraseña incorrecta.",
-    user_not_found: "No hay cuenta con este email.",
+    user_not_found: "No hay cuenta con este email. Si crees que es un error, contacta con support.poolgenai@gmail.com",
+    account_disabled: "Esta cuenta ha sido desactivada. Contacta con support.poolgenai@gmail.com para más información.",
     email_in_use: "Este email ya está en uso.",
     weak_password: "Contraseña demasiado corta (mín. 6 caracteres).",
     firebase_not_configured: "⚠️ Firebase no configurado — solo modo offline.",
@@ -2587,7 +2592,8 @@ const TRANSLATIONS = {
     reset_sent: "Email de redefinição enviado.",
     skip_login: "Continuar sem conta",
     wrong_password: "Senha incorreta.",
-    user_not_found: "Nenhuma conta com este email.",
+    user_not_found: "Nenhuma conta com este email. Se achas que é um erro, contacta support.poolgenai@gmail.com",
+    account_disabled: "Esta conta foi desativada. Contacta support.poolgenai@gmail.com para mais informações.",
     email_in_use: "Este email já está em uso.",
     weak_password: "Senha muito curta (mín. 6 caracteres).",
     firebase_not_configured: "⚠️ Firebase não configurado — apenas modo offline.",
@@ -3528,6 +3534,7 @@ function LoginScreen({ lang, onSkip, onConsentChange, detectedLang }) {
     } catch (e) {
       const msg = e.code === "auth/wrong-password" || e.code === "auth/invalid-credential" ? t("wrong_password")
         : e.code === "auth/user-not-found" ? t("user_not_found")
+        : e.code === "auth/user-disabled" ? t("account_disabled")
         : e.code === "auth/email-already-in-use" ? t("email_in_use")
         : e.code === "auth/weak-password" ? t("weak_password")
         : e.code === "auth/invalid-email" ? t("error_email_required")
@@ -3957,6 +3964,47 @@ function PoolApp() {
     }
   }
 
+  // Efface le stockage local (IndexedDB) et remet le state React en mémoire à un
+  // état sûr par défaut, pour qu'aucune donnée du compte supprimé ne subsiste
+  // localement sur cet appareil (ni visible furtivement, ni ré-uploadée par erreur
+  // vers un futur compte via la migration one-shot au premier login).
+  async function resetLocalAppState() {
+    const blankKeys = [
+      [STORAGE_KEYS.measures, "[]"],
+      [STORAGE_KEYS.products, "[]"],
+      [STORAGE_KEYS.settings, "{}"],
+      [STORAGE_KEYS.premium, "false"],
+      [STORAGE_KEYS.pools, "[]"],
+      [STORAGE_KEYS.activePool, JSON.stringify("default")],
+      [STORAGE_KEYS.applications, "[]"],
+      [STORAGE_KEYS.apiKey, JSON.stringify("")],
+      [STORAGE_KEYS.aiEnabled, "false"],
+      [STORAGE_KEYS.activePlan, ""],
+      [STORAGE_KEYS.gdprConsent, "false"],
+      [STORAGE_KEYS.dataConsent, "false"],
+      [STORAGE_KEYS.cguVersion, ""],
+      [STORAGE_KEYS.cguAcceptedDate, ""],
+    ];
+    await Promise.all(
+      blankKeys.map(([key, value]) => window.storage.set(key, value).catch(() => {}))
+    );
+
+    // Réinitialise le state React en mémoire (mêmes valeurs par défaut qu'au premier
+    // montage de l'app, pour ne rien casser côté rendu pendant que showLogin masque tout)
+    setMeasures([]);
+    setProducts(DEFAULT_PRODUCTS.map((p) => ({ ...p, poolId: "default" })));
+    setPools([{ id: "default", name: "Ma piscine", location: "Valbonne (06)", volume: 72, treatmentType: "chlore", filtration: "sable" }]);
+    setActivePoolId("default");
+    setApplications([]);
+    setActivePlan(null);
+    setIsPremium(false);
+    setAiEnabled(false);
+    setGdprConsent(false);
+    setDataConsent(false);
+    setAcceptedCguVersion(null);
+    setCguAcceptedDate(null);
+  }
+
   async function handleEraseSuspendedData() {
     if (!authUser?.uid) return;
     const ok = window.confirm(t("suspended_erase_confirm"));
@@ -3964,6 +4012,7 @@ function PoolApp() {
     setErasingData(true);
     try {
       await eraseAllUserData(authUser.uid);
+      await resetLocalAppState();
       window.storage.set("auth_skipped", "").catch(() => {});
       try { await FB.signOut?.(); } catch (e) {}
       setAuthUser(null);
@@ -4820,6 +4869,7 @@ function PoolApp() {
                   await eraseAllUserData(uid).catch(() => {});
                 }
                 await FB.deleteAccount();
+                await resetLocalAppState();
                 window.storage.set("auth_skipped", "").catch(() => {});
                 setAuthUser(null);
                 setShowLogin(true);
