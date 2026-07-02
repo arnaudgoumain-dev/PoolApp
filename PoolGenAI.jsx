@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.27.2";
+const APP_VERSION = "1.27.3";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -5264,14 +5264,18 @@ function PoolApp() {
   }
 
   // ── Synchro config → Firestore à chaque changement ──
-  const syncedRef = useRef(false);
+  // Fix v1.27.3 : un ancien garde "syncedRef" ne sautait que le tout premier passage
+  // de cet effet, ce qui semblait viser à éviter de réécrire la donnée qu'on vient de
+  // charger localement. En pratique, il empêchait TOUTE écriture ultérieure du champ
+  // pools tant que le tableau ne changeait pas de contenu après ce premier passage —
+  // ce qui, pour un compte n'ayant jamais modifié ses bassins après le chargement
+  // initial, faisait que pools n'était jamais synchronisé vers Firestore (constaté :
+  // champ pools absent du doc config/main alors que measures/products étaient bien
+  // sync). Retiré : le garde-fou anti-écrasement ci-dessous (tableau vide bloqué tant
+  // que cloudConfigReceivedRef n'est pas confirmé) suffit à protéger contre un cache
+  // local vidé écrasant les bassins existants.
   useEffect(() => {
     if (!loaded || !authUser?.uid) return;
-    if (!syncedRef.current) { syncedRef.current = true; return; } // skip initial load
-    // Garde-fou : ne jamais pousser un tableau de bassins vide tant qu'on n'a pas
-    // reçu au moins une fois la vraie config Firestore. Sans ça, un cache local
-    // vidé (ex: nettoyage de cache navigateur) peut écraser silencieusement les
-    // bassins existants sur le cloud avant même que la synchro temps réel arrive.
     if (pools.length === 0 && !cloudConfigReceivedRef.current) return;
     syncConfig({ pools });
   }, [pools]);
