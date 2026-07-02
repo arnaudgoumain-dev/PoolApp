@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.21.3";
+const APP_VERSION = "1.21.4";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -3113,6 +3113,7 @@ const STORAGE_KEYS = {
   dataConsent: "pool:dataConsent",
   cguVersion: "pool:cguVersion",
   cguAcceptedDate: "pool:cguAcceptedDate",
+  lastUid: "pool:lastUid",
 };
 
 // ---------- Helpers ----------
@@ -4260,6 +4261,19 @@ function PoolApp() {
 
     const unsub = FB.onAuth(async (user) => {
       if (user) {
+        // Détection de changement d'utilisateur sur cet appareil : si un compte
+        // différent a été utilisé avant (même sans déconnexion explicite), on
+        // nettoie tout AVANT de charger/synchroniser quoi que ce soit, pour ne
+        // jamais laisser les données d'un utilisateur visibles par un autre.
+        try {
+          const lastUidEntry = await window.storage.get(STORAGE_KEYS.lastUid);
+          const lastUid = lastUidEntry?.value ? JSON.parse(lastUidEntry.value) : null;
+          if (lastUid && lastUid !== user.uid) {
+            await resetLocalAppState();
+          }
+          window.storage.set(STORAGE_KEYS.lastUid, JSON.stringify(user.uid)).catch(() => {});
+        } catch (e) {}
+
         setAuthUser(user);
         setShowLogin(false);
         window.storage.set("auth_skipped", "true").catch(() => {});
@@ -5111,6 +5125,7 @@ function PoolApp() {
             authUser={authUser}
             onSignOut={async () => {
               await FB.signOut().catch(() => {});
+              await resetLocalAppState();
               window.storage.set("auth_skipped", "").catch(() => {});
               setAuthUser(null);
               setShowLogin(true);
