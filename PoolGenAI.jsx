@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.27.1";
+const APP_VERSION = "1.27.2";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -3711,6 +3711,17 @@ class ErrorBoundary extends React.Component {
 //   window._fbOnAuth = onAuthStateChanged;
 // </script>
 
+// Comparaison de contenu simple (JSON) — utilisée pour éviter de remplacer un state
+// par une donnée cloud identique (voir commentaire dans le useEffect de synchro
+// Firestore plus bas, fix v1.27.2 de la boucle d'écritures ping-pong entre appareils).
+function deepEqual(a, b) {
+  try {
+    return JSON.stringify(a) === JSON.stringify(b);
+  } catch (e) {
+    return false;
+  }
+}
+
 const FB = {
   ready: () => !!window._fbAuth,
   onAuth: (cb) => window._fbOnAuth ? window._fbOnAuth(window._fbAuth, cb) : (() => {}),
@@ -4550,14 +4561,14 @@ function PoolApp() {
 
     const unsubMeasures = FB.onMeasures(uid, (cloudMeasures) => {
       if (cloudMeasures.length > 0) {
-        setMeasures(cloudMeasures);
+        setMeasures((prev) => (deepEqual(prev, cloudMeasures) ? prev : cloudMeasures));
         window.storage.set("measures", JSON.stringify(cloudMeasures)).catch(() => {});
       }
     });
 
     const unsubApplications = FB.onApplications(uid, (cloudApps) => {
       if (cloudApps.length > 0) {
-        setApplications(cloudApps);
+        setApplications((prev) => (deepEqual(prev, cloudApps) ? prev : cloudApps));
         window.storage.set("applications", JSON.stringify(cloudApps)).catch(() => {});
       }
     });
@@ -4565,31 +4576,38 @@ function PoolApp() {
     const unsubConfig = FB.onConfig(uid, (config) => {
       cloudConfigReceivedRef.current = true;
       setCloudConfigReceived(true);
+      // IMPORTANT : ne remplacer le state local que si le contenu a réellement changé.
+      // Sinon setPools/setProducts créent une nouvelle référence de tableau à chaque
+      // snapshot reçu (même si les données sont identiques), ce qui redéclenche les
+      // useEffect de synchro config → Firestore (lignes ~5250+), qui réécrivent la
+      // même donnée sur Firestore, qui redéclenche onSnapshot sur les autres appareils
+      // connectés, etc. → boucle d'écritures en ping-pong entre appareils, source du
+      // dépassement de quota Firestore constaté en session (v1.27.2).
       if (config.pools?.length) {
-        setPools(config.pools);
+        setPools((prev) => (deepEqual(prev, config.pools) ? prev : config.pools));
         window.storage.set(STORAGE_KEYS.pools, JSON.stringify(config.pools)).catch(() => {});
       }
       if (config.products?.length) {
-        setProducts(config.products);
+        setProducts((prev) => (deepEqual(prev, config.products) ? prev : config.products));
         window.storage.set(STORAGE_KEYS.products, JSON.stringify(config.products)).catch(() => {});
       }
       if (config.activePlan !== undefined) {
-        setActivePlan(config.activePlan);
+        setActivePlan((prev) => (deepEqual(prev, config.activePlan) ? prev : config.activePlan));
         window.storage.set(STORAGE_KEYS.activePlan, JSON.stringify(config.activePlan)).catch(() => {});
       }
       if (config.isPremium !== undefined) {
-        setIsPremium(config.isPremium);
+        setIsPremium((prev) => (prev === config.isPremium ? prev : config.isPremium));
         window.storage.set(STORAGE_KEYS.premium, JSON.stringify(config.isPremium)).catch(() => {});
       }
       if (config.lang) {
-        setLang(config.lang);
+        setLang((prev) => (prev === config.lang ? prev : config.lang));
         window.storage.set("app_lang", JSON.stringify(config.lang)).catch(() => {});
       }
       if (config.aiEnabled !== undefined) {
-        setAiEnabled(config.aiEnabled);
+        setAiEnabled((prev) => (prev === config.aiEnabled ? prev : config.aiEnabled));
       }
       if (config.apiProvider) {
-        setApiProvider(config.apiProvider);
+        setApiProvider((prev) => (prev === config.apiProvider ? prev : config.apiProvider));
         window.storage.set(STORAGE_KEYS.apiProvider, JSON.stringify(config.apiProvider)).catch(() => {});
       }
     });
