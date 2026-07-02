@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.25.1";
+const APP_VERSION = "1.26.0";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -179,6 +179,10 @@ const TRANSLATIONS = {
     analyze_locked: "Photo + analyse IA réservées à la version illimitée",
     product_ai_hint: "Active l'analyse IA dans les Réglages pour remplir ces champs automatiquement à partir de la photo.",
     product_sync_error: "Échec de la synchronisation des produits — la photo est peut-être trop volumineuse, réessaie avec une photo plus légère.",
+    repair_orphaned_title: "{count} entrée(s) orpheline(s) détectée(s)",
+    repair_orphaned_desc: "Des mesures, applications ou produits ne sont rattachés à aucun bassin existant (souvent après un bug de synchro). Elles seront rattachées à ton bassin actif.",
+    repair_orphaned_btn: "Réparer maintenant",
+    repair_orphaned_confirm: "Rattacher {count} entrée(s) orpheline(s) au bassin actif ?",
     note_optional: "Note (optionnel)",
     note_placeholder: "Eau trouble, fort ensoleillement, baignade prévue...",
     save_measure: "Enregistrer la mesure",
@@ -660,6 +664,10 @@ const TRANSLATIONS = {
     analyze_locked: "Photo + AI analysis reserved for unlimited version",
     product_ai_hint: "Enable AI analysis in Settings to auto-fill these fields from the photo.",
     product_sync_error: "Product sync failed — the photo may be too large, try again with a lighter photo.",
+    repair_orphaned_title: "{count} orphaned entrie(s) detected",
+    repair_orphaned_desc: "Some measures, treatments or products aren't linked to any existing pool (often after a sync bug). They'll be reattached to your active pool.",
+    repair_orphaned_btn: "Repair now",
+    repair_orphaned_confirm: "Reattach {count} orphaned entrie(s) to the active pool?",
     note_optional: "Note (optional)",
     note_placeholder: "Cloudy water, strong sun, swimming planned...",
     save_measure: "Save reading",
@@ -1132,6 +1140,10 @@ const TRANSLATIONS = {
     analyze_locked: "Foto + KI-Analyse nur in unbegrenzter Version",
     product_ai_hint: "Aktiviere die KI-Analyse in den Einstellungen, um diese Felder automatisch aus dem Foto auszufüllen.",
     product_sync_error: "Produktsynchronisierung fehlgeschlagen — das Foto ist evtl. zu groß, versuche es mit einem leichteren Foto erneut.",
+    repair_orphaned_title: "{count} verwaiste Eintrag/Einträge gefunden",
+    repair_orphaned_desc: "Einige Messungen, Behandlungen oder Produkte sind keinem bestehenden Becken zugeordnet (oft nach einem Synchronisierungsfehler). Sie werden deinem aktiven Becken zugeordnet.",
+    repair_orphaned_btn: "Jetzt reparieren",
+    repair_orphaned_confirm: "{count} verwaiste Einträge dem aktiven Becken zuordnen?",
     note_optional: "Notiz (optional)",
     note_placeholder: "Trübes Wasser, starke Sonne, Schwimmen geplant...",
     save_measure: "Messung speichern",
@@ -1606,6 +1618,10 @@ const TRANSLATIONS = {
     analyze_locked: "Foto + analisi IA riservate alla versione illimitata",
     product_ai_hint: "Attiva l'analisi IA nelle Impostazioni per compilare automaticamente questi campi dalla foto.",
     product_sync_error: "Sincronizzazione prodotti fallita — la foto è forse troppo pesante, riprova con una foto più leggera.",
+    repair_orphaned_title: "{count} voce/i orfana/e rilevata/e",
+    repair_orphaned_desc: "Alcune misure, trattamenti o prodotti non sono collegati a nessuna piscina esistente (spesso dopo un bug di sincronizzazione). Verranno ricollegati alla tua piscina attiva.",
+    repair_orphaned_btn: "Ripara ora",
+    repair_orphaned_confirm: "Ricollegare {count} voce/i orfana/e alla piscina attiva?",
     note_optional: "Nota (opzionale)",
     note_placeholder: "Acqua torbida, sole forte, nuoto previsto...",
     save_measure: "Salva misurazione",
@@ -2077,6 +2093,10 @@ const TRANSLATIONS = {
     analyze_locked: "Foto + análisis IA reservados para versión ilimitada",
     product_ai_hint: "Activa el análisis IA en Ajustes para rellenar estos campos automáticamente a partir de la foto.",
     product_sync_error: "Error al sincronizar productos — la foto quizá es demasiado pesada, prueba con una foto más ligera.",
+    repair_orphaned_title: "{count} entrada(s) huérfana(s) detectada(s)",
+    repair_orphaned_desc: "Algunas mediciones, tratamientos o productos no están vinculados a ninguna piscina existente (a menudo tras un error de sincronización). Se vincularán a tu piscina activa.",
+    repair_orphaned_btn: "Reparar ahora",
+    repair_orphaned_confirm: "¿Vincular {count} entrada(s) huérfana(s) a la piscina activa?",
     note_optional: "Nota (opcional)",
     note_placeholder: "Agua turbia, sol fuerte, natación prevista...",
     save_measure: "Guardar medición",
@@ -2548,6 +2568,10 @@ const TRANSLATIONS = {
     analyze_locked: "Foto + análise IA reservadas para versão ilimitada",
     product_ai_hint: "Ative a análise IA nas Definições para preencher estes campos automaticamente a partir da foto.",
     product_sync_error: "Falha na sincronização dos produtos — a foto pode ser demasiado grande, tenta com uma foto mais leve.",
+    repair_orphaned_title: "{count} entrada(s) órfã(s) detetada(s)",
+    repair_orphaned_desc: "Algumas medições, tratamentos ou produtos não estão associados a nenhuma piscina existente (geralmente após um erro de sincronização). Serão associados à tua piscina ativa.",
+    repair_orphaned_btn: "Reparar agora",
+    repair_orphaned_confirm: "Associar {count} entrada(s) órfã(s) à piscina ativa?",
     note_optional: "Nota (opcional)",
     note_placeholder: "Água turva, sol forte, natação prevista...",
     save_measure: "Salvar medição",
@@ -4860,6 +4884,47 @@ function PoolApp() {
     setMeasures((prev) => prev.filter((m) => (m.poolId || "default") !== activePoolId));
   }
 
+  // Détecte les mesures/applications/produits dont le poolId ne correspond à
+  // aucun bassin existant (ex: après un bug de synchro ayant fait perdre l'ID
+  // d'origine du bassin — voir v1.25.1).
+  const orphanedCount = useMemo(() => {
+    if (!pools.length) return 0;
+    const poolIds = new Set(pools.map((p) => p.id));
+    const orphanMeasures = measures.filter((m) => !poolIds.has(m.poolId || "default")).length;
+    const orphanApps = applications.filter((a) => !poolIds.has(a.poolId || "default")).length;
+    const orphanProducts = products.filter((p) => !poolIds.has(p.poolId || "default")).length;
+    return orphanMeasures + orphanApps + orphanProducts;
+  }, [pools, measures, applications, products]);
+
+  async function repairOrphanedData() {
+    if (!pools.length) return;
+    const poolIds = new Set(pools.map((p) => p.id));
+    const targetPoolId = activePoolId && poolIds.has(activePoolId) ? activePoolId : pools[0].id;
+
+    const fixedMeasures = measures.map((m) =>
+      poolIds.has(m.poolId || "default") ? m : { ...m, poolId: targetPoolId }
+    );
+    const fixedApps = applications.map((a) =>
+      poolIds.has(a.poolId || "default") ? a : { ...a, poolId: targetPoolId }
+    );
+    const fixedProducts = products.map((p) =>
+      poolIds.has(p.poolId || "default") ? p : { ...p, poolId: targetPoolId }
+    );
+
+    setMeasures(fixedMeasures);
+    setApplications(fixedApps);
+    setProducts(fixedProducts);
+
+    if (authUser?.uid && FB.ready()) {
+      const changedMeasures = fixedMeasures.filter((m, i) => m.poolId !== measures[i]?.poolId);
+      const changedApps = fixedApps.filter((a, i) => a.poolId !== applications[i]?.poolId);
+      await Promise.all([
+        ...changedMeasures.map((m) => FB.saveMeasure(authUser.uid, m).catch(() => {})),
+        ...changedApps.map((a) => FB.saveApplication(authUser.uid, a).catch(() => {})),
+      ]);
+    }
+  }
+
   function saveApplication(measureId, steps, allApplied) {
     track("treatment_applied", { steps_count: steps.length, all_applied: allApplied });
     // Stock décrémenté uniquement quand le plan est entièrement terminé
@@ -5335,6 +5400,8 @@ function PoolApp() {
             onSwitchPool={setActivePoolId}
             onWantAddPool={handleWantAddPool}
             onDeleteAllMeasures={deleteAllMeasuresForActivePool}
+            orphanedCount={orphanedCount}
+            onRepairOrphanedData={repairOrphanedData}
             authUser={authUser}
             onSignOut={async () => {
               await FB.signOut().catch(() => {});
@@ -8731,7 +8798,7 @@ function ProductModal({ product, onClose, onSave, isPremium, onWantPremium, appl
 }
 
 // ---------- Réglages ----------
-function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitchPool, onWantAddPool, onDeleteAllMeasures: onDeleteAllMeasuresRaw, poolMeasureCount, onGenerateReport, onWantPremiumForReport, onWantPremium, isPremium, setIsPremium, apiKey, setApiKey, apiProvider, setApiProvider, aiEnabled, setAiEnabled, lang, setLang, authUser, onSignOut, onSignIn, onDeleteAccount, dataConsent, onRevokeDataConsent, cguAcceptedDate }) {
+function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitchPool, onWantAddPool, onDeleteAllMeasures: onDeleteAllMeasuresRaw, orphanedCount, onRepairOrphanedData, poolMeasureCount, onGenerateReport, onWantPremiumForReport, onWantPremium, isPremium, setIsPremium, apiKey, setApiKey, apiProvider, setApiProvider, aiEnabled, setAiEnabled, lang, setLang, authUser, onSignOut, onSignIn, onDeleteAccount, dataConsent, onRevokeDataConsent, cguAcceptedDate }) {
   const [showAiConfig, setShowAiConfig] = useState(false);
   const [editingPool, setEditingPool] = useState(null);
   const [showLegalModal, setShowLegalModal] = useState(false);
@@ -8742,6 +8809,18 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
   const filtrationTypes = getFiltrationTypes(lang);
   const activePool = pools.find((p) => p.id === activePoolId) || pools[0];
   const [showApiKey, setShowApiKey] = useState(false);
+  const [repairing, setRepairing] = useState(false);
+
+  async function handleRepair() {
+    const ok = window.confirm(t("repair_orphaned_confirm", { count: orphanedCount }));
+    if (!ok) return;
+    setRepairing(true);
+    try {
+      await onRepairOrphanedData();
+    } finally {
+      setRepairing(false);
+    }
+  }
 
   function onDeleteAllMeasures() {
     if (!poolMeasureCount) return;
@@ -8753,6 +8832,24 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
 
   return (
     <div>
+      {orphanedCount > 0 && (
+        <div style={{ background: "#fff4e5", border: "1.5px solid #f0c36d", borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
+          <div style={{ fontSize: 13.5, fontWeight: 700, color: "#8a5a00", marginBottom: 4 }}>
+            {t("repair_orphaned_title", { count: orphanedCount })}
+          </div>
+          <div style={{ fontSize: 12, color: "#8a5a00", marginBottom: 10, lineHeight: 1.5 }}>
+            {t("repair_orphaned_desc")}
+          </div>
+          <button
+            type="button"
+            onClick={handleRepair}
+            disabled={repairing}
+            style={{ background: "#8a5a00", color: "#fff", border: "none", borderRadius: 10, padding: "9px 16px", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+          >
+            {repairing ? "..." : t("repair_orphaned_btn")}
+          </button>
+        </div>
+      )}
       <div style={styles.sectionRow}>
         <span style={styles.sectionLabel}>{t("language_label")}</span>
       </div>
