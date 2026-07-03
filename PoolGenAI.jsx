@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.29.1";
+const APP_VERSION = "1.29.2";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -395,6 +395,7 @@ const TRANSLATIONS = {
     sign_out: "Se déconnecter",
     delete_account: "Supprimer mon compte",
     delete_account_confirm: "Supprimer ton compte ? Tu ne pourras plus te connecter. Tes données sont conservées — tu pourras demander leur récupération ou leur effacement définitif.",
+    account_delete_flag_error: "Échec de la suppression du compte. Réessaie.",
     reauth_required: "Reconnecte-toi d'abord pour pouvoir supprimer ton compte.",
     not_signed_in: "Non connecté — mode hors-ligne",
     create_account: "Créer un compte",
@@ -900,6 +901,7 @@ const TRANSLATIONS = {
     sign_out: "Sign out",
     delete_account: "Delete my account",
     delete_account_confirm: "Delete your account? You won't be able to log in anymore. Your data is kept — you can request its recovery or permanent deletion.",
+    account_delete_flag_error: "Failed to delete the account. Try again.",
     reauth_required: "Please sign in again before deleting your account.",
     not_signed_in: "Not signed in — offline mode",
     create_account: "Create account",
@@ -1407,6 +1409,7 @@ const TRANSLATIONS = {
     sign_out: "Abmelden",
     delete_account: "Konto löschen",
     delete_account_confirm: "Konto löschen? Du kannst dich danach nicht mehr anmelden. Deine Daten bleiben erhalten — du kannst ihre Wiederherstellung oder endgültige Löschung beantragen.",
+    account_delete_flag_error: "Kontolöschung fehlgeschlagen. Versuche es erneut.",
     reauth_required: "Bitte melde dich erneut an, bevor du dein Konto löschst.",
     not_signed_in: "Nicht angemeldet — Offline-Modus",
     create_account: "Konto erstellen",
@@ -1911,6 +1914,7 @@ const TRANSLATIONS = {
     sign_out: "Disconnetti",
     delete_account: "Elimina account",
     delete_account_confirm: "Eliminare il tuo account? Non potrai più accedere. I tuoi dati restano conservati — potrai richiederne il recupero o l'eliminazione definitiva.",
+    account_delete_flag_error: "Eliminazione dell'account non riuscita. Riprova.",
     reauth_required: "Accedi di nuovo prima di eliminare il tuo account.",
     not_signed_in: "Non connesso — modalità offline",
     create_account: "Crea account",
@@ -2415,6 +2419,7 @@ const TRANSLATIONS = {
     sign_out: "Cerrar sesión",
     delete_account: "Eliminar mi cuenta",
     delete_account_confirm: "¿Eliminar tu cuenta? Ya no podrás iniciar sesión. Tus datos se conservan — podrás solicitar su recuperación o eliminación definitiva.",
+    account_delete_flag_error: "Error al eliminar la cuenta. Inténtalo de nuevo.",
     reauth_required: "Vuelve a iniciar sesión antes de eliminar tu cuenta.",
     not_signed_in: "No conectado — modo offline",
     create_account: "Crear cuenta",
@@ -2916,6 +2921,7 @@ const TRANSLATIONS = {
     sign_out: "Sair",
     delete_account: "Eliminar minha conta",
     delete_account_confirm: "Eliminar a tua conta? Deixarás de conseguir iniciar sessão. Os teus dados são mantidos — poderás pedir a sua recuperação ou eliminação definitiva.",
+    account_delete_flag_error: "Falha ao eliminar a conta. Tenta novamente.",
     reauth_required: "Faz login novamente antes de eliminar a tua conta.",
     not_signed_in: "Não conectado — modo offline",
     create_account: "Criar conta",
@@ -4695,14 +4701,24 @@ function PoolApp() {
   // échoue (permission refusée) et l'erreur apparaît sur l'écran de connexion,
   // juste après la suppression — trompeur, alors que la suppression a réussi.
   // On annule tout debounce en attente avant de se déconnecter.
+  // v1.29.2 — Fix : la règle Firestore n'autorisait la transition deleted que
+  // dans un sens (true→false, pour la réactivation). Une suppression après une
+  // réactivation était donc une transition false→true, rejetée par Firestore.
+  // L'erreur était avalée (.catch(() => {})) : l'app déconnectait quand même,
+  // donnant l'illusion d'une suppression alors que le flag n'était jamais posé.
+  // Maintenant : si l'écriture échoue, on arrête tout AVANT de déconnecter, et
+  // l'erreur remonte à l'appelant (alerte ou écran de réauthentification).
   async function performDeleteAccount() {
     const uid = authUser?.uid;
+    if (!uid) return;
+    try {
+      await FB.markAccountDeleted(uid);
+    } catch (e) {
+      throw new Error(t("account_delete_flag_error") + (e?.message ? " (" + e.message + ")" : ""));
+    }
     teardownRef.current = true;
     if (syncDebounceRef.current) { clearTimeout(syncDebounceRef.current); syncDebounceRef.current = null; }
     syncPendingRef.current = {};
-    if (uid) {
-      await FB.markAccountDeleted(uid).catch(() => {});
-    }
     await resetLocalAppState();
     try { await FB.signOut?.(); } catch (e) {}
     window.storage.set("auth_skipped", "").catch(() => {});
