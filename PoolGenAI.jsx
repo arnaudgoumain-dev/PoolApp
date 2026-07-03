@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.29.4";
+const APP_VERSION = "1.29.5";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -188,6 +188,7 @@ const TRANSLATIONS = {
     account_deleted_title: "Compte supprimé",
     account_deleted_desc: "Ce compte a été supprimé et l'accès à l'application n'est plus disponible.",
     account_deleted_request_btn: "Ne pas recommencer avec cette adresse, et demander la récupération ou la suppression de mes données",
+    back_to_home: "Revenir à la page d'accueil",
     reactivate_btn: "Recommencer avec cette adresse",
     reactivate_confirm: "Repartir de zéro avec cette adresse ? Tes bassins actuels seront masqués (jamais affichés, mais pas supprimés). Tu devras créer un nouveau bassin.",
     reset_password_hint: "Réinitialiser mon mot de passe",
@@ -703,6 +704,7 @@ const TRANSLATIONS = {
     account_deleted_title: "Account deleted",
     account_deleted_desc: "This account has been deleted and access to the app is no longer available.",
     account_deleted_request_btn: "Don't start fresh with this address, and request data recovery or deletion",
+    back_to_home: "Back to home",
     reactivate_btn: "Start fresh with this address",
     reactivate_confirm: "Start fresh with this address? Your current pools will be hidden (never shown again, but not deleted). You'll need to create a new pool.",
     reset_password_hint: "Reset my password",
@@ -1209,6 +1211,7 @@ const TRANSLATIONS = {
     account_deleted_title: "Konto gelöscht",
     account_deleted_desc: "Dieses Konto wurde gelöscht und der Zugriff auf die App ist nicht mehr möglich.",
     account_deleted_request_btn: "Nicht mit dieser Adresse neu beginnen, sondern Datenwiederherstellung oder -löschung beantragen",
+    back_to_home: "Zurück zur Startseite",
     reactivate_btn: "Mit dieser Adresse neu beginnen",
     reactivate_confirm: "Mit dieser Adresse neu beginnen? Deine aktuellen Becken werden ausgeblendet (nie wieder angezeigt, aber nicht gelöscht). Du musst ein neues Becken anlegen.",
     reset_password_hint: "Passwort zurücksetzen",
@@ -1717,6 +1720,7 @@ const TRANSLATIONS = {
     account_deleted_title: "Account eliminato",
     account_deleted_desc: "Questo account è stato eliminato e l'accesso all'app non è più disponibile.",
     account_deleted_request_btn: "Non ricominciare con questo indirizzo, e richiedi il recupero o l'eliminazione dei miei dati",
+    back_to_home: "Torna alla pagina iniziale",
     reactivate_btn: "Ricomincia con questo indirizzo",
     reactivate_confirm: "Ricominciare da zero con questo indirizzo? Le tue piscine attuali saranno nascoste (mai più mostrate, ma non eliminate). Dovrai creare una nuova piscina.",
     reset_password_hint: "Reimposta la mia password",
@@ -2222,6 +2226,7 @@ const TRANSLATIONS = {
     account_deleted_title: "Cuenta eliminada",
     account_deleted_desc: "Esta cuenta ha sido eliminada y el acceso a la aplicación ya no está disponible.",
     account_deleted_request_btn: "No empezar de nuevo con esta dirección, y solicitar la recuperación o eliminación de mis datos",
+    back_to_home: "Volver a la página de inicio",
     reactivate_btn: "Empezar de nuevo con esta dirección",
     reactivate_confirm: "¿Empezar de cero con esta dirección? Tus piscinas actuales se ocultarán (no se mostrarán más, pero no se eliminarán). Tendrás que crear una piscina nueva.",
     reset_password_hint: "Restablecer mi contraseña",
@@ -2727,6 +2732,7 @@ const TRANSLATIONS = {
     account_deleted_title: "Conta eliminada",
     account_deleted_desc: "Esta conta foi eliminada e o acesso à aplicação já não está disponível.",
     account_deleted_request_btn: "Não recomeçar com este endereço, e pedir a recuperação ou eliminação dos meus dados",
+    back_to_home: "Voltar à página inicial",
     reactivate_btn: "Recomeçar com este endereço",
     reactivate_confirm: "Recomeçar do zero com este endereço? As tuas piscinas atuais ficarão ocultas (nunca mais mostradas, mas não eliminadas). Terás de criar uma nova piscina.",
     reset_password_hint: "Repor a minha palavra-passe",
@@ -4753,6 +4759,19 @@ function PoolApp() {
     }
   }
 
+  // v1.29.5 — Factorisée pour être réutilisable depuis l'écran "Compte supprimé"
+  // ("Revenir à la page d'accueil"), en plus du bouton Se déconnecter classique.
+  async function handleSignOut() {
+    teardownRef.current = true;
+    if (syncDebounceRef.current) { clearTimeout(syncDebounceRef.current); syncDebounceRef.current = null; }
+    syncPendingRef.current = {};
+    await FB.signOut().catch(() => {});
+    await resetLocalAppState();
+    window.storage.set("auth_skipped", "").catch(() => {});
+    setAuthUser(null);
+    setShowLogin(true);
+  }
+
   async function handleEraseSuspendedData() {
     if (!authUser?.uid) return;
     const ok = window.confirm(t("suspended_erase_confirm"));
@@ -5787,9 +5806,15 @@ function PoolApp() {
           </button>
           <button
             onClick={() => setShowDataRequestScreen(true)}
-            style={{ width: "100%", padding: "13px 0", borderRadius: 12, border: "1.5px solid #0a6ebd", background: "#fff", color: "#0a6ebd", fontWeight: 700, fontSize: 14.5, cursor: "pointer" }}
+            style={{ width: "100%", padding: "13px 0", borderRadius: 12, border: "1.5px solid #0a6ebd", background: "#fff", color: "#0a6ebd", fontWeight: 700, fontSize: 14.5, cursor: "pointer", marginBottom: 14 }}
           >
             {t("account_deleted_request_btn")}
+          </button>
+          <button
+            onClick={handleSignOut}
+            style={{ background: "none", border: "none", color: "#6a7d90", fontWeight: 600, fontSize: 13, cursor: "pointer", textDecoration: "underline" }}
+          >
+            {t("back_to_home")}
           </button>
         </div>
       </div>
@@ -5914,16 +5939,7 @@ function PoolApp() {
             orphanedCount={orphanedCount}
             onRepairOrphanedData={repairOrphanedData}
             authUser={authUser}
-            onSignOut={async () => {
-              teardownRef.current = true;
-              if (syncDebounceRef.current) { clearTimeout(syncDebounceRef.current); syncDebounceRef.current = null; }
-              syncPendingRef.current = {};
-              await FB.signOut().catch(() => {});
-              await resetLocalAppState();
-              window.storage.set("auth_skipped", "").catch(() => {});
-              setAuthUser(null);
-              setShowLogin(true);
-            }}
+            onSignOut={handleSignOut}
             onSignIn={() => setShowLogin(true)}
             onDeleteAccount={async () => {
               const isGoogle = authUser?.providerData?.some(p => p.providerId === "google.com");
