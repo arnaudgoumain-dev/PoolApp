@@ -107,5 +107,13 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if false;
     }
+    // v1.41.0 — Compteurs de rate-limiting par UID (voir checkAndIncrementRateLimit
+    // dans poolgenai-proxy.js). Écrit uniquement par le Worker via compte de
+    // service (hors périmètre de ces règles, comme calibrationModels
+    // ci-dessus) — aucun accès client, ni lecture ni écriture, ce compteur ne
+    // regarde que le Worker.
+    match /rateLimits/{docId} {
+      allow read, write: if false;
+    }
   }
 }
