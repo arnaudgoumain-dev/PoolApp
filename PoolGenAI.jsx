@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.43.0";
+const APP_VERSION = "1.44.0";
 const CGU_VERSION = "1.2"; // v1.2 : clause 11 - amélioration collective des analyses photo (Lot B, calibration)
 
 const TRANSLATIONS = {
@@ -483,6 +483,8 @@ const TRANSLATIONS = {
     reco_note_o2: "Ne pas mélanger avec le chlore. Filtration en marche pendant 4h.",
     reco_note_brome: "Verser loin des arrivées d'eau, filtration en marche.",
     reco_note_cya: "Aucun produit ne fait baisser le CYA chimiquement, seule la dilution fonctionne. Éviter le chlore stabilisé tant que le CYA est haut.",
+    reco_cya_block_shock: "Stabilisant trop élevé pour un choc efficace ({val} mg/L)",
+    reco_note_cya_block_shock: "Au-delà de 75 mg/L de CYA, un choc chlore classique n'atteint plus le point de rupture. Seule la dilution (renouvellement d'eau) fonctionne — pas de chlore choc tant que ce n'est pas fait.",
     reco_fallback_tac: "Produit TAC+ (bicarbonate de sodium)",
     reco_fallback_ph_minus: "pH moins",
     reco_fallback_ph_plus: "pH plus",
@@ -1012,6 +1014,8 @@ const TRANSLATIONS = {
     reco_note_o2: "Do not mix with chlorine. Run filtration for 4h.",
     reco_note_brome: "Pour away from water inlets, run filtration.",
     reco_note_cya: "No product lowers CYA chemically, only dilution works. Avoid stabilised chlorine while CYA is high.",
+    reco_cya_block_shock: "Stabiliser too high for an effective shock ({val} mg/L)",
+    reco_note_cya_block_shock: "Above 75 mg/L CYA, a standard chlorine shock can no longer reach breakpoint. Only dilution (partial water renewal) works — no chlorine shock until that's done.",
     reco_fallback_tac: "TAC+ product (sodium bicarbonate)",
     reco_fallback_ph_minus: "pH minus",
     reco_fallback_ph_plus: "pH plus",
@@ -1543,6 +1547,8 @@ const TRANSLATIONS = {
     reco_note_o2: "Nicht mit Chlor mischen. 4h filtrieren.",
     reco_note_brome: "Weit von Wasserzuläufen entfernt zugeben, Filtration laufen lassen.",
     reco_note_cya: "Kein Produkt senkt CYA chemisch, nur Verdünnung wirkt. Stabilisiertes Chlor vermeiden solange CYA hoch ist.",
+    reco_cya_block_shock: "Stabilisator zu hoch für eine wirksame Schockbehandlung ({val} mg/L)",
+    reco_note_cya_block_shock: "Über 75 mg/L CYA erreicht eine klassische Chlorschockbehandlung den Breakpoint nicht mehr. Nur Verdünnung (teilweiser Wasseraustausch) wirkt — keine Chlorschockbehandlung, bevor das erledigt ist.",
     reco_fallback_tac: "KH+-Produkt (Natriumbicarbonat)",
     reco_fallback_ph_minus: "pH-Senker",
     reco_fallback_ph_plus: "pH-Heber",
@@ -2071,6 +2077,8 @@ const TRANSLATIONS = {
     reco_note_o2: "Non mescolare con il cloro. Filtrazione per 4h.",
     reco_note_brome: "Versare lontano dagli ingressi d'acqua, filtrazione in marcia.",
     reco_note_cya: "Nessun prodotto abbassa il CYA chimicamente, solo la diluizione funziona. Evitare cloro stabilizzato finché il CYA è alto.",
+    reco_cya_block_shock: "Stabilizzante troppo alto per uno shock efficace ({val} mg/L)",
+    reco_note_cya_block_shock: "Oltre 75 mg/L di CYA, uno shock a cloro classico non raggiunge più il punto di rottura. Funziona solo la diluizione (rinnovo parziale dell'acqua) — niente shock a cloro finché non è fatto.",
     reco_fallback_tac: "Prodotto TAC+ (bicarbonato di sodio)",
     reco_fallback_ph_minus: "pH meno",
     reco_fallback_ph_plus: "pH più",
@@ -2599,6 +2607,8 @@ const TRANSLATIONS = {
     reco_note_o2: "No mezclar con cloro. Filtración durante 4h.",
     reco_note_brome: "Verter lejos de las entradas de agua, filtración en marcha.",
     reco_note_cya: "Ningún producto baja el CYA químicamente, solo la dilución funciona. Evitar cloro estabilizado mientras el CYA sea alto.",
+    reco_cya_block_shock: "Estabilizador demasiado alto para un choque eficaz ({val} mg/L)",
+    reco_note_cya_block_shock: "Por encima de 75 mg/L de CYA, un choque de cloro clásico ya no alcanza el punto de ruptura. Solo la dilución (renovación parcial del agua) funciona — nada de choque de cloro hasta que esté hecho.",
     reco_fallback_tac: "Producto TAC+ (bicarbonato de sodio)",
     reco_fallback_ph_minus: "pH menos",
     reco_fallback_ph_plus: "pH más",
@@ -3124,6 +3134,8 @@ const TRANSLATIONS = {
     reco_note_o2: "Não misturar com cloro. Filtração por 4h.",
     reco_note_brome: "Verter longe das entradas de água, filtração em funcionamento.",
     reco_note_cya: "Nenhum produto baixa o CYA quimicamente, só a diluição funciona. Evitar cloro estabilizado enquanto o CYA estiver alto.",
+    reco_cya_block_shock: "Estabilizador muito alto para um choque eficaz ({val} mg/L)",
+    reco_note_cya_block_shock: "Acima de 75 mg/L de CYA, um choque de cloro clássico já não atinge o ponto de ruptura. Só a diluição (renovação parcial da água) funciona — nada de choque de cloro até isso ser feito.",
     reco_fallback_tac: "Produto TAC+ (bicarbonato de sódio)",
     reco_fallback_ph_minus: "pH menos",
     reco_fallback_ph_plus: "pH mais",
@@ -3513,11 +3525,18 @@ const ACTION_PRIORITY = {
 //    (même à un pH pas encore optimal) que d'attendre la fin de la séquence TAC/pH.
 function computeStepPriority(step, ctx) {
   const base = ACTION_PRIORITY[step.action] ?? 9;
-  const { tac, phVal, phTargetMax, combined } = ctx || {};
+  const { tac, phVal, phTargetMax, combined, metalsUrgent } = ctx || {};
   const tacCritical = tac != null && !Number.isNaN(tac) && tac < 60;
   const needsPhMinus = phVal != null && phTargetMax != null && phVal > phTargetMax;
   const contaminationUrgent = combined != null && combined > 0.5;
 
+  // v1.44.0 — Métaux dissous (fer/cuivre) avant tout oxydant : le chlore/brome/O2
+  // en présence de métaux dissous forme un précipité (taches parois/liner). Le
+  // séquestrant doit toujours passer en premier, même avant une contamination
+  // urgente (priorité 0 ci-dessous) — d'où -1, strictement avant tout le reste.
+  if (metalsUrgent && step.action === "sequestrant") {
+    return -1;
+  }
   if (contaminationUrgent && (step.action === "chlore" || step.action === "brome" || step.action === "o2")) {
     return 0;
   }
@@ -7455,10 +7474,37 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
 
   if (has("fcl") && !Number.isNaN(fCl) && targetsLower.fcl) {
     const fclT = targetsLower.fcl;
-    if (combined !== null && combined > 0.5) {
-      const targetFcl = Math.max(fclT.max, combined * 3);
+    // v1.44.0 — CYA > 75 mg/L bloque tout choc efficace (le CYA protège le
+    // chlore de l'UV mais réduit aussi sa puissance oxydante ; au-delà de ce
+    // seuil, un choc chlore classique n'atteint plus le point de rupture).
+    // Seule la dilution fonctionne : on remplace la recommandation de choc
+    // par un renouvellement d'eau, jamais les deux en même temps.
+    const cyaValForBlock = parseFloat(latestLower.cya);
+    const cyaBlocksShock = has("cya") && !Number.isNaN(cyaValForBlock) && cyaValForBlock > 75;
+    if (combined !== null && combined > 0.5 && cyaBlocksShock) {
+      const renewalPercent = Math.round((1 - 40 / cyaValForBlock) * 100);
+      steps.push({
+        action: "renouvellement",
+        title: _("reco_cya_block_shock", { val: cyaValForBlock }),
+        productName: _("reco_water_renewal"),
+        productAvailable: true,
+        doseText: _("reco_water_renewal_text", { pct: renewalPercent }),
+        computedDoseAmount: renewalPercent,
+        doseUnit: "%",
+        note: _("reco_note_cya_block_shock"),
+        waitHours: 0,
+      });
+    } else if (combined !== null && combined > 0.5) {
+      // v1.44.0 — Fix : la formule du point de rupture est 10x le chlore
+      // combiné (référence la plus citée dans la profession, ex. In The Swim :
+      // CC 0.5 mg/L → choc jusqu'à 5.0 mg/L), pas 3x comme avant. Et la dose
+      // doit se baser sur l'écart à combler (diff), pas sur la cible brute —
+      // les autres branches (ph-, ph+, fCl bas, brome, o2) le faisaient déjà,
+      // celle-ci utilisait la cible directement, ce qui surdosait.
+      const targetFcl = Math.max(fclT.max, combined * 10);
+      const diff = Math.max(0, targetFcl - fCl);
       const prod = findProduct("chlore");
-      const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (targetFcl / prod.effectAmount)) : null;
+      const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : null;
       steps.push({
         action: "chlore",
         title: _("reco_cl_combined", { val: combined.toFixed(2) }),
@@ -7678,7 +7724,9 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
 
   // CYA
   const cya = parseFloat(latestLower.cya);
-  if (has("cya") && !Number.isNaN(cya) && targetsLower.cya && cya > targetsLower.cya.max) {
+  // v1.44.0 — Si le blocage de choc (CYA > 75) a déjà ajouté une étape de
+  // renouvellement plus haut, on ne la double pas ici.
+  if (has("cya") && !Number.isNaN(cya) && targetsLower.cya && cya > targetsLower.cya.max && !steps.some((s) => s.action === "renouvellement")) {
     const renewalPercent = Math.round((1 - 40 / cya) * 100);
     steps.push({
       action: "renouvellement",
@@ -7693,11 +7741,18 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
     });
   }
 
+  // v1.44.0 — Métaux dissous détectés : le séquestrant doit toujours passer
+  // avant tout oxydant (chlore/brome/O2), cf. computeStepPriority.
+  const metalsUrgent =
+    (has("copper") && !Number.isNaN(copperVal) && targetsLower.copper && copperVal > targetsLower.copper.max) ||
+    (has("iron") && !Number.isNaN(ironVal) && targetsLower.iron && ironVal > targetsLower.iron.max);
+
   const stepPriorityCtx = {
     tac: Number.isNaN(tac) ? null : tac,
     phVal: Number.isNaN(phVal) ? null : phVal,
     phTargetMax: targetsLower.ph ? targetsLower.ph.max : null,
     combined,
+    metalsUrgent,
   };
   const tacNotCritical = stepPriorityCtx.tac == null || stepPriorityCtx.tac >= 60;
   const phTooHigh = stepPriorityCtx.phVal != null && stepPriorityCtx.phTargetMax != null && stepPriorityCtx.phVal > stepPriorityCtx.phTargetMax;
@@ -7707,6 +7762,16 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
   }
 
   steps.sort((a, b) => computeStepPriority(a, stepPriorityCtx) - computeStepPriority(b, stepPriorityCtx));
+
+  // v1.44.0 — Délai obligatoire de 6h entre une correction pH et un choc
+  // chlore qui la suit dans le plan : mélanger pH- et chlore choc trop tôt
+  // précipite le calcaire et réduit l'efficacité du chlore. Ne s'applique
+  // qu'au choc ("chlore"), pas aux autres oxydants ni au chlore d'entretien.
+  const phStepIndex = steps.findIndex((s) => s.action === "ph-" || s.action === "ph+");
+  const chloreStepIndex = steps.findIndex((s) => s.action === "chlore");
+  if (phStepIndex !== -1 && chloreStepIndex !== -1 && chloreStepIndex > phStepIndex) {
+    steps[phStepIndex].waitHours = Math.max(steps[phStepIndex].waitHours || 0, 6);
+  }
   let cumulativeHours = 0;
   return steps.map((step, i) => {
     const startsAfter = cumulativeHours;
