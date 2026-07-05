@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.38.0";
+const APP_VERSION = "1.39.0";
 const CGU_VERSION = "1.2"; // v1.2 : clause 11 - amélioration collective des analyses photo (Lot B, calibration)
 
 const TRANSLATIONS = {
@@ -4148,15 +4148,26 @@ const FB = {
   },
   // ── Measures sync ──
   measuresCol: (uid) => window._fbCollection(window._fbDb, "users", uid, "measures"),
+  // v1.39.0 — Fix : measure.photos/poolPhotos (jusqu'à 10 photos, 1280px/q0.72)
+  // dépassaient la limite Firestore de 1 Mio par document une fois inclus dans
+  // measures/{id} (write rejeté côté client avec status 400, avalé par le
+  // .catch(() => {}) des appelants → mesure jamais visible en historique, sans
+  // aucune erreur affichée). saveMeasure ne persiste plus que les champs
+  // texte + des compteurs ; les photos vont dans la sous-collection dédiée
+  // ci-dessous via saveMeasurePhotos, à appeler séparément par l'appelant.
   saveMeasure: async (uid, measure) => {
     if (!window._fbDb || !window._fbSetDoc) return;
+    const { photo, photos, poolPhotos, ...lightMeasure } = measure;
+    const photoCount = photos?.length || (photo ? 1 : 0);
+    const poolPhotoCount = poolPhotos?.length || 0;
     const ref = window._fbDoc(window._fbDb, "users", uid, "measures", measure.id);
-    await window._fbSetDoc(ref, measure);
+    await window._fbSetDoc(ref, { ...lightMeasure, photoCount, poolPhotoCount });
   },
   deleteMeasure: async (uid, measureId) => {
     if (!window._fbDb || !window._fbDeleteDoc) return;
     const ref = window._fbDoc(window._fbDb, "users", uid, "measures", measureId);
     await window._fbDeleteDoc(ref);
+    await FB.deleteMeasurePhotos(uid, measureId);
   },
   getMeasures: async (uid) => {
     if (!window._fbDb || !window._fbGetDocs) return [];
@@ -4170,6 +4181,42 @@ const FB = {
     return window._fbOnSnapshot(col, (snap) => {
       cb(snap.docs.map(d => d.data()));
     });
+  },
+  // ── Photos de mesure sync (v1.39.0) — un document par photo, sous
+  // users/{uid}/measures/{measureId}/photos/{photoId}. "p{i}" pour les photos
+  // d'analyse (photomètre/bandelette), "pp{i}" pour les photos de bassin.
+  // Chaque doc reste minuscule (une seule image), donc aucune limite de
+  // nombre de photos par mesure ne pose de risque de dépassement 1 Mio.
+  saveMeasurePhotos: async (uid, measureId, photos = [], poolPhotos = []) => {
+    if (!window._fbDb || !window._fbSetDoc) return;
+    const writes = [
+      ...photos.map((dataUrl, i) =>
+        window._fbSetDoc(window._fbDoc(window._fbDb, "users", uid, "measures", measureId, "photos", `p${i}`), { dataUrl, kind: "analysis", order: i })
+      ),
+      ...poolPhotos.map((dataUrl, i) =>
+        window._fbSetDoc(window._fbDoc(window._fbDb, "users", uid, "measures", measureId, "photos", `pp${i}`), { dataUrl, kind: "pool", order: i })
+      ),
+    ];
+    await Promise.all(writes);
+  },
+  deleteMeasurePhotos: async (uid, measureId) => {
+    if (!window._fbDb || !window._fbGetDocs || !window._fbDeleteDoc) return;
+    const col = window._fbCollection(window._fbDb, "users", uid, "measures", measureId, "photos");
+    const snap = await window._fbGetDocs(col);
+    await Promise.all(snap.docs.map((d) => window._fbDeleteDoc(d.ref)));
+  },
+  getMeasurePhotos: async (uid, measureId) => {
+    if (!window._fbDb || !window._fbGetDocs) return { photos: [], poolPhotos: [] };
+    const col = window._fbCollection(window._fbDb, "users", uid, "measures", measureId, "photos");
+    const snap = await window._fbGetDocs(col);
+    const photos = [], poolPhotos = [];
+    snap.docs.forEach((d) => {
+      const data = d.data();
+      (data.kind === "pool" ? poolPhotos : photos).push({ order: data.order ?? 0, dataUrl: data.dataUrl });
+    });
+    photos.sort((a, b) => a.order - b.order);
+    poolPhotos.sort((a, b) => a.order - b.order);
+    return { photos: photos.map((p) => p.dataUrl), poolPhotos: poolPhotos.map((p) => p.dataUrl) };
   },
   // ── Applications sync ──
   saveApplication: async (uid, application) => {
@@ -5440,7 +5487,16 @@ function PoolApp() {
       setMeasures(loadedMeasures);
       // Upload des mesures locales vers Firestore si l'utilisateur est connecté
       if (authUser?.uid && loadedMeasures.length > 0) {
-        loadedMeasures.forEach(m => FB.saveMeasure(authUser.uid, m).catch(() => {}));
+        loadedMeasures.forEach(m => {
+          FB.saveMeasure(authUser.uid, m).catch(() => {});
+          if (m.photos?.length || m.photo || m.poolPhotos?.length) {
+            FB.saveMeasurePhotos(
+              authUser.uid, m.id,
+              m.photos?.length ? m.photos : (m.photo ? [m.photo] : []),
+              m.poolPhotos || []
+            ).catch(() => {});
+          }
+        });
       }
       if (loadedProducts) {
         // Anciens produits sans poolId (avant la saisie par bassin) : rattachés au bassin actif
@@ -5662,14 +5718,32 @@ function PoolApp() {
     if (entry.id) {
       setMeasures((prev) => {
         const updated = prev.map((m) => (m.id === entry.id ? { ...m, ...entry } : m));
-        if (authUser?.uid) updated.forEach(m => { if (m.id === entry.id) FB.saveMeasure(authUser.uid, m).catch(() => {}); });
+        if (authUser?.uid) {
+          updated.forEach(m => {
+            if (m.id === entry.id) {
+              FB.saveMeasure(authUser.uid, m).catch(() => {});
+              FB.saveMeasurePhotos(
+                authUser.uid, m.id,
+                m.photos?.length ? m.photos : (m.photo ? [m.photo] : []),
+                m.poolPhotos || []
+              ).catch(() => {});
+            }
+          });
+        }
         return updated;
       });
       track("measure_edit");
     } else {
       const newMeasure = { id: uid(), poolId: activePoolId, ...entry };
       setMeasures((prev) => [...prev, newMeasure]);
-      if (authUser?.uid) FB.saveMeasure(authUser.uid, newMeasure).catch(() => {});
+      if (authUser?.uid) {
+        FB.saveMeasure(authUser.uid, newMeasure).catch(() => {});
+        FB.saveMeasurePhotos(
+          authUser.uid, newMeasure.id,
+          newMeasure.photos?.length ? newMeasure.photos : (newMeasure.photo ? [newMeasure.photo] : []),
+          newMeasure.poolPhotos || []
+        ).catch(() => {});
+      }
       track("measure_add", { has_photos: !!(entry.photos?.length || entry.photo), has_pool_photos: !!(entry.poolPhotos?.length) });
     }
     setShowAddMeasure(false);
@@ -5678,6 +5752,7 @@ function PoolApp() {
 
   function deleteMeasure(id) {
     setMeasures((prev) => prev.filter((m) => m.id !== id));
+    // FB.deleteMeasure purge aussi la sous-collection photos associée.
     if (authUser?.uid) FB.deleteMeasure(authUser.uid, id).catch(() => {});
   }
 
@@ -8064,6 +8139,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ni après.`;
             manageStock={!!pool?.manageStock}
             lang={lang}
             activePlan={activePlan}
+            authUid={authUid}
           />
         ))}
       </div>
@@ -8193,9 +8269,41 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ni après.`;
   );
 }
 
-function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, application, isPremium, manageStock, lang, activePlan }) {
+function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, application, isPremium, manageStock, lang, activePlan, authUid }) {
   const t = useT(lang || "fr");
   const [open, setOpen] = useState(false);
+  // v1.39.0 — Les photos ne sont plus inline sur measure (voir FB.saveMeasure) :
+  // elles vivent dans la sous-collection users/{uid}/measures/{id}/photos et
+  // sont chargées à la demande, seulement quand la ligne est dépliée. Une
+  // mesure tout juste ajoutée dans cette session garde encore measure.photos
+  // en mémoire locale (pas encore écrasé par le snapshot cloud) : dans ce cas
+  // pas besoin de fetch, on les utilise directement.
+  const [loadedPhotos, setLoadedPhotos] = useState(null);
+  const [loadedPoolPhotos, setLoadedPoolPhotos] = useState(null);
+  const [photosLoading, setPhotosLoading] = useState(false);
+  const hasAnyPhotos = !!(measure.photoCount || measure.poolPhotoCount || measure.photo || measure.photos?.length || measure.poolPhotos?.length);
+
+  useEffect(() => {
+    if (!open || loadedPhotos !== null || !hasAnyPhotos) return;
+    if (measure.photos?.length || measure.photo || measure.poolPhotos?.length) {
+      setLoadedPhotos(measure.photos?.length ? measure.photos : (measure.photo ? [measure.photo] : []));
+      setLoadedPoolPhotos(measure.poolPhotos || []);
+      return;
+    }
+    if (!authUid) return;
+    setPhotosLoading(true);
+    FB.getMeasurePhotos(authUid, measure.id)
+      .then(({ photos, poolPhotos }) => {
+        setLoadedPhotos(photos);
+        setLoadedPoolPhotos(poolPhotos);
+      })
+      .catch(() => {
+        setLoadedPhotos([]);
+        setLoadedPoolPhotos([]);
+      })
+      .finally(() => setPhotosLoading(false));
+  }, [open, authUid, measure.id]);
+
   const params = ["pH", "fCl", "tCl", "tac", "cya", "temp"].filter(
     (p) => measure[p] !== undefined && measure[p] !== "" && measure[p] !== null
   );
@@ -8224,28 +8332,27 @@ function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, applicat
       </button>
       {open && (
         <div style={styles.measureDetails}>
+          {photosLoading && (
+            <div style={{ fontSize: 12, color: "#6a7d90", marginBottom: 8 }}>{t("loading")}</div>
+          )}
           {/* Photos d'analyse (photomètre/bandelette) */}
-          {(() => {
-            const allPhotos = measure.photos?.length ? measure.photos : (measure.photo ? [measure.photo] : []);
-            if (!allPhotos.length) return null;
-            return (
-              <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 10 }}>
-                {allPhotos.map((src, idx) => (
-                  <img
-                    key={idx}
-                    src={src}
-                    alt=""
-                    style={{ height: 110, borderRadius: 8, objectFit: "cover", flexShrink: 0, border: "1px solid #d0e4f5", cursor: "zoom-in" }}
-                    onClick={() => window._openLightbox?.(src)}
-                  />
-                ))}
-              </div>
-            );
-          })()}
-          {/* Photos bassin */}
-          {measure.poolPhotos?.length > 0 && (
+          {loadedPhotos?.length > 0 && (
             <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 10 }}>
-              {measure.poolPhotos.map((src, idx) => (
+              {loadedPhotos.map((src, idx) => (
+                <img
+                  key={idx}
+                  src={src}
+                  alt=""
+                  style={{ height: 110, borderRadius: 8, objectFit: "cover", flexShrink: 0, border: "1px solid #d0e4f5", cursor: "zoom-in" }}
+                  onClick={() => window._openLightbox?.(src)}
+                />
+              ))}
+            </div>
+          )}
+          {/* Photos bassin */}
+          {loadedPoolPhotos?.length > 0 && (
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 10 }}>
+              {loadedPoolPhotos.map((src, idx) => (
                 <img
                   key={idx}
                   src={src}
@@ -8398,6 +8505,26 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
   const fileInputRef = useRef(null);
   const galleryInputRef = useRef(null);
   const poolFileInputRef = useRef(null);
+
+  // v1.39.0 — En édition, measure.photos/poolPhotos n'existent plus une fois
+  // la mesure synchronisée sur Firestore (voir FB.saveMeasure) : on les
+  // recharge depuis la sous-collection dédiée si le state local (initialisé
+  // ci-dessus depuis measure.photo/photos) est vide alors que la mesure en
+  // a réellement (photoCount/poolPhotoCount > 0).
+  useEffect(() => {
+    if (!isEditing || !measure?.id || !authUid) return;
+    if (photos.length || poolPhotos.length) return;
+    if (!measure.photoCount && !measure.poolPhotoCount) return;
+    let cancelled = false;
+    FB.getMeasurePhotos(authUid, measure.id)
+      .then(({ photos: p, poolPhotos: pp }) => {
+        if (cancelled) return;
+        if (p.length) setPhotos(p);
+        if (pp.length) setPoolPhotos(pp);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [isEditing, measure?.id, authUid]);
   const poolGalleryInputRef = useRef(null);
 
   async function handlePoolPhotoChange(e) {
@@ -8405,7 +8532,13 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
     if (!files.length) return;
     setPoolPhotoBusy(true);
     try {
-      const dataUrls = await Promise.all(files.map(fileToDataUrl));
+      // v1.39.0 — Fix : ces photos n'étaient jamais compressées (contrairement
+      // aux photos d'analyse via compressImageDataUrl), donc stockées à leur
+      // taille brute smartphone (3-8 Mo pièce) — un facteur aggravant du
+      // dépassement de la limite Firestore de 1 Mio par document.
+      const dataUrls = await Promise.all(
+        files.map(async (f) => compressImageDataUrl(await fileToDataUrl(f)))
+      );
       setPoolPhotos((prev) => [...prev, ...dataUrls]);
     } catch (err) { /* silencieux */ } finally {
       setPoolPhotoBusy(false);

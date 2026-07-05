@@ -36,6 +36,15 @@ service cloud.firestore {
       allow read, create, update: if isActiveOwner(uid);
       allow delete: if isOwner(uid);
     }
+    // v1.39.0 — Photos de mesure (photomètre/bandelette/bassin, jusqu'à 10 par
+    // mesure) migrées hors du document measures/{id} vers un document par
+    // photo, pour ne plus jamais dépasser la limite Firestore de 1 Mio par
+    // document (même panne que productPhotos en v1.30.0, mais measures peut
+    // contenir jusqu'à 10 photos alors qu'un produit n'en a qu'une seule).
+    match /users/{uid}/measures/{measureId}/photos/{photoId} {
+      allow read, create, update: if isActiveOwner(uid);
+      allow delete: if isOwner(uid);
+    }
     match /users/{uid}/applications/{docId} {
       allow read, create, update: if isActiveOwner(uid);
       allow delete: if isOwner(uid);
