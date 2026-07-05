@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.32.0";
+const APP_VERSION = "1.33.0";
 const CGU_VERSION = "1.1"; // v1.4 : clause IA, avertissement photos, mentions LCEN, limitation responsabilité révisée
 
 const TRANSLATIONS = {
@@ -169,6 +169,7 @@ const TRANSLATIONS = {
     edit_measure_title: "Modifier la mesure",
     date_time: "Date et heure",
     photo_hint: "Prends en photo l'écran de ton photomètre avec les valeurs lisibles, ou place ta bandelette imbibée à côté de la légende du tube et photographie les deux ensemble.",
+    photo_hint_bandelette: "Bandelette : prends 2 à 3 photos en tournant le tube pour exposer chaque échelle de couleur.",
     photos_label: "Photos de la mesure",
     camera_btn: "Appareil photo",
     gallery_btn: "Bibliothèque",
@@ -285,6 +286,10 @@ const TRANSLATIONS = {
     location: "Localisation",
     volume: "Volume (m³)",
     treatment_type: "Type de traitement",
+    measure_device_label: "Méthode de mesure",
+    measure_device_photometre: "Photomètre uniquement",
+    measure_device_bandelette: "Bandelette uniquement",
+    measure_device_both: "Les deux",
     filtration_type: "Type de filtration",
     manage_stock_label: "Gestion du stock",
     manage_stock_desc: "Suit la consommation des produits et l\'affiche dans le rapport.",
@@ -690,6 +695,7 @@ const TRANSLATIONS = {
     edit_measure_title: "Edit reading",
     date_time: "Date and time",
     photo_hint: "Take a photo of your photometer screen with readable values, or place your soaked test strip next to the tube legend and photograph both together.",
+    photo_hint_bandelette: "Test strip: take 2-3 photos while rotating the tube to expose every colour scale.",
     photos_label: "Reading photos",
     camera_btn: "Camera",
     gallery_btn: "Library",
@@ -802,6 +808,10 @@ const TRANSLATIONS = {
     location: "Location",
     volume: "Volume (m³)",
     treatment_type: "Treatment type",
+    measure_device_label: "Measurement method",
+    measure_device_photometre: "Photometer only",
+    measure_device_bandelette: "Test strip only",
+    measure_device_both: "Both",
     filtration_type: "Filtration type",
     manage_stock_label: "Stock management",
     manage_stock_desc: "Tracks product consumption and displays it in the report.",
@@ -1202,6 +1212,7 @@ const TRANSLATIONS = {
     edit_measure_title: "Messung bearbeiten",
     date_time: "Datum und Uhrzeit",
     photo_hint: "Fotografiere den Photometerbildschirm mit lesbaren Werten oder lege deinen getränkten Teststreifen neben die Tubuslegende und fotografiere beide zusammen.",
+    photo_hint_bandelette: "Teststreifen: Mache 2-3 Fotos und drehe dabei die Tube, um jede Farbskala sichtbar zu machen.",
     photos_label: "Messfotos",
     camera_btn: "Kamera",
     gallery_btn: "Bibliothek",
@@ -1313,6 +1324,10 @@ const TRANSLATIONS = {
     location: "Standort",
     volume: "Volumen (m³)",
     treatment_type: "Behandlungsart",
+    measure_device_label: "Messmethode",
+    measure_device_photometre: "Nur Photometer",
+    measure_device_bandelette: "Nur Teststreifen",
+    measure_device_both: "Beides",
     filtration_type: "Filtrationsart",
     manage_stock_label: "Lagerverwaltung",
     manage_stock_desc: "Verfolgt den Produktverbrauch und zeigt ihn im Bericht an.",
@@ -1716,6 +1731,7 @@ const TRANSLATIONS = {
     edit_measure_title: "Modifica misurazione",
     date_time: "Data e ora",
     photo_hint: "Fotografa lo schermo del tuo fotometro con valori leggibili, o posiziona il tuo striscio bagnato accanto alla legenda del tubo e fotografali insieme.",
+    photo_hint_bandelette: "Striscia reattiva: scatta 2-3 foto ruotando il tubo per esporre ogni scala di colore.",
     photos_label: "Foto della misurazione",
     camera_btn: "Fotocamera",
     gallery_btn: "Libreria",
@@ -1827,6 +1843,10 @@ const TRANSLATIONS = {
     location: "Posizione",
     volume: "Volume (m³)",
     treatment_type: "Tipo di trattamento",
+    measure_device_label: "Metodo di misurazione",
+    measure_device_photometre: "Solo fotometro",
+    measure_device_bandelette: "Solo striscia reattiva",
+    measure_device_both: "Entrambi",
     filtration_type: "Tipo di filtrazione",
     manage_stock_label: "Gestione stock",
     manage_stock_desc: "Tiene traccia del consumo dei prodotti e lo mostra nel rapporto.",
@@ -2227,6 +2247,7 @@ const TRANSLATIONS = {
     edit_measure_title: "Editar medición",
     date_time: "Fecha y hora",
     photo_hint: "Fotografía la pantalla de tu fotómetro con valores legibles, o coloca tu tira de prueba empapada junto a la leyenda del tubo y fotografíalos juntos.",
+    photo_hint_bandelette: "Tira reactiva: toma 2-3 fotos girando el tubo para exponer cada escala de color.",
     photos_label: "Fotos de la medición",
     camera_btn: "Cámara",
     gallery_btn: "Biblioteca",
@@ -2338,6 +2359,10 @@ const TRANSLATIONS = {
     location: "Ubicación",
     volume: "Volumen (m³)",
     treatment_type: "Tipo de tratamiento",
+    measure_device_label: "Método de medición",
+    measure_device_photometre: "Solo fotómetro",
+    measure_device_bandelette: "Solo tira reactiva",
+    measure_device_both: "Ambos",
     filtration_type: "Tipo de filtración",
     manage_stock_label: "Gestión de stock",
     manage_stock_desc: "Hace seguimiento del consumo de productos y lo muestra en el informe.",
@@ -2738,6 +2763,7 @@ const TRANSLATIONS = {
     edit_measure_title: "Editar medição",
     date_time: "Data e hora",
     photo_hint: "Fotografe a tela do seu fotômetro com valores legíveis, ou coloque sua tira de teste embebida ao lado da legenda do tubo e fotografe ambos juntos.",
+    photo_hint_bandelette: "Tira de teste: tire 2-3 fotos girando o tubo para expor cada escala de cor.",
     photos_label: "Fotos da medição",
     camera_btn: "Câmera",
     gallery_btn: "Biblioteca",
@@ -2849,6 +2875,10 @@ const TRANSLATIONS = {
     location: "Localização",
     volume: "Volume (m³)",
     treatment_type: "Tipo de tratamento",
+    measure_device_label: "Método de medição",
+    measure_device_photometre: "Apenas fotômetro",
+    measure_device_bandelette: "Apenas tira de teste",
+    measure_device_both: "Ambos",
     filtration_type: "Tipo de filtração",
     manage_stock_label: "Gestão de estoque",
     manage_stock_desc: "Rastreia o consumo de produtos e o exibe no relatório.",
@@ -3782,12 +3812,13 @@ Correspondances des abréviations courantes :
 - O2 / Active O2 → o2
 
 Réponds UNIQUEMENT en JSON valide, sans texte avant ou après, sans markdown, sans commentaires :
-{"device": "photometre" ou "bandelette", "pH": nombre ou null, "fCl": nombre ou null, "tCl": nombre ou null, "ccl": nombre ou null, "tac": nombre ou null, "cya": nombre ou null, "hard": nombre ou null, "phos": nombre ou null, "copper": nombre ou null, "iron": nombre ou null, "temp": nombre ou null, "brome": nombre ou null, "o2": nombre ou null, "sel": nombre ou null, "confidence": "haute" ou "moyenne" ou "basse", "reliability": entier de 1 à 5 (1=très peu fiable, 5=très fiable), "reliability_reason": "une phrase en français expliquant la note de fiabilité (qualité image, lisibilité échelle, etc.)", "note": "une phrase en français sur la lisibilité et la méthode utilisée"}
+{"device": "photometre" ou "bandelette", "pH": nombre ou null, "fCl": nombre ou null, "tCl": nombre ou null, "ccl": nombre ou null, "tac": nombre ou null, "cya": nombre ou null, "hard": nombre ou null, "phos": nombre ou null, "copper": nombre ou null, "iron": nombre ou null, "temp": nombre ou null, "brome": nombre ou null, "o2": nombre ou null, "sel": nombre ou null, "confidence": "haute" ou "moyenne" ou "basse", "reliability": entier de 1 à 5 (1=très peu fiable, 5=très fiable), "reliability_by_param": {"pH": entier 1-5, "fCl": entier 1-5, ...} (une entrée par paramètre non-null uniquement, note la lisibilité de CE tampon précis — un reflet ou un angle défavorable sur un seul tampon doit baisser SA note sans affecter les autres), "reliability_reason": "une phrase en français expliquant la note de fiabilité (qualité image, lisibilité échelle, etc.)", "note": "une phrase en français sur la lisibilité et la méthode utilisée"}
 
 Règles strictes :
 - "device" indique lequel des deux CAS ci-dessus correspond à la photo analysée — jamais null, choisis le plus probable même en cas de doute
 - Pour un PHOTOMÈTRE : retourne les valeurs numériques exactes affichées à l'écran
 - Pour une BANDELETTE : retourne une ESTIMATION de la valeur basée sur la comparaison des couleurs avec l'échelle du tube — une valeur approchée est préférable à null
+- "reliability_by_param" : évalue CHAQUE tampon indépendamment (reflet, angle de vue, netteté de la zone précise), ne recopie pas la même note partout par défaut
 - Les valeurs doivent être des nombres (pas des chaînes)
 - null uniquement si le paramètre est vraiment impossible à lire ou absent de la bandelette
 - JSON pur, rien d'autre`;
@@ -6197,6 +6228,7 @@ function PoolApp() {
           activeParamKeys={activeParamKeys}
           lang={lang}
           authUid={authUser?.uid}
+          measureDevice={activePool?.measureDevice}
         />
       )}
 
@@ -8103,14 +8135,21 @@ function MeasureRow({ measure, onDelete, onEdit, onValidateApplication, applicat
 }
 
 // ---------- Modal Ajout mesure ----------
-function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, apiKey, apiProvider, activeParamKeys, lang, onRequestPhotoAccess, authUid }) {
+function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, apiKey, apiProvider, activeParamKeys, lang, onRequestPhotoAccess, authUid, measureDevice }) {
   const t = useT(lang || "fr");
   const isPrefilled = !!measure?.__prefilled;
   const isEditing = !!measure && !isPrefilled;
   const [date, setDate] = useState(
     measure ? new Date(measure.date).toISOString().slice(0, 16) : todayLocalDatetime()
   );
-  const [method, setMethod] = useState(measure?.method || "photometre"); // photometre | bandelette
+  // v1.33.0 — Fix : ce champ n'était jamais mis à jour (setMethod jamais
+  // appelé nulle part), donc TOUTES les mesures étaient enregistrées avec
+  // method: "photometre" même prises à la bandelette. Désormais initialisé
+  // depuis le réglage du bassin (measureDevice) quand il est tranché, et
+  // recalculé après analyse IA à partir du "device" détecté sur les photos.
+  const [method, setMethod] = useState(
+    measure?.method || (measureDevice && measureDevice !== "both" ? measureDevice : "photometre")
+  ); // photometre | bandelette
   const [pH, setPH] = useState(measure?.pH ?? "");
   const [fCl, setFCl] = useState(measure?.fCl ?? "");
   const [tCl, setTCl] = useState(measure?.tCl ?? "");
@@ -8204,30 +8243,51 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
         if (result.note) notes.push(result.note);
       }
 
+      // v1.33.0 — Fix : method n'était jamais recalculé après analyse (toujours
+      // "photometre" par défaut). On le déduit maintenant des "device" détectés
+      // par l'IA sur les photos réellement fournies, avec la même priorité
+      // photomètre > bandelette qu'ailleurs dans cette fonction.
+      const detectedDevices = allResults.map(r => r.device).filter(Boolean);
+      if (detectedDevices.length) {
+        setMethod(detectedDevices.includes("photometre") ? "photometre" : "bandelette");
+      }
+
       // v1.31.0 — Priorité stricte au photomètre : quand une photo photomètre et une
       // photo bandelette sont fournies pour la même mesure, la valeur du photomètre est
       // retenue systématiquement pour chaque paramètre qu'il couvre, quelle que soit la
       // confiance de la lecture bandelette sur ce même paramètre. La bandelette ne sert
       // qu'à compléter les paramètres que le photomètre ne couvre pas.
+      // v1.33.0 — Fin de la moyenne entre candidats à égalité de score. Avec plusieurs
+      // photos bandelette (tube tourné), chaque tampon doit être évalué indépendamment :
+      // on prend, PAR PARAMÈTRE, la valeur dont la fiabilité de CE tampon précis
+      // (reliability_by_param) est la meilleure — jamais une moyenne entre deux lectures
+      // différentes, qui masquerait l'info que l'une des deux est plus fiable. En cas
+      // d'égalité stricte de score, on garde la première photo dans l'ordre de capture
+      // (déterministe, pas de calcul supplémentaire).
       const CCL_TOLERANCE = 0.05; // même seuil que la validation de saisie manuelle (handleSave)
       const confidenceScore = { "haute": 3, "high": 3, "medio": 2, "moyenne": 2, "medium": 2, "bassa": 1, "basse": 1, "low": 1 };
       const numericKeys = ["pH","fCl","tCl","ccl","tac","cya","hard","phos","copper","iron","temp","brome","o2","sel"];
       const merged = {};
 
       numericKeys.forEach(k => {
-        // Collecter toutes les valeurs non-null pour ce paramètre avec leur score de
-        // confiance et l'appareil d'origine (photomètre ou bandelette)
+        // Score par tampon : priorité à reliability_by_param[k] (1-5, spécifique à ce
+        // paramètre) ; à défaut (ancien format IA sans ce champ, ou clé absente),
+        // repli sur reliability globale de la photo, puis sur confidence.
         const candidates = allResults
           .filter(r => r[k] !== null && r[k] !== undefined)
-          .map(r => ({ value: r[k], score: confidenceScore[r.confidence] || 1, device: r.device }));
+          .map(r => ({
+            value: r[k],
+            score: r.reliability_by_param?.[k] ?? r.reliability ?? confidenceScore[r.confidence] ?? 1,
+            device: r.device,
+          }));
         if (candidates.length === 0) return;
         const photometerCandidates = candidates.filter(c => c.device === "photometre");
         const pool = photometerCandidates.length ? photometerCandidates : candidates;
-        // Prendre la valeur avec le meilleur score de confiance au sein du groupe retenu
-        // (photomètre si disponible, sinon bandelette). En cas d'égalité, faire la moyenne.
+        // Meilleur score du groupe retenu (photomètre si disponible, sinon bandelette) ;
+        // première occurrence en cas d'égalité, jamais de moyenne.
         const maxScore = Math.max(...pool.map(c => c.score));
-        const best = pool.filter(c => c.score === maxScore);
-        merged[k] = Math.round((best.reduce((s, c) => s + c.value, 0) / best.length) * 100) / 100;
+        const best = pool.find(c => c.score === maxScore);
+        merged[k] = Math.round(best.value * 100) / 100;
       });
       if (merged.pH     !== undefined) setPH(String(merged.pH));
       if (merged.fCl    !== undefined) setFCl(String(merged.fCl));
@@ -8373,7 +8433,7 @@ function AddMeasureModal({ measure, onClose, onSave, isPremium, onWantPremium, a
       {isPremium ? (
         <div style={styles.photoHintBox}>
           <Camera size={15} style={{ flexShrink: 0, marginTop: 1 }} />
-          <span>{t("photo_hint")}</span>
+          <span>{measureDevice === "bandelette" ? t("photo_hint_bandelette") : t("photo_hint")}</span>
         </div>
       ) : null}
 
@@ -10402,6 +10462,11 @@ function AddPoolModal({ onClose, onSave, lang, existingPool, forced }) {
   const [name, setName] = useState(existingPool?.name || "");
   const [location, setLocation] = useState(existingPool?.location || "");
   const [volume, setVolume] = useState(existingPool?.volume || 50);
+  // Lot B (v1.33.0) — méthode de mesure préférée du bassin. Détermine la
+  // méthode par défaut proposée dans AddMeasureModal ; "both" laisse le choix
+  // ouvert à chaque mesure (comportement historique, valeur par défaut pour
+  // ne pas changer le comportement des bassins existants).
+  const [measureDevice, setMeasureDevice] = useState(existingPool?.measureDevice || "both");
   const [treatmentType, setTreatmentType] = useState(existingPool?.treatmentType || "chlore");
   const [filtration, setFiltration] = useState(existingPool?.filtration || "sable");
   const [manageStock, setManageStock] = useState(existingPool?.manageStock || false);
@@ -10433,6 +10498,7 @@ function AddPoolModal({ onClose, onSave, lang, existingPool, forced }) {
       name: name.trim(),
       location: location.trim(),
       volume: parseFloat(volume) || 0,
+      measureDevice,
       treatmentType,
       filtration,
       manageStock,
@@ -10503,6 +10569,14 @@ function AddPoolModal({ onClose, onSave, lang, existingPool, forced }) {
       {/* Volume */}
       <label style={styles.fieldLabel}>{t("volume")}</label>
       <input type="number" style={styles.input} value={volume} onChange={e => setVolume(e.target.value)} />
+
+      {/* Lot B (v1.33.0) — Méthode de mesure préférée */}
+      <label style={styles.fieldLabel}>{t("measure_device_label")}</label>
+      <select style={styles.input} value={measureDevice} onChange={e => setMeasureDevice(e.target.value)}>
+        <option value="both">{t("measure_device_both")}</option>
+        <option value="photometre">{t("measure_device_photometre")}</option>
+        <option value="bandelette">{t("measure_device_bandelette")}</option>
+      </select>
 
       {/* Type de traitement */}
       <label style={styles.fieldLabel}>{t("treatment_type")}</label>
