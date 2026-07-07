@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.57.0";
+const APP_VERSION = "1.57.2";
 const CGU_VERSION = "1.3"; // v1.3 : clause 5 corrigée (clé API proxy, éditeur sous-traitant RGPD), article 12 - contribution photo base commune
 
 const TRANSLATIONS = {
@@ -6968,7 +6968,16 @@ function PoolApp() {
   // local vidé écrasant les bassins existants.
   useEffect(() => {
     if (!loaded || !dataUid) return;
-    if (pools.length === 0 && !cloudConfigReceivedRef.current) return;
+    // v1.57.2 — Fix incident production : l'ancienne garde ne bloquait que le
+    // tableau VIDE (pools.length === 0). Un reset local accidentel (détection
+    // erronée de changement de compte, resetLocalAppState()) remplace pools
+    // par un bassin par défaut non-vide ("default"/"Ma piscine"), qui passait
+    // la garde et partait vers Firestore avant que la vraie config cloud n'ait
+    // eu le temps d'arriver — écrasant définitivement les vraies données. On
+    // bloque désormais TOUTE écriture tant que cloudConfigReceivedRef n'a pas
+    // confirmé avoir reçu la vraie config cloud au moins une fois pour ce uid,
+    // peu importe le contenu (vide ou par défaut) du tableau local.
+    if (!cloudConfigReceivedRef.current) return;
     syncConfig({ pools });
   }, [pools]);
 
@@ -7002,7 +7011,9 @@ function PoolApp() {
   useEffect(() => {
     if (!loaded || !dataUid) return;
     if (!FB.ready()) return;
-    if (products.length === 0 && !cloudConfigReceivedRef.current) return;
+    // v1.57.2 — Même fix que l'effet pools ci-dessus : voir ce commentaire
+    // pour le détail de l'incident (reset accidentel écrasant Firestore).
+    if (!cloudConfigReceivedRef.current) return;
     const confirmedPhotos = productPhotosRef.current;
     const metaOnly = products.map((p) => {
       const hasPhoto = !!p.photo;
