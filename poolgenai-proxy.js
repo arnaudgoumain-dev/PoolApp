@@ -52,6 +52,11 @@ const VERIFICATION_TOKEN_TTL_HOURS = 24;
 // v1.55.0 — Utilisateurs secondaires (brique 2)
 const INVITATION_TOKEN_TTL_HOURS = 24;
 const MAX_SECONDARY_USERS = 2;
+// v1.59.3 — Limite du nombre de bassins sur lesquels un compte gratuit peut
+// avoir le statut invité (tous propriétaires confondus). Aucune limite si le
+// compte invité lui-même est premium (son propre abonnement, jamais celui
+// hérité d'un propriétaire — voir handleRespondInvitation).
+const MAX_INVITED_POOLS_FREE = 2;
 // v1.55.0 — Pseudo (brique 3) : 2-24 caractères, lettres/chiffres/espaces/
 // tirets/apostrophes (accents inclus), pas d'emoji ni caractères de contrôle.
 const PSEUDO_REGEX = /^[\p{L}\p{N} '-]{2,24}$/u;
@@ -115,8 +120,8 @@ function jsonResponse(data, status, origin) {
   });
 }
 
-function jsonError(message, status, origin) {
-  return jsonResponse({ error: message }, status, origin);
+function jsonError(message, status, origin, code) {
+  return jsonResponse(code ? { error: message, code } : { error: message }, status, origin);
 }
 
 // ---------- Encodage / décodage base64url ----------
@@ -1618,6 +1623,20 @@ async function handleRespondInvitation(request, env, origin) {
     const activeSecondaries = existingSecondaries.filter((s) => s.status === "active" && s.id !== secondaryUid);
     if (activeSecondaries.length >= MAX_SECONDARY_USERS) {
       return jsonError(`Nombre maximum de comptes secondaires atteint (${MAX_SECONDARY_USERS})`, 409, origin);
+    }
+
+    // v1.59.3 — Limite du nombre de bassins invités pour un compte gratuit
+    // (tous propriétaires confondus). Le statut premium vérifié ici est
+    // celui du compte de l'invité lui-même (jamais celui hérité d'un
+    // propriétaire sur un bassin déjà accepté).
+    const secondaryConfig = await firestoreGetDoc(env, `users/${secondaryUid}/config`, "main");
+    const secondaryIsPremium = !!secondaryConfig?.isPremium;
+    if (!secondaryIsPremium) {
+      const existingLinks = await firestoreListAllDocs(env, `users/${secondaryUid}/linkedAccounts`);
+      const activeLinks = existingLinks.filter((l) => l.status === "active" && l.id !== invitation.primaryUid);
+      if (activeLinks.length >= MAX_INVITED_POOLS_FREE) {
+        return jsonError(`Limite de ${MAX_INVITED_POOLS_FREE} bassins invités atteinte en version gratuite`, 409, origin, "invited_limit_reached");
+      }
     }
 
     const now = new Date();

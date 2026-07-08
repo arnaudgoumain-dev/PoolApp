@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.59.2";
+const APP_VERSION = "1.59.3";
 const CGU_VERSION = "1.3"; // v1.3 : clause 5 corrigée (clé API proxy, éditeur sous-traitant RGPD), article 12 - contribution photo base commune
 
 const TRANSLATIONS = {
@@ -639,6 +639,7 @@ const TRANSLATIONS = {
     invite_response_accepted: "Invitation acceptée. Retrouve ce bassin dans Réglages.",
     invite_response_declined: "Invitation refusée.",
     invite_response_expired: "Cette invitation a expiré.",
+    invite_response_limit_reached: "Limite de 2 bassins invités atteinte en version gratuite — passe en illimité pour en accepter davantage.",
     invite_response_invalid: "Invitation invalide ou déjà utilisée.",
     invite_response_mismatch: "Cette invitation ne correspond pas à ton compte connecté.",
     invite_response_error: "Erreur lors du traitement de l'invitation.",
@@ -1254,6 +1255,7 @@ const TRANSLATIONS = {
     invite_response_accepted: "Invitation accepted. Find this pool in Settings.",
     invite_response_declined: "Invitation declined.",
     invite_response_expired: "This invitation has expired.",
+    invite_response_limit_reached: "Free plan limit of 2 invited pools reached — go unlimited to accept more.",
     invite_response_invalid: "Invalid or already used invitation.",
     invite_response_mismatch: "This invitation doesn't match your logged-in account.",
     invite_response_error: "Error while processing the invitation.",
@@ -1871,6 +1873,7 @@ const TRANSLATIONS = {
     invite_response_accepted: "Einladung angenommen. Du findest das Becken in den Einstellungen.",
     invite_response_declined: "Einladung abgelehnt.",
     invite_response_expired: "Diese Einladung ist abgelaufen.",
+    invite_response_limit_reached: "Limit von 2 eingeladenen Becken im kostenlosen Plan erreicht — wechsle zu unbegrenzt, um mehr anzunehmen.",
     invite_response_invalid: "Ungültige oder bereits verwendete Einladung.",
     invite_response_mismatch: "Diese Einladung passt nicht zu deinem angemeldeten Konto.",
     invite_response_error: "Fehler bei der Verarbeitung der Einladung.",
@@ -2485,6 +2488,7 @@ const TRANSLATIONS = {
     invite_response_accepted: "Invito accettato. Trovi questa piscina nelle Impostazioni.",
     invite_response_declined: "Invito rifiutato.",
     invite_response_expired: "Questo invito è scaduto.",
+    invite_response_limit_reached: "Limite di 2 piscine invitate raggiunto nel piano gratuito — passa a illimitato per accettarne altre.",
     invite_response_invalid: "Invito non valido o già utilizzato.",
     invite_response_mismatch: "Questo invito non corrisponde al tuo account collegato.",
     invite_response_error: "Errore durante l'elaborazione dell'invito.",
@@ -3099,6 +3103,7 @@ const TRANSLATIONS = {
     invite_response_accepted: "Invitación aceptada. Encuentra esta piscina en Ajustes.",
     invite_response_declined: "Invitación rechazada.",
     invite_response_expired: "Esta invitación ha caducado.",
+    invite_response_limit_reached: "Límite de 2 piscinas invitadas alcanzado en el plan gratuito — pasa a ilimitado para aceptar más.",
     invite_response_invalid: "Invitación no válida o ya utilizada.",
     invite_response_mismatch: "Esta invitación no corresponde a tu cuenta conectada.",
     invite_response_error: "Error al procesar la invitación.",
@@ -3710,6 +3715,7 @@ const TRANSLATIONS = {
     invite_response_accepted: "Convite aceite. Encontra esta piscina nas Definições.",
     invite_response_declined: "Convite recusado.",
     invite_response_expired: "Este convite expirou.",
+    invite_response_limit_reached: "Limite de 2 piscinas convidadas atingido no plano gratuito — passa para ilimitado para aceitar mais.",
     invite_response_invalid: "Convite inválido ou já utilizado.",
     invite_response_mismatch: "Este convite não corresponde à tua conta ligada.",
     invite_response_error: "Erro ao processar o convite.",
@@ -5730,6 +5736,7 @@ function PoolApp() {
       const idToken = await authUser.getIdToken();
       const result = await respondToInvitation(idToken, inviteLinkToken, action);
       if (result.status === 403) { setInviteLinkStatus("mismatch"); return; }
+      if (result.status === 409 && result.code === "invited_limit_reached") { setInviteLinkStatus("limit_reached"); return; }
       if (typeof result.status === "number") { setInviteLinkStatus("error"); return; }
       if (result.status === "accepted" && result.primaryEmail) {
         setInviteLinkInfo((prev) => ({ ...prev, primaryEmail: result.primaryEmail }));
