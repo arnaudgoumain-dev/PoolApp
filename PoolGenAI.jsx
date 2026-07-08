@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.57.9";
+const APP_VERSION = "1.58.0";
 const CGU_VERSION = "1.3"; // v1.3 : clause 5 corrigée (clé API proxy, éditeur sous-traitant RGPD), article 12 - contribution photo base commune
 
 const TRANSLATIONS = {
@@ -8736,7 +8736,8 @@ function RecoCard({ reco, isLast, manageStock, products, lang }) {
           </div>
         );
       })()}
-      <div style={styles.recoDose}>{reco.doseText}</div>
+      {reco.doseText && <div style={styles.recoDose}>{reco.doseText}</div>}
+      {reco.missingTip && <div style={styles.recoNote}>{reco.missingTip}</div>}
 
       {!!reco.waitHours && (
         <div style={styles.recoWait}>
@@ -8804,6 +8805,12 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
     const candidates = products.filter((p) => p.action === action);
     return candidates.find((p) => !p.isDefault) || candidates.find((p) => p.isDefault) || null;
   };
+  // v1.58.0 — Repli utilisé UNIQUEMENT pour le calcul de dose (jamais pour le
+  // nom/photo/stock) quand aucun produit n'est configuré pour l'action : la
+  // carte et le wizard affichent quand même une dose estimée à partir des
+  // valeurs de référence DEFAULT_PRODUCTS, au lieu de rester à null. Le badge
+  // "non disponible dans tes produits" reste affiché séparément (productAvailable).
+  const defaultProd = (action) => DEFAULT_PRODUCTS.find((p) => p.action === action) || null;
   const tac = parseFloat(latestLower.tac);
   // v1.56.0 — Dose TAC+/TAC- ajustée au volume du bassin et à l'écart mesuré,
   // comme pH et chlore (formule doseAmount × (volume/effectPer) × (écart/effectAmount)).
@@ -8812,18 +8819,21 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
     const tacTargetMid = (targetsLower.tac.min + targetsLower.tac.max) / 2;
     const diff = tacTargetMid - tac;
     const prod = findProduct("tac+");
-    const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : null;
+    const dp = defaultProd("tac+");
+    const doseSrc = prod || dp;
+    const computedDose = doseSrc ? Math.round(doseSrc.doseAmount * (volume / doseSrc.effectPer) * (diff / doseSrc.effectAmount)) : null;
     steps.push({
       action: "tac+",
       title: _("reco_tac_low", { val: tac }),
       productName: prodName(prod, "reco_fallback_tac"),
       productAvailable: !!prod,
       productPhoto: prod?.photo || null,
-      doseText: prod
-        ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)} ${_("reco_target")} ${tacTargetMid.toFixed(0)}`
-        : _("missing_product_tip", { action: "tac+" }),
+      doseText: doseSrc
+        ? `${_("reco_dose_prefix")} ${formatDose(computedDose, doseSrc.doseUnit)} ${_("reco_target")} ${tacTargetMid.toFixed(0)}`
+        : null,
+      missingTip: !prod ? _("missing_product_tip", { action: "tac+" }) : null,
       computedDoseAmount: computedDose,
-      doseUnit: prod?.doseUnit || null,
+      doseUnit: doseSrc?.doseUnit || null,
       note: prodNote(prod, "reco_note_tac"),
       waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["tac+"],
     });
@@ -8837,18 +8847,21 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
     const tacTargetMid = (targetsLower.tac.min + targetsLower.tac.max) / 2;
     const diff = tac - tacTargetMid;
     const prod = findProduct("tac-");
-    const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : null;
+    const dp = defaultProd("tac-");
+    const doseSrc = prod || dp;
+    const computedDose = doseSrc ? Math.round(doseSrc.doseAmount * (volume / doseSrc.effectPer) * (diff / doseSrc.effectAmount)) : null;
     steps.push({
       action: "tac-",
       title: _("reco_tac_high", { val: tac }),
       productName: prodName(prod, "reco_fallback_tac_minus"),
       productAvailable: !!prod,
       productPhoto: prod?.photo || null,
-      doseText: prod
-        ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)} ${_("reco_target")} ${tacTargetMid.toFixed(0)}`
-        : _("missing_product_tip", { action: "tac-" }),
+      doseText: doseSrc
+        ? `${_("reco_dose_prefix")} ${formatDose(computedDose, doseSrc.doseUnit)} ${_("reco_target")} ${tacTargetMid.toFixed(0)}`
+        : null,
+      missingTip: !prod ? _("missing_product_tip", { action: "tac-" }) : null,
       computedDoseAmount: computedDose,
-      doseUnit: prod?.doseUnit || null,
+      doseUnit: doseSrc?.doseUnit || null,
       note: prodNote(prod, "reco_note_tac_minus"),
       waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["tac-"],
     });
@@ -8862,36 +8875,42 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
     if (phVal > phTargets.max) {
       const diff = phVal - targetMid;
       const prod = findProduct("ph-");
-      const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : null;
+      const dp = defaultProd("ph-");
+      const doseSrc = prod || dp;
+      const computedDose = doseSrc ? Math.round(doseSrc.doseAmount * (volume / doseSrc.effectPer) * (diff / doseSrc.effectAmount)) : null;
       steps.push({
         action: "ph-",
         title: _("reco_ph_high", { val: phVal }),
         productName: prodName(prod, "reco_fallback_ph_minus"),
         productAvailable: !!prod,
         productPhoto: prod?.photo || null,
-        doseText: prod
-          ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)} ${_("reco_target")} ${targetMid.toFixed(1)}`
-          : _("missing_product_tip", { action: "ph-" }),
+        doseText: doseSrc
+          ? `${_("reco_dose_prefix")} ${formatDose(computedDose, doseSrc.doseUnit)} ${_("reco_target")} ${targetMid.toFixed(1)}`
+          : null,
+        missingTip: !prod ? _("missing_product_tip", { action: "ph-" }) : null,
         computedDoseAmount: computedDose,
-        doseUnit: prod?.doseUnit || null,
+        doseUnit: doseSrc?.doseUnit || null,
         note: prodNote(prod, "reco_note_tac"),
         waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["ph-"],
       });
     } else if (phVal < phTargets.min) {
       const diff = targetMid - phVal;
       const prod = findProduct("ph+");
-      const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : null;
+      const dp = defaultProd("ph+");
+      const doseSrc = prod || dp;
+      const computedDose = doseSrc ? Math.round(doseSrc.doseAmount * (volume / doseSrc.effectPer) * (diff / doseSrc.effectAmount)) : null;
       steps.push({
         action: "ph+",
         title: _("reco_ph_low", { val: phVal }),
         productName: prodName(prod, "reco_fallback_ph_plus"),
         productAvailable: !!prod,
         productPhoto: prod?.photo || null,
-        doseText: prod
-          ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)} ${_("reco_target")} ${targetMid.toFixed(1)}`
-          : _("missing_product_tip", { action: "ph+" }),
+        doseText: doseSrc
+          ? `${_("reco_dose_prefix")} ${formatDose(computedDose, doseSrc.doseUnit)} ${_("reco_target")} ${targetMid.toFixed(1)}`
+          : null,
+        missingTip: !prod ? _("missing_product_tip", { action: "ph+" }) : null,
         computedDoseAmount: computedDose,
-        doseUnit: prod?.doseUnit || null,
+        doseUnit: doseSrc?.doseUnit || null,
         note: prodNote(prod, "reco_note_tac"),
         waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["ph+"],
       });
@@ -8939,18 +8958,21 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
       combinedShockTarget = targetFcl;
       const diff = Math.max(0, targetFcl - fCl);
       const prod = findProduct("chlore");
-      const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : null;
+      const dp = defaultProd("chlore");
+      const doseSrc = prod || dp;
+      const computedDose = doseSrc ? Math.round(doseSrc.doseAmount * (volume / doseSrc.effectPer) * (diff / doseSrc.effectAmount)) : null;
       steps.push({
         action: "chlore",
         title: _("reco_cl_combined", { val: combined.toFixed(2) }),
         productName: prodName(prod, "reco_fallback_chlore"),
         productAvailable: !!prod,
         productPhoto: prod?.photo || null,
-        doseText: prod
-          ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)} ${_("reco_cl_shock_text")}`
-          : _("missing_product_tip", { action: "chlore" }),
+        doseText: doseSrc
+          ? `${_("reco_dose_prefix")} ${formatDose(computedDose, doseSrc.doseUnit)} ${_("reco_cl_shock_text")}`
+          : null,
+        missingTip: !prod ? _("missing_product_tip", { action: "chlore" }) : null,
         computedDoseAmount: computedDose,
-        doseUnit: prod?.doseUnit || null,
+        doseUnit: doseSrc?.doseUnit || null,
         note: _("reco_note_combined"),
         waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["chlore"],
       });
@@ -8958,18 +8980,21 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
       const targetFcl = (fclT.min + fclT.max) / 2;
       const diff = targetFcl - fCl;
       const prod = findProduct("chlore");
-      const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : null;
+      const dp = defaultProd("chlore");
+      const doseSrc = prod || dp;
+      const computedDose = doseSrc ? Math.round(doseSrc.doseAmount * (volume / doseSrc.effectPer) * (diff / doseSrc.effectAmount)) : null;
       steps.push({
         action: "chlore",
         title: _("reco_cl_low", { val: fCl }),
         productName: prodName(prod, "reco_fallback_chlore"),
         productAvailable: !!prod,
         productPhoto: prod?.photo || null,
-        doseText: prod
-          ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)} ${_("reco_target")} ${targetFcl} mg/L`
-          : _("missing_product_tip", { action: "chlore" }),
+        doseText: doseSrc
+          ? `${_("reco_dose_prefix")} ${formatDose(computedDose, doseSrc.doseUnit)} ${_("reco_target")} ${targetFcl} mg/L`
+          : null,
+        missingTip: !prod ? _("missing_product_tip", { action: "chlore" }) : null,
         computedDoseAmount: computedDose,
-        doseUnit: prod?.doseUnit || null,
+        doseUnit: doseSrc?.doseUnit || null,
         // v1.40.0 — Fix : cette branche (chlore libre bas, PAS de problème de
         // combiné) affichait par erreur la note "reco_note_combined" (chloramines,
         // désinfection insuffisante) — copié-collé de la branche ci-dessus. Cette
@@ -8998,6 +9023,10 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
   if (has("brome") && !Number.isNaN(bromeVal) && targetsLower.brome) {
     const brT = targetsLower.brome;
     if (bromeVal < brT.min) {
+      // v1.58.0 — Pas d'entrée "brome" dans DEFAULT_PRODUCTS (pas de valeurs
+      // de référence dose/effet validées) : contrairement aux autres actions,
+      // aucun repli de dose n'est inventé ici tant que ces valeurs ne sont
+      // pas fournies. À corriger dès que la fiche de référence existe.
       const prod = findProduct("brome");
       const diff = ((brT.min + brT.max) / 2) - bromeVal;
       const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : null;
@@ -9009,7 +9038,8 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
         productPhoto: prod?.photo || null,
         doseText: prod
           ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)} ${_("reco_target")} ${(brT.min + brT.max) / 2} mg/L`
-          : _("missing_product_tip", { action: "brome" }),
+          : null,
+        missingTip: !prod ? _("missing_product_tip", { action: "brome" }) : null,
         computedDoseAmount: computedDose,
         doseUnit: prod?.doseUnit || null,
         note: _("reco_note_brome"),
@@ -9023,6 +9053,8 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
   if (has("o2") && !Number.isNaN(o2Val) && targets.o2) {
     const o2T = targets.o2;
     if (o2Val < o2T.min) {
+      // v1.58.0 — Idem brome : pas d'entrée "o2" dans DEFAULT_PRODUCTS, pas de
+      // repli inventé faute de valeurs de référence validées.
       const prod = findProduct("o2");
       const diff = ((o2T.min + o2T.max) / 2) - o2Val;
       const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : null;
@@ -9034,7 +9066,8 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
         productPhoto: prod?.photo || null,
         doseText: prod
           ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)}`
-          : _("missing_product_tip", { action: "o2" }),
+          : null,
+        missingTip: !prod ? _("missing_product_tip", { action: "o2" }) : null,
         computedDoseAmount: computedDose,
         doseUnit: prod?.doseUnit || null,
         note: _("reco_note_o2"),
@@ -9081,16 +9114,19 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
     if (hardVal < hardT.min) {
       const diff = ((hardT.min + hardT.max) / 2) - hardVal;
       const prod = findProduct("hard+");
-      const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (diff / prod.effectAmount)) : Math.round(160 * (volume / 10) * (diff / 10));
+      const dp = defaultProd("hard+");
+      const doseSrc = prod || dp;
+      const computedDose = doseSrc ? Math.round(doseSrc.doseAmount * (volume / doseSrc.effectPer) * (diff / doseSrc.effectAmount)) : null;
       steps.push({
         action: "hard+",
         title: _("reco_hard_low", { val: hardVal }),
         productName: prodName(prod, "reco_fallback_hard"),
         productAvailable: !!prod,
         productPhoto: prod?.photo || null,
-        doseText: prod ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)}` : _("missing_product_tip", { action: "hard+" }),
+        doseText: doseSrc ? `${_("reco_dose_prefix")} ${formatDose(computedDose, doseSrc.doseUnit)}` : null,
+        missingTip: !prod ? _("missing_product_tip", { action: "hard+" }) : null,
         computedDoseAmount: computedDose,
-        doseUnit: prod?.doseUnit || "g",
+        doseUnit: doseSrc?.doseUnit || "g",
         note: prodNote(prod, "note_calcium"),
         waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["hard+"],
       });
@@ -9113,16 +9149,19 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
   const phosVal = parseFloat(latestLower.phos);
   if (has("phos") && !Number.isNaN(phosVal) && targetsLower.phos && phosVal > targetsLower.phos.max) {
     const prod = findProduct("phos-");
-    const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer) * (phosVal / prod.effectAmount)) : Math.round(50 * (volume / 10) * (phosVal / 100));
+    const dp = defaultProd("phos-");
+    const doseSrc = prod || dp;
+    const computedDose = doseSrc ? Math.round(doseSrc.doseAmount * (volume / doseSrc.effectPer) * (phosVal / doseSrc.effectAmount)) : null;
     steps.push({
       action: "phos-",
       title: _("reco_phos_high", { val: phosVal }),
       productName: prodName(prod, "reco_fallback_phos"),
       productAvailable: !!prod,
       productPhoto: prod?.photo || null,
-      doseText: prod ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)}` : _("missing_product_tip", { action: "phos-" }),
+      doseText: doseSrc ? `${_("reco_dose_prefix")} ${formatDose(computedDose, doseSrc.doseUnit)}` : null,
+      missingTip: !prod ? _("missing_product_tip", { action: "phos-" }) : null,
       computedDoseAmount: computedDose,
-      doseUnit: prod?.doseUnit || "mL",
+      doseUnit: doseSrc?.doseUnit || "mL",
       note: prodNote(prod, "note_anti_phos"),
       waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["phos-"],
     });
@@ -9132,16 +9171,19 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
   const copperVal = parseFloat(latestLower.copper);
   if (has("copper") && !Number.isNaN(copperVal) && targetsLower.copper && copperVal > targetsLower.copper.max) {
     const prod = findProduct("sequestrant");
-    const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer)) : Math.round(100 * (volume / 10));
+    const dp = defaultProd("sequestrant");
+    const doseSrc = prod || dp;
+    const computedDose = doseSrc ? Math.round(doseSrc.doseAmount * (volume / doseSrc.effectPer)) : null;
     steps.push({
       action: "sequestrant",
       title: _("reco_copper_high", { val: copperVal }),
       productName: prodName(prod, "reco_fallback_sequestrant"),
       productAvailable: !!prod,
       productPhoto: prod?.photo || null,
-      doseText: prod ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)}` : _("missing_product_tip", { action: "sequestrant" }),
+      doseText: doseSrc ? `${_("reco_dose_prefix")} ${formatDose(computedDose, doseSrc.doseUnit)}` : null,
+      missingTip: !prod ? _("missing_product_tip", { action: "sequestrant" }) : null,
       computedDoseAmount: computedDose,
-      doseUnit: prod?.doseUnit || "mL",
+      doseUnit: doseSrc?.doseUnit || "mL",
       note: prodNote(prod, "note_sequestrant"),
       waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["sequestrant"],
     });
@@ -9151,16 +9193,19 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
   const ironVal = parseFloat(latestLower.iron);
   if (has("iron") && !Number.isNaN(ironVal) && targetsLower.iron && ironVal > targetsLower.iron.max) {
     const prod = findProduct("sequestrant");
-    const computedDose = prod ? Math.round(prod.doseAmount * (volume / prod.effectPer)) : Math.round(100 * (volume / 10));
+    const dp = defaultProd("sequestrant");
+    const doseSrc = prod || dp;
+    const computedDose = doseSrc ? Math.round(doseSrc.doseAmount * (volume / doseSrc.effectPer)) : null;
     steps.push({
       action: "sequestrant",
       title: _("reco_iron_high", { val: ironVal }),
       productName: prodName(prod, "reco_fallback_sequestrant"),
       productAvailable: !!prod,
       productPhoto: prod?.photo || null,
-      doseText: prod ? `${_("reco_dose_prefix")} ${formatDose(computedDose, prod.doseUnit)}` : _("missing_product_tip", { action: "sequestrant" }),
+      doseText: doseSrc ? `${_("reco_dose_prefix")} ${formatDose(computedDose, doseSrc.doseUnit)}` : null,
+      missingTip: !prod ? _("missing_product_tip", { action: "sequestrant" }) : null,
       computedDoseAmount: computedDose,
-      doseUnit: prod?.doseUnit || "mL",
+      doseUnit: doseSrc?.doseUnit || "mL",
       note: prodNote(prod, "note_sequestrant"),
       waitHours: prod?.waitHours ?? DEFAULT_WAIT_HOURS["sequestrant"],
     });
@@ -11283,7 +11328,7 @@ function ValidateApplicationModal({ measure, recs, existingApplication, onClose,
               <div style={{ flex: 1 }}>
                 <div style={styles.applyStepTitle}>{r.title}</div>
                 <div style={styles.applyStepProduct}>{r.productName}</div>
-                {r.doseText && <div style={{ fontSize: 12, color: "#4a6480", marginTop: 2 }}>{r.doseText}</div>}
+                {(r.doseText || r.missingTip) && <div style={{ fontSize: 12, color: "#4a6480", marginTop: 2 }}>{r.doseText || r.missingTip}</div>}
               </div>
             </button>
           ))}
@@ -11340,7 +11385,7 @@ function ValidateApplicationModal({ measure, recs, existingApplication, onClose,
                   </div>
                 </div>
               ) : (
-                <p style={styles.helpTextSmall}>{r.doseText}</p>
+                <p style={styles.helpTextSmall}>{r.doseText || r.missingTip}</p>
               )}
             </div>
           );
