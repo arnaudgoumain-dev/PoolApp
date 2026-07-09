@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.59.5";
+const APP_VERSION = "1.59.6";
 const CGU_VERSION = "1.3"; // v1.3 : clause 5 corrigée (clé API proxy, éditeur sous-traitant RGPD), article 12 - contribution photo base commune
 
 const TRANSLATIONS = {
@@ -316,7 +316,7 @@ const TRANSLATIONS = {
     premium_section: "VERSION",
     premium_label: "Version illimitée",
     premium_test: "Interrupteur de test — pas de vrai paiement ici",
-    premium_desc: "En version gratuite : 1 mesure par jour (tous bassins confondus), plusieurs bassins avec photo d'identification. En illimité : mesures sans limite, photos sur mesures et produits.",
+    premium_desc: "En version gratuite : 1 bassin (+ 2 bassins invités), 1 mesure par jour. En illimité : bassins et invitations sans limite, mesures sans limite, photos sur mesures et produits.",
     delete_measures: "Supprimer toutes les mesures de ce bassin",
     sensitive_zone: "ZONE SENSIBLE",
     add_pool: "Ajouter un bassin",
@@ -539,7 +539,7 @@ const TRANSLATIONS = {
 
     paywall_perk5: "Historique illimité + rapport PDF",
     paywall_perk6: "Gestion du stock de produits",
-    paywall_perk7: "Multi-bassins",
+    paywall_perk7: "Bassins et invitations sans limite",
     paywall_test_note: "Ceci est une version de test. Aucun paiement réel n'est effectué.",
     report_print_btn: "Imprimer / Enregistrer en PDF",
     share_report: "Partager le rapport",
@@ -940,7 +940,7 @@ const TRANSLATIONS = {
     premium_section: "VERSION",
     premium_label: "Unlimited version",
     premium_test: "Test toggle — no real payment here",
-    premium_desc: "Free: 1 reading per day (all pools combined), multiple pools with photo. Unlimited: unlimited readings, photos on readings and products.",
+    premium_desc: "Free: 1 pool (+ 2 invited pools), 1 reading per day. Unlimited: no limit on pools or invitations, unlimited readings, photos on readings and products.",
     delete_measures: "Delete all readings for this pool",
     sensitive_zone: "SENSITIVE ZONE",
     add_pool: "Add a pool",
@@ -1158,7 +1158,7 @@ const TRANSLATIONS = {
 
     paywall_perk5: "Unlimited history + PDF report",
     paywall_perk6: "Product stock management",
-    paywall_perk7: "Multi-pool",
+    paywall_perk7: "Unlimited pools and invitations",
     paywall_test_note: "This is a test version. No real payment is made.",
     report_print_btn: "Print / Save as PDF",
     share_report: "Share report",
@@ -1557,7 +1557,7 @@ const TRANSLATIONS = {
     premium_section: "VERSION",
     premium_label: "Unbegrenzte Version",
     premium_test: "Testschalter — keine echte Zahlung",
-    premium_desc: "Kostenlos: 1 Messung pro Tag, mehrere Becken. Unbegrenzt: unbegrenzte Messungen, Fotos, Produkte.",
+    premium_desc: "Kostenlos: 1 Becken (+ 2 eingeladene Becken), 1 Messung pro Tag. Unbegrenzt: unbegrenzte Becken und Einladungen, unbegrenzte Messungen, Fotos, Produkte.",
     delete_measures: "Alle Messungen für dieses Becken löschen",
     sensitive_zone: "KRITISCHER BEREICH",
     add_pool: "Becken hinzufügen",
@@ -1778,7 +1778,7 @@ const TRANSLATIONS = {
 
     paywall_perk5: "Unbegrenzte Historie + PDF-Bericht",
     paywall_perk6: "Produktlagerverwaltung",
-    paywall_perk7: "Mehrere Becken",
+    paywall_perk7: "Unbegrenzte Becken und Einladungen",
     paywall_test_note: "Dies ist eine Testversion. Es wird keine echte Zahlung vorgenommen.",
     report_print_btn: "Drucken / Als PDF speichern",
     share_report: "Bericht teilen",
@@ -2177,7 +2177,7 @@ const TRANSLATIONS = {
     premium_section: "VERSIONE",
     premium_label: "Versione illimitata",
     premium_test: "Interruttore di test — nessun pagamento reale",
-    premium_desc: "Gratuito: 1 misurazione al giorno, più vasche. Illimitato: misurazioni illimitate, foto, prodotti.",
+    premium_desc: "Gratuito: 1 vasca (+ 2 vasche invitate), 1 misurazione al giorno. Illimitato: vasche e inviti illimitati, misurazioni illimitate, foto, prodotti.",
     delete_measures: "Elimina tutte le misurazioni per questa vasca",
     sensitive_zone: "ZONA SENSIBILE",
     add_pool: "Aggiungi vasca",
@@ -2395,7 +2395,7 @@ const TRANSLATIONS = {
 
     paywall_perk5: "Storico illimitato + report PDF",
     paywall_perk6: "Gestione stock prodotti",
-    paywall_perk7: "Multi-vasca",
+    paywall_perk7: "Vasche e inviti illimitati",
     paywall_test_note: "Questa è una versione di test. Nessun pagamento reale viene effettuato.",
     report_print_btn: "Stampa / Salva come PDF",
     share_report: "Condividi il rapporto",
@@ -2794,7 +2794,7 @@ const TRANSLATIONS = {
     premium_section: "VERSIÓN",
     premium_label: "Versión ilimitada",
     premium_test: "Interruptor de prueba — sin pago real",
-    premium_desc: "Gratuito: 1 medición por día, varias piscinas. Ilimitado: mediciones ilimitadas, fotos, productos.",
+    premium_desc: "Gratuito: 1 piscina (+ 2 piscinas invitadas), 1 medición por día. Ilimitado: piscinas e invitaciones ilimitadas, mediciones ilimitadas, fotos, productos.",
     delete_measures: "Eliminar todas las mediciones de esta piscina",
     sensitive_zone: "ZONA SENSIBLE",
     add_pool: "Añadir piscina",
@@ -3012,7 +3012,7 @@ const TRANSLATIONS = {
 
     paywall_perk5: "Historial ilimitado + informe PDF",
     paywall_perk6: "Gestión de stock de productos",
-    paywall_perk7: "Multi-piscina",
+    paywall_perk7: "Piscinas e invitaciones ilimitadas",
     paywall_test_note: "Esta es una versión de prueba. No se realiza ningún pago real.",
     report_print_btn: "Imprimir / Guardar como PDF",
     share_report: "Compartir informe",
@@ -3411,7 +3411,7 @@ const TRANSLATIONS = {
     premium_section: "VERSÃO",
     premium_label: "Versão ilimitada",
     premium_test: "Interruptor de teste — sem pagamento real",
-    premium_desc: "Gratuito: 1 medição por dia, várias piscinas. Ilimitado: medições ilimitadas, fotos, produtos.",
+    premium_desc: "Gratuito: 1 piscina (+ 2 piscinas convidadas), 1 medição por dia. Ilimitado: piscinas e convites ilimitados, medições ilimitadas, fotos, produtos.",
     delete_measures: "Excluir todas as medições desta piscina",
     sensitive_zone: "ZONA SENSÍVEL",
     add_pool: "Adicionar piscina",
@@ -3626,7 +3626,7 @@ const TRANSLATIONS = {
 
     paywall_perk5: "Histórico ilimitado + relatório PDF",
     paywall_perk6: "Gestão de stock de produtos",
-    paywall_perk7: "Multi-piscina",
+    paywall_perk7: "Piscinas e convites ilimitados",
     paywall_test_note: "Esta é uma versão de teste. Nenhum pagamento real é efetuado.",
     report_print_btn: "Imprimir / Salvar como PDF",
     share_report: "Partilhar relatório",
