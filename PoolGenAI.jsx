@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.59.4";
+const APP_VERSION = "1.59.5";
 const CGU_VERSION = "1.3"; // v1.3 : clause 5 corrigée (clé API proxy, éditeur sous-traitant RGPD), article 12 - contribution photo base commune
 
 const TRANSLATIONS = {
@@ -6719,6 +6719,21 @@ function PoolApp() {
     }
   }, [viewContext, activePoolId]);
 
+  // v1.59.5 — Filet de sécurité : en contexte propriétaire (pas de viewContext),
+  // si activePoolId ne correspond plus à aucun de mes bassins actifs (ex. valeur
+  // restée sur l'ID d'un bassin invité consulté lors d'une session précédente,
+  // ou bassin supprimé/désactivé entre-temps), on retombe sur le premier bassin
+  // disponible plutôt que de rester bloqué sur un ID fantôme. Sans ce filet :
+  // mesures filtrées sur un ID inexistant → "Aucune mesure" alors que
+  // l'historique existe bien, et aucune entrée du switcher n'apparaît cochée.
+  useEffect(() => {
+    if (viewContext) return;
+    if (!activePools.length) return;
+    if (!activePools.some((p) => p.id === activePoolId)) {
+      setActivePoolId(activePools[0].id);
+    }
+  }, [viewContext, activePools, activePoolId]);
+
   // v1.57.4 — Switcher unifié : mes bassins + bassins invités dans une seule
   // liste (remplace l'ancien sélecteur séparé "Bassin affiché" / "Bassin de
   // {pseudo}"). `key` distingue own/invited pour éviter toute collision — les
@@ -9388,7 +9403,10 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
   } else if (combined !== null && combined > 0.5) {
     orderReasons.push(_("reco_order_reason_contamination", { combined: combined.toFixed(2), target: combinedShockTarget }));
   }
-  if (phTooHigh && tacNotCritical) orderReasons.push(_("reco_order_reason_ph_before_tac"));
+  // v1.59.5 — Fix crash : ligne orpheline du refactoring v1.59.4 (variables
+  // phTooHigh/tacNotCritical jamais déclarées) provoquant un ReferenceError
+  // sur TOUT bassin ayant au moins une mesure. Le commentaire v1.59.4
+  // ci-dessus indiquait déjà que cette justification devait être retirée.
   if (phChloreDelayApplied) orderReasons.push(_("reco_order_reason_ph_chlore_delay"));
   const orderExplanation = orderReasons.length > 0
     ? `${_("reco_order_intro_default")} ${orderReasons.join(" ")}`
