@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.65.0";
+const APP_VERSION = "1.65.1";
 const CGU_VERSION = "1.3"; // v1.3 : clause 5 corrigée (clé API proxy, éditeur sous-traitant RGPD), article 12 - contribution photo base commune
 
 const TRANSLATIONS = {
@@ -9209,69 +9209,91 @@ Réponds directement en français, sans titre ni introduction.`;
         <span style={styles.sectionLabel}>{t("treatment_plan")}</span>
       </div>
 
-      {recs.length === 0 ? (
-        <div style={styles.allGoodCard}>
-          <CheckCircle2 size={22} color="#1a8fd1" />
-          <span style={{ color: "#0a6ebd", fontWeight: 600, fontSize: 14 }}>
-            {t("all_in_range")}
-          </span>
-        </div>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {recs.orderExplanation && (
-            <p style={styles.helpText}>{recs.orderExplanation}</p>
-          )}
-          {recs.length > 1 && (
-            <p style={styles.helpText}>{t("follow_order")}</p>
-          )}
-          {recs.map((r, i) => (
-            <RecoCard
-              key={i}
-              reco={r}
-              isLast={i === recs.length - 1}
-              manageStock={manageStock}
-              products={products}
-              lang={lang}
-            />
-          ))}
+      {(() => {
+        // v1.65.1 — Une fois le plan de traitement entièrement terminé (tous
+        // les steps appliqués, aucun skip), on n'affiche plus les cartes de
+        // recommandations : elles restent basées sur la mesure d'origine
+        // (toujours hors cible) et n'apportent plus rien une fois le plan
+        // clos. Seule la confirmation "Plan de traitement terminé ✓" reste.
+        const planForLatest = activePlan && latest && activePlan.measureId === latest.id ? activePlan : null;
+        const planFullyDone = !!(applicationForLatest && !planForLatest && applicationForLatest.allApplied);
 
-          {(() => {
-            const planForLatest = activePlan && latest && activePlan.measureId === latest.id ? activePlan : null;
-            if (applicationForLatest && !planForLatest) {
+        if (recs.length === 0) {
+          return (
+            <div style={styles.allGoodCard}>
+              <CheckCircle2 size={22} color="#1a8fd1" />
+              <span style={{ color: "#0a6ebd", fontWeight: 600, fontSize: 14 }}>
+                {t("all_in_range")}
+              </span>
+            </div>
+          );
+        }
+
+        if (planFullyDone) {
+          return (
+            <div style={styles.applyConfirmedCard}>
+              <CheckCircle2 size={16} color="#1a8fd1" />
+              <span style={{ flex: 1 }}>{t("wizard_completed")}</span>
+            </div>
+          );
+        }
+
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {recs.orderExplanation && (
+              <p style={styles.helpText}>{recs.orderExplanation}</p>
+            )}
+            {recs.length > 1 && (
+              <p style={styles.helpText}>{t("follow_order")}</p>
+            )}
+            {recs.map((r, i) => (
+              <RecoCard
+                key={i}
+                reco={r}
+                isLast={i === recs.length - 1}
+                manageStock={manageStock}
+                products={products}
+                lang={lang}
+              />
+            ))}
+
+            {(() => {
+              if (applicationForLatest && !planForLatest) {
+                return (
+                  <div style={styles.applyConfirmedCard}>
+                    <CheckCircle2 size={16} color="#1a8fd1" />
+                    <span style={{ flex: 1 }}>
+                      {applicationForLatest.allApplied ? t("wizard_completed") : t("wizard_partial")}
+                    </span>
+                  </div>
+                );
+              }
+              if (planForLatest) {
+                return <PlanStatusCard plan={planForLatest} onResume={onResumePlan} lang={lang} />;
+              }
               return (
-                <div style={styles.applyConfirmedCard}>
-                  <CheckCircle2 size={16} color="#1a8fd1" />
-                  <span style={{ flex: 1 }}>
-                    {applicationForLatest.allApplied ? t("wizard_completed") : t("wizard_partial")}
-                  </span>
+                <div>
+                  {!latest?.importedFromPdf && (
+                    <button
+                      style={{
+                        ...styles.validateApplyBtn,
+                        ...(!manageStock ? { background: "#c3d6e6", color: "#f0f5fa", cursor: "pointer" } : {}),
+                      }}
+                      onClick={() => onValidateApplication(latest, recs)}
+                    >
+                      <CheckCircle2 size={16} /> {t("wizard_start")}
+                      {!manageStock && <Lock size={14} style={{ marginLeft: 4 }} />}
+                    </button>
+                  )}
+                  <p style={{ ...styles.helpTextSmall, marginTop: 6, textAlign: "center" }}>
+                    {t("follow_order")}
+                  </p>
                 </div>
               );
-            }
-            if (planForLatest) {
-              return <PlanStatusCard plan={planForLatest} onResume={onResumePlan} lang={lang} />;
-            }
-            return (
-              <div>
-                {!latest?.importedFromPdf && (
-                  <button
-                    style={{
-                      ...styles.validateApplyBtn,
-                      ...(!manageStock ? { background: "#c3d6e6", color: "#f0f5fa", cursor: "pointer" } : {}),
-                    }}
-                    onClick={() => onValidateApplication(latest, recs)}
-                  >
-                    <CheckCircle2 size={16} /> {t("wizard_start")}
-                    {!manageStock && <Lock size={14} style={{ marginLeft: 4 }} />}
-                  </button>
-                )}
-                <p style={{ ...styles.helpTextSmall, marginTop: 6, textAlign: "center" }}>
-                  {t("follow_order")}
-                </p>
-              </div>
-            );
-          })()}
-        </div>
-      )}
+            })()}
+          </div>
+        );
+      })()}
 
       {/* v1.63.0 — Application manuelle hors plan (ex. entretien périodique
           au galet), indépendante d'une mesure/plan de traitement. */}
