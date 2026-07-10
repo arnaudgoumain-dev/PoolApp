@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.60.0";
+const APP_VERSION = "1.61.0";
 const CGU_VERSION = "1.3"; // v1.3 : clause 5 corrigée (clé API proxy, éditeur sous-traitant RGPD), article 12 - contribution photo base commune
 
 const TRANSLATIONS = {
@@ -471,6 +471,21 @@ const TRANSLATIONS = {
     prod_name_ph_plus: "pH plus",
     prod_name_chlore_choc: "Chlore choc non stabilisé (type Chloryte)",
     prod_name_galets: "Galets chlore stabilisé 5-en-1 (type Chlorilong)",
+    packaging_type: "Conditionnement",
+    packaging_vrac: "Vrac / granulés",
+    packaging_galets: "Galets / sticks",
+    unit_weight_label: "Poids d'une unité (g)",
+    maintenance_ratio_label: "Ratio d'entretien fabricant",
+    maintenance_units_label: "Nb unités",
+    maintenance_volume_label: "Pour m³",
+    maintenance_days_label: "Tous les X jours",
+    unit_galets: "galets",
+    unit_units: "unités",
+    quantity_unit_mode_kg: "kg",
+    quantity_unit_mode_units: "unités",
+    maintenance_card_title: "Entretien continu",
+    maintenance_card_text: "{units} galet(s) / {volume} m³, tous les {days} jours",
+    no_stock_category_hint: "Aucun produit en stock dans cette catégorie — saisie libre",
     prod_name_tac_plus: "Produit TAC+ (bicarbonate de sodium)",
     prod_name_calcium: "Chlorure de calcium (dureté +)",
     prod_name_anti_phos: "Anti-phosphates (PHOSfree type)",
@@ -1108,6 +1123,21 @@ const TRANSLATIONS = {
     prod_name_ph_plus: "pH increaser",
     prod_name_chlore_choc: "Unstabilised shock chlorine (Chloryte type)",
     prod_name_galets: "5-in-1 stabilised chlorine tablets (Chlorilong type)",
+    packaging_type: "Packaging",
+    packaging_vrac: "Bulk / granules",
+    packaging_galets: "Tablets / sticks",
+    unit_weight_label: "Weight per unit (g)",
+    maintenance_ratio_label: "Manufacturer maintenance ratio",
+    maintenance_units_label: "Nb units",
+    maintenance_volume_label: "Per m³",
+    maintenance_days_label: "Every X days",
+    unit_galets: "tablets",
+    unit_units: "units",
+    quantity_unit_mode_kg: "kg",
+    quantity_unit_mode_units: "units",
+    maintenance_card_title: "Ongoing maintenance",
+    maintenance_card_text: "{units} tablet(s) / {volume} m³, every {days} days",
+    no_stock_category_hint: "No product in stock in this category — free entry",
     prod_name_tac_plus: "TAC+ product (sodium bicarbonate)",
     prod_name_calcium: "Calcium chloride (hardness +)",
     prod_name_anti_phos: "Anti-phosphates (PHOSfree type)",
@@ -1744,6 +1774,21 @@ const TRANSLATIONS = {
     prod_name_ph_plus: "pH-Heber",
     prod_name_chlore_choc: "Nicht stabilisiertes Schockchlor (Chloryte Typ)",
     prod_name_galets: "5-in-1 stabilisierte Chlortabletten (Chlorilong Typ)",
+    packaging_type: "Verpackung",
+    packaging_vrac: "Lose / Granulat",
+    packaging_galets: "Tabletten / Sticks",
+    unit_weight_label: "Gewicht pro Einheit (g)",
+    maintenance_ratio_label: "Herstellerangabe Pflegedosierung",
+    maintenance_units_label: "Anzahl Einheiten",
+    maintenance_volume_label: "Pro m³",
+    maintenance_days_label: "Alle X Tage",
+    unit_galets: "Tabletten",
+    unit_units: "Einheiten",
+    quantity_unit_mode_kg: "kg",
+    quantity_unit_mode_units: "Einheiten",
+    maintenance_card_title: "Laufende Pflege",
+    maintenance_card_text: "{units} Tablette(n) / {volume} m³, alle {days} Tage",
+    no_stock_category_hint: "Kein Produkt in dieser Kategorie auf Lager — freie Eingabe",
     prod_name_tac_plus: "KH+-Produkt (Natriumbicarbonat)",
     prod_name_calcium: "Calciumchlorid (Härte +)",
     prod_name_anti_phos: "Anti-Phosphat (PHOSfree Typ)",
@@ -2376,6 +2421,21 @@ const TRANSLATIONS = {
     prod_name_ph_plus: "Aumentatore pH",
     prod_name_chlore_choc: "Cloro shock non stabilizzato (tipo Chloryte)",
     prod_name_galets: "Pastiglie cloro stabilizzato 5-in-1 (tipo Chlorilong)",
+    packaging_type: "Confezione",
+    packaging_vrac: "Sfuso / granulare",
+    packaging_galets: "Pastiglie / stick",
+    unit_weight_label: "Peso per unità (g)",
+    maintenance_ratio_label: "Rapporto di manutenzione del produttore",
+    maintenance_units_label: "N. unità",
+    maintenance_volume_label: "Per m³",
+    maintenance_days_label: "Ogni X giorni",
+    unit_galets: "pastiglie",
+    unit_units: "unità",
+    quantity_unit_mode_kg: "kg",
+    quantity_unit_mode_units: "unità",
+    maintenance_card_title: "Manutenzione continua",
+    maintenance_card_text: "{units} pastiglia/e / {volume} m³, ogni {days} giorni",
+    no_stock_category_hint: "Nessun prodotto in stock in questa categoria — inserimento libero",
     prod_name_tac_plus: "Prodotto TAC+ (bicarbonato di sodio)",
     prod_name_calcium: "Cloruro di calcio (durezza +)",
     prod_name_anti_phos: "Anti-fosfati (tipo PHOSfree)",
@@ -3008,6 +3068,21 @@ const TRANSLATIONS = {
     prod_name_ph_plus: "Incrementador de pH",
     prod_name_chlore_choc: "Cloro choque no estabilizado (tipo Chloryte)",
     prod_name_galets: "Pastillas cloro estabilizado 5-en-1 (tipo Chlorilong)",
+    packaging_type: "Envase",
+    packaging_vrac: "A granel / granulado",
+    packaging_galets: "Pastillas / sticks",
+    unit_weight_label: "Peso por unidad (g)",
+    maintenance_ratio_label: "Ratio de mantenimiento del fabricante",
+    maintenance_units_label: "Nº unidades",
+    maintenance_volume_label: "Por m³",
+    maintenance_days_label: "Cada X días",
+    unit_galets: "pastillas",
+    unit_units: "unidades",
+    quantity_unit_mode_kg: "kg",
+    quantity_unit_mode_units: "unidades",
+    maintenance_card_title: "Mantenimiento continuo",
+    maintenance_card_text: "{units} pastilla(s) / {volume} m³, cada {days} días",
+    no_stock_category_hint: "Ningún producto en stock en esta categoría — entrada libre",
     prod_name_tac_plus: "Producto TAC+ (bicarbonato de sodio)",
     prod_name_calcium: "Cloruro de calcio (dureza +)",
     prod_name_anti_phos: "Anti-fosfatos (tipo PHOSfree)",
@@ -3637,6 +3712,21 @@ const TRANSLATIONS = {
     prod_name_ph_plus: "Aumentador de pH",
     prod_name_chlore_choc: "Cloro choque não estabilizado (tipo Chloryte)",
     prod_name_galets: "Pastilhas cloro estabilizado 5-em-1 (tipo Chlorilong)",
+    packaging_type: "Embalagem",
+    packaging_vrac: "A granel / granulado",
+    packaging_galets: "Pastilhas / sticks",
+    unit_weight_label: "Peso por unidade (g)",
+    maintenance_ratio_label: "Rácio de manutenção do fabricante",
+    maintenance_units_label: "Nº unidades",
+    maintenance_volume_label: "Por m³",
+    maintenance_days_label: "A cada X dias",
+    unit_galets: "pastilhas",
+    unit_units: "unidades",
+    quantity_unit_mode_kg: "kg",
+    quantity_unit_mode_units: "unidades",
+    maintenance_card_title: "Manutenção contínua",
+    maintenance_card_text: "{units} pastilha(s) / {volume} m³, a cada {days} dias",
+    no_stock_category_hint: "Nenhum produto em stock nesta categoria — entrada livre",
     prod_name_tac_plus: "Produto TAC+ (bicarbonato de sódio)",
     prod_name_calcium: "Cloreto de cálcio (dureza +)",
     prod_name_anti_phos: "Anti-fosfatos (tipo PHOSfree)",
@@ -4006,6 +4096,9 @@ const DEFAULT_PRODUCTS = [
     containerUnit: "kg",
     stockPercent: 100,
     isDefault: true,
+    packagingType: "galets",
+    unitWeight: 250,
+    maintenanceRatio: { units: 1, volumePer: 30, days: 10 },
   },
   // v1.58.0 — Produit standard manquant pour l'action "brome" : sans lui,
   // findProduct("brome") ne renvoyait jamais de dose calculable (carte
@@ -4033,6 +4126,8 @@ const DEFAULT_PRODUCTS = [
     containerUnit: "kg",
     stockPercent: 100,
     isDefault: true,
+    packagingType: "galets",
+    unitWeight: 20,
   },
   // v1.58.0 — Idem pour "o2" : référence monopersulfate de potassium (MPS)
   // en granulés, forme solide la plus courante pour un ajout direct (le
@@ -4793,15 +4888,19 @@ Informations à renseigner, dans les deux cas :
 - L'effet annoncé sur le paramètre concerné pour un volume d'eau donné (ex : "20g augmente le pH de 0,1 pour 10m³")
 - Le délai d'attente avant baignade recommandé en heures
 - La taille TOTALE du contenant/emballage tel que vendu (ex : "5 kg", "25 kg", "1 L", "20 L")
+- Le conditionnement du produit : "galets" si le produit se présente sous forme d'unités solides discrètes (galets, pastilles, sticks, comprimés), "vrac" sinon (poudre, granulés en vrac, liquide)
+- Si conditionnement "galets" : le poids d'une seule unité en grammes (ex: "galets de 250g" → 250). Cherche cette info sur l'étiquette (souvent indiquée à côté du nombre d'unités ou du poids total divisé par le nombre d'unités), puis sur le web si absente de l'étiquette (même recherche que pour la dose de traitement)
+- Si conditionnement "galets" : le ratio d'entretien continu annoncé par le fabricant, tel qu'affiché sur l'emballage ou trouvé sur le web (ex : "1 galet / 30 m³ / 7-10 jours") — nombre d'unités, volume en m³, et nombre de jours entre deux ajouts. Ce ratio est différent de la dose de traitement correctif : ne pas le confondre ni le déduire, uniquement le rapporter s'il est explicitement indiqué
 
 Réponds UNIQUEMENT en JSON valide, sans texte avant ou après, sans markdown :
-{"name": "nom du produit ou null", "barcode": "numéro EAN/UPC en chaîne de caractères ou null", "activeSubstance": "nom chimique ou null", "action": "une des valeurs listées ci-dessus ou null", "doseAmount": nombre ou null, "doseUnit": "g" ou "kg" ou "ml" ou "L" ou null, "effectAmount": nombre ou null, "effectPer": nombre de m³ ou null, "waitHours": nombre ou null, "containerAmount": nombre ou null, "containerUnit": "g" ou "kg" ou "ml" ou "L" ou null, "productImageUrl": "URL directe de la photo officielle trouvée en ligne, ou null si aucune", "source": "web" ou "etiquette", "confidence": "haute" ou "moyenne" ou "basse", "note": "une phrase en français sur ce qui a été trouvé, en précisant si ça vient de la recherche web ou de la lecture d'étiquette"}
+{"name": "nom du produit ou null", "barcode": "numéro EAN/UPC en chaîne de caractères ou null", "activeSubstance": "nom chimique ou null", "action": "une des valeurs listées ci-dessus ou null", "doseAmount": nombre ou null, "doseUnit": "g" ou "kg" ou "ml" ou "L" ou null, "effectAmount": nombre ou null, "effectPer": nombre de m³ ou null, "waitHours": nombre ou null, "containerAmount": nombre ou null, "containerUnit": "g" ou "kg" ou "ml" ou "L" ou null, "packagingType": "galets" ou "vrac" ou null, "unitWeight": nombre en grammes ou null, "maintenanceUnits": nombre ou null, "maintenanceVolumePer": nombre de m³ ou null, "maintenanceDays": nombre ou null, "productImageUrl": "URL directe de la photo officielle trouvée en ligne, ou null si aucune", "source": "web" ou "etiquette", "confidence": "haute" ou "moyenne" ou "basse", "note": "une phrase en français sur ce qui a été trouvé, en précisant si ça vient de la recherche web ou de la lecture d'étiquette"}
 
 Règles strictes :
 - null pour toute information absente ou illisible, ne devine jamais une valeur non présente
 - "barcode" doit être le numéro exact lu sous le code-barre, jamais reconstruit ou deviné — null si le numéro n'est pas net
 - "productImageUrl" : uniquement une URL trouvée réellement pendant la recherche web, jamais une URL inventée ou reconstruite — null si aucune trouvée
 - "source" doit refléter honnêtement d'où viennent les valeurs de dose/effet renvoyées : "web" seulement si la recherche a effectivement trouvé une notice exploitable pour ce produit précis, "etiquette" sinon
+- "maintenanceUnits"/"maintenanceVolumePer"/"maintenanceDays" : uniquement si "packagingType" est "galets" ET que le ratio est explicitement affiché — null sinon, jamais déduit de la dose de traitement
 - Les nombres sont des nombres, jamais des chaînes
 - JSON pur, rien d'autre`;
 
@@ -7209,6 +7308,7 @@ function PoolApp() {
       appliedAmount: (s.appliedAt && !s.skipped) ? s.appliedAmount : null,
       doseUnit: s.doseUnit,
       appliedAt: s.appliedAt, skipped: s.skipped, scheduledAt: s.scheduledAt,
+      mode: s.mode, doseText: s.doseText,
     }));
   }
 
@@ -7228,13 +7328,44 @@ function PoolApp() {
     });
     // Recalculer les scheduledAt des étapes suivantes
     let lastApplied = new Date(now);
-    const recalcSteps = newSteps.map((s, i) => {
+    let recalcSteps = newSteps.map((s, i) => {
       if (i < stepIdx) return s;
       if (i === stepIdx) { lastApplied = new Date(now); return s; }
       const scheduled = new Date(lastApplied.getTime() + (newSteps[i-1]?.waitHours || 0) * 3600 * 1000);
       lastApplied = scheduled;
       return { ...s, scheduledAt: scheduled.toISOString() };
     });
+
+    // v1.61.0 — Carte "entretien continu" : si le produit utilisé pour cette
+    // étape est configuré en galets/sticks avec un ratio d'entretien
+    // fabricant renseigné, on ajoute une carte informative en fin de plan
+    // (une seule fois par plan — recalcSteps contient déjà la carte si elle
+    // a été ajoutée à une étape précédente). Elle termine le plan : pas de
+    // dose à saisir, pas de décompte de stock, juste l'information.
+    const appliedStep = recalcSteps[stepIdx];
+    const usedProductName = appliedStep.appliedProductName || appliedStep.productName;
+    const usedProduct = poolProducts.find((p) => p.name === usedProductName);
+    const alreadyHasMaintenanceCard = recalcSteps.some((s) => s.mode === "entretien");
+    if (!alreadyHasMaintenanceCard && usedProduct?.packagingType === "galets" && usedProduct?.maintenanceRatio?.units && usedProduct?.maintenanceRatio?.volumePer) {
+      const mr = usedProduct.maintenanceRatio;
+      recalcSteps = [...recalcSteps, {
+        action: "entretien-galets",
+        mode: "entretien",
+        title: tFn("maintenance_card_title"),
+        productName: usedProduct.name,
+        productAvailable: true,
+        doseText: tFn("maintenance_card_text", { units: mr.units, volume: mr.volumePer, days: mr.days || "?" }),
+        computedDoseAmount: null,
+        appliedAmount: null,
+        doseUnit: null,
+        note: null,
+        waitHours: 0,
+        scheduledAt: new Date(now).toISOString(),
+        appliedAt: null,
+        skipped: false,
+      }];
+    }
+
     // Trouver la prochaine étape non traitée
     let nextIdx = stepIdx + 1;
     while (nextIdx < recalcSteps.length && (recalcSteps[nextIdx].appliedAt || recalcSteps[nextIdx].skipped)) nextIdx++;
@@ -9651,7 +9782,11 @@ function computeRecommendations(latest, volume, products, effectiveTargets, acti
   const result = steps.map((step, i) => {
     const startsAfter = cumulativeHours;
     cumulativeHours += step.waitHours || 0;
-    return { ...step, stepNumber: i + 1, startsAfterHours: startsAfter };
+    // v1.61.0 — Tous les steps issus de ce calcul sont des actions de
+    // traitement correctif ponctuel (par opposition à la carte "entretien
+    // continu", ajoutée séparément au moment de l'application d'un step
+    // galets dans le Wizard — voir applyWizardStep).
+    return { ...step, stepNumber: i + 1, startsAfterHours: startsAfter, mode: "correctif" };
   });
   result.orderExplanation = orderExplanation;
   return result;
@@ -11235,6 +11370,27 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
   const [prevAmount, setPrevAmount] = React.useState("");
   const [prevTime, setPrevTime] = React.useState("");
   const [selectedProduct, setSelectedProduct] = React.useState(null);
+  // v1.61.0 — Quand aucun produit n'est en stock dans la catégorie : saisie
+  // libre, avec un choix d'unité (kg ou unités) non lié à une fiche produit.
+  const [freeUnitMode, setFreeUnitMode] = React.useState("kg");
+
+  // v1.61.0 — Produits candidats pour l'action d'un step (ou action liée,
+  // ex. "chlore"/"chlore-stabilise" servent tous deux à remonter le chlore
+  // libre), filtrés sur le stock réel et triés : le plus entamé puis le
+  // plus ancien en premier (on privilégie de terminer un produit avant
+  // d'en entamer un nouveau).
+  function getSortedCandidates(stepAction) {
+    if (!manageStock || !products) return [];
+    const relatedActions = stepAction === "chlore" ? ["chlore", "chlore-stabilise"] : [stepAction];
+    const candidates = products.filter((p) => relatedActions.includes(p.action) && (p.stockPercent ?? 100) > 0);
+    return [...candidates].sort((a, b) => {
+      const stockDiff = (a.stockPercent ?? 100) - (b.stockPercent ?? 100);
+      if (stockDiff !== 0) return stockDiff;
+      const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return aDate - bDate;
+    });
+  }
 
   useEffect(() => {
     const iv = setInterval(() => setNow(Date.now()), 1000);
@@ -11247,18 +11403,32 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
       if (step) {
         const amount = step.computedDoseAmount ?? step.appliedAmount;
         const unit = step.doseUnit || "g";
-        const { value } = toDisplayUnit(amount, unit);
+        // v1.61.0 — Pré-sélection du produit à utiliser : le plus entamé
+        // puis le plus ancien parmi les produits en stock de l'action (ou
+        // action liée). Si aucun candidat, on retombe sur le productName
+        // du step (produit par défaut / conseillé par l'algorithme).
+        const sorted = getSortedCandidates(step.action);
+        const defaultProductName = sorted.length > 0 ? sorted[0].name : step.productName;
+        const defaultProductObj = sorted.length > 0 ? sorted[0] : products?.find((p) => p.name === step.productName);
+        const { value } = toDisplayUnit(amount, unit, defaultProductObj);
         setEditAmount(value != null && value !== "" ? String(value) : "");
         // Heure par défaut = maintenant en format HH:MM
         const d = new Date();
         setEditTime(`${d.getHours().toString().padStart(2,"0")}:${d.getMinutes().toString().padStart(2,"0")}`);
-        setSelectedProduct(step.productName);
+        setSelectedProduct(defaultProductName);
+        setFreeUnitMode("kg");
         setEditingPrev(false);
       }
     }
   }, [plan?.currentStepIdx]);
 
-  function toDisplayUnit(amount, unit) {
+  function toDisplayUnit(amount, unit, product) {
+    // v1.61.0 — Produit conditionné en galets/sticks : affichage en nombre
+    // d'unités (arrondi), converti depuis la dose calculée en grammes.
+    if (product?.packagingType === "galets" && product?.unitWeight > 0 && unit === "g") {
+      const v = amount != null ? Math.round(amount / product.unitWeight) : "";
+      return { value: v, displayUnit: t("unit_galets") };
+    }
     // Toujours afficher en kg ou L (jamais g ou mL)
     if (unit === "g") {
       const v = amount != null ? parseFloat((amount / 1000).toFixed(3)) : "";
@@ -11271,9 +11441,13 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
     return { value: amount ?? "", displayUnit: unit };
   }
 
-  function toBaseUnit(value, displayUnit, baseUnit) {
+  function toBaseUnit(value, displayUnit, baseUnit, product) {
     const v = parseFloat(value);
     if (isNaN(v)) return null;
+    // v1.61.0 — Conversion inverse nombre de galets → grammes.
+    if (product?.packagingType === "galets" && product?.unitWeight > 0 && baseUnit === "g") {
+      return Math.round(v) * product.unitWeight;
+    }
     // displayUnit est toujours kg ou L (jamais g ou mL)
     if (baseUnit === "g") return v * 1000; // kg → g
     if (baseUnit === "mL") return v * 1000; // L → mL
@@ -11297,22 +11471,47 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
 
   const totalSteps = plan.steps.length;
   const doneCount = plan.steps.filter((s) => s.appliedAt || s.skipped).length;
+  const isMaintenance = step.mode === "entretien";
   const baseUnit = step.doseUnit || "g";
-  const { displayUnit } = toDisplayUnit(step.computedDoseAmount || step.appliedAmount, baseUnit);
+  // v1.61.0 — Candidats produits pour cette étape (triés, filtrés sur stock
+  // réel) et produit effectivement sélectionné (dropdown ou défaut trié).
+  const sortedCandidates = getSortedCandidates(step.action);
+  const selectedProductObj = products?.find((p) => p.name === (selectedProduct || step.productName)) || null;
+  const { displayUnit } = toDisplayUnit(step.computedDoseAmount || step.appliedAmount, baseUnit, selectedProductObj);
   const scheduled = step.scheduledAt ? new Date(step.scheduledAt).getTime() : null;
   const remaining = scheduled ? scheduled - now : null;
   const isReady = remaining === null || remaining <= 0;
   const prod = products?.find((p) => p.name === step.productName);
-  const stockEmpty = manageStock && prod && (prod.stockPercent ?? 100) <= 0;
+  const stockEmpty = !isMaintenance && manageStock && prod && (prod.stockPercent ?? 100) <= 0;
 
   function handleApply() {
+    if (isMaintenance) {
+      // Carte informative : rien à saisir, ferme et termine le plan.
+      onApplyStep(currentIdx, null, new Date().toISOString(), null);
+      return;
+    }
+    if (manageStock && sortedCandidates.length === 0) {
+      // v1.61.0 — Aucun produit en stock dans la catégorie : saisie libre
+      // kg/unités, sans conversion ni lien à une fiche produit.
+      const v = parseFloat(editAmount);
+      const amount = isNaN(v) ? null : (freeUnitMode === "kg" ? v * 1000 : v);
+      let appliedAt = new Date().toISOString();
+      if (editTime) {
+        const [h, m] = editTime.split(":").map(Number);
+        const d = new Date();
+        d.setHours(h, m, 0, 0);
+        appliedAt = d.toISOString();
+      }
+      onApplyStep(currentIdx, amount, appliedAt, null);
+      return;
+    }
     // Utiliser l'unité du produit sélectionné si différent du produit conseillé
     const actualProd = selectedProduct && selectedProduct !== step.productName
       ? products?.find(p => p.name === selectedProduct)
-      : null;
+      : selectedProductObj;
     const actualBaseUnit = actualProd?.doseUnit || baseUnit;
-    const { displayUnit: actualDisplayUnit } = toDisplayUnit(null, actualBaseUnit);
-    const amount = toBaseUnit(editAmount, actualProd ? actualDisplayUnit : displayUnit, actualBaseUnit);
+    const { displayUnit: actualDisplayUnit } = toDisplayUnit(null, actualBaseUnit, actualProd);
+    const amount = toBaseUnit(editAmount, actualProd ? actualDisplayUnit : displayUnit, actualBaseUnit, actualProd);
     let appliedAt = new Date().toISOString();
     if (editTime) {
       const [h, m] = editTime.split(":").map(Number);
@@ -11330,7 +11529,9 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
       display: "flex", alignItems: "flex-end", justifyContent: "center",
     }}>
       <div style={{
-        background: "#fff", borderRadius: "20px 20px 0 0",
+        background: isMaintenance ? "#fff" : "#fff7f2",
+        borderTop: isMaintenance ? "5px solid #0a6ebd" : "5px solid #c4502f",
+        borderRadius: "20px 20px 0 0",
         width: "100%", maxWidth: 480,
         padding: "20px 18px 32px", boxSizing: "border-box",
         maxHeight: "92dvh", overflowY: "auto",
@@ -11417,18 +11618,15 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
         )}
 
         {/* Sélecteur de produit alternatif (si gestion stock activée).
-            v1.56.0 — Filtré par action du step : la liste ne proposait avant
-            aucun tri, et sans produit configuré pour l'action (ex. tac-),
-            le <select> retombait silencieusement sur le 1er produit de la
-            liste (ex. bandelettes de test) faute d'option correspondant à
-            step.productName. */}
-        {manageStock && products && (() => {
-          const sameActionProducts = products.filter(p => p.action === step.action);
-          if (sameActionProducts.length === 0) return null;
+            v1.61.0 — Filtré sur le stock réel (>0%) et trié : le plus entamé
+            puis le plus ancien en premier (proposé par défaut). Le
+            sélecteur ne s'affiche que s'il y a un choix réel à faire (2+
+            produits en stock) ; avec 0 ou 1 candidat, pas de sélecteur. */}
+        {!isMaintenance && manageStock && products && sortedCandidates.length > 1 && (() => {
           const currentValue = selectedProduct || step.productName;
-          const selectValue = sameActionProducts.some(p => p.name === currentValue)
+          const selectValue = sortedCandidates.some(p => p.name === currentValue)
             ? currentValue
-            : sameActionProducts[0].name;
+            : sortedCandidates[0].name;
           return (
             <div style={{ marginBottom: 12 }}>
               <label style={{ fontSize: 12, fontWeight: 600, color: "#4a6480", display: "block", marginBottom: 6 }}>
@@ -11439,19 +11637,16 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
                 onChange={(e) => {
                   const newProd = e.target.value;
                   setSelectedProduct(newProd);
-                  if (newProd !== step.productName) {
-                    setEditAmount("");
-                  } else {
-                    const amount = step.computedDoseAmount ?? step.appliedAmount;
-                    const { value } = toDisplayUnit(amount, step.doseUnit || "g");
-                    setEditAmount(value != null && value !== "" ? String(value) : "");
-                  }
+                  const newProdObj = products.find(p => p.name === newProd);
+                  const amount = step.computedDoseAmount ?? step.appliedAmount;
+                  const { value } = toDisplayUnit(amount, step.doseUnit || "g", newProdObj);
+                  setEditAmount(value != null && value !== "" ? String(value) : "");
                 }}
                 style={{ width: "100%", boxSizing: "border-box", fontSize: 14, fontWeight: 600, color: "#0d2b4e", border: "2px solid #d0e4f5", borderRadius: 10, padding: "10px 12px", outline: "none", background: "#fff" }}
               >
-                {sameActionProducts.map(p => (
+                {sortedCandidates.map(p => (
                   <option key={p.id || p.name} value={p.name}>
-                    {p.name}{p.name === step.productName ? " ✓" : ""}
+                    {p.name}{p.name === sortedCandidates[0].name ? " ✓" : ""}
                   </option>
                 ))}
               </select>
@@ -11459,8 +11654,26 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
           );
         })()}
 
-        {/* Quantité */}
-        {baseUnit && (
+        {/* Quantité — masquée pour la carte entretien (rien à saisir) */}
+        {!isMaintenance && manageStock && sortedCandidates.length === 0 && (
+          <div style={{ marginBottom: 6 }}>
+            <div style={{ fontSize: 12, color: "#c0392b", marginBottom: 8 }}>{t("no_stock_category_hint")}</div>
+            <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+              {["kg", "unites"].map((m) => (
+                <button key={m} type="button" onClick={() => setFreeUnitMode(m)}
+                  style={{
+                    flex: 1, padding: "6px 0", borderRadius: 8, cursor: "pointer",
+                    border: freeUnitMode === m ? "2px solid #0a6ebd" : "1.5px solid #d0e4f5",
+                    background: freeUnitMode === m ? "#eaf4fb" : "#fff",
+                    color: "#0d2b4e", fontWeight: 700, fontSize: 13,
+                  }}>
+                  {t(m === "kg" ? "quantity_unit_mode_kg" : "quantity_unit_mode_units")}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        {!isMaintenance && baseUnit && (
           <div style={{ marginBottom: 12 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: "#4a6480", display: "block", marginBottom: 6 }}>
               {t("quantity_applied")}
@@ -11471,10 +11684,19 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
                 value={editAmount ?? ""}
                 onChange={(e) => setEditAmount(e.target.value)}
                 style={{ flex: 1, fontSize: 22, fontWeight: 700, color: "#0d2b4e", border: "2px solid #d0e4f5", borderRadius: 10, padding: "10px 12px", textAlign: "center", outline: "none" }}
-                step="0.01"
+                step={(manageStock && sortedCandidates.length === 0 && freeUnitMode === "unites") || selectedProductObj?.packagingType === "galets" ? "1" : "0.01"}
               />
-              <div style={{ fontSize: 16, fontWeight: 700, color: "#4a6480", minWidth: 32 }}>{displayUnit}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "#4a6480", minWidth: 32 }}>
+                {manageStock && sortedCandidates.length === 0
+                  ? t(freeUnitMode === "kg" ? "quantity_unit_mode_kg" : "quantity_unit_mode_units")
+                  : displayUnit}
+              </div>
             </div>
+          </div>
+        )}
+        {isMaintenance && step.doseText && (
+          <div style={{ background: "#eaf4fb", borderRadius: 10, padding: "12px 14px", marginBottom: 12, fontSize: 14, fontWeight: 700, color: "#0a6ebd" }}>
+            {step.doseText}
           </div>
         )}
 
@@ -11943,6 +12165,14 @@ function ProductModal({ product, onClose, onSave, isPremium, onWantPremium, appl
   const [stockPercent, setStockPercent] = useState(product?.stockPercent ?? null);
   const [containerAmount, setContainerAmount] = useState(product?.containerAmount ?? 1);
   const [containerUnit, setContainerUnit] = useState(product?.containerUnit ?? "kg");
+  // v1.61.0 — Conditionnement galets/sticks : poids unitaire (pour convertir
+  // la dose calculée en nombre d'unités dans le Wizard) et ratio d'entretien
+  // continu du fabricant (informatif, distinct de la dose de traitement).
+  const [packagingType, setPackagingType] = useState(product?.packagingType || "vrac");
+  const [unitWeight, setUnitWeight] = useState(product?.unitWeight ?? "");
+  const [maintenanceUnits, setMaintenanceUnits] = useState(product?.maintenanceRatio?.units ?? "");
+  const [maintenanceVolumePer, setMaintenanceVolumePer] = useState(product?.maintenanceRatio?.volumePer ?? "");
+  const [maintenanceDays, setMaintenanceDays] = useState(product?.maintenanceRatio?.days ?? "");
   const [photoBusy, setPhotoBusy] = useState(false);
   const [aiAnalyzing, setAiAnalyzing] = useState(false);
   const [aiError, setAiError] = useState(null);
@@ -12025,6 +12255,16 @@ function ProductModal({ product, onClose, onSave, isPremium, onWantPremium, appl
         productImageUrl: result.productImageUrl || null,
       });
       if (result.containerUnit) setContainerUnit(result.containerUnit);
+      // v1.61.0 — Conditionnement/poids unitaire/ratio d'entretien : ce sont
+      // des informations d'emballage (comme containerUnit ci-dessus), pas
+      // des valeurs de dosage — appliquées directement, pas en simple
+      // suggestion à retaper (la règle anti-surdosage v1.46.0 ne concerne
+      // que doseAmount/effectAmount/effectPer).
+      if (result.packagingType) setPackagingType(result.packagingType);
+      if (result.unitWeight != null) setUnitWeight(result.unitWeight);
+      if (result.maintenanceUnits != null) setMaintenanceUnits(result.maintenanceUnits);
+      if (result.maintenanceVolumePer != null) setMaintenanceVolumePer(result.maintenanceVolumePer);
+      if (result.maintenanceDays != null) setMaintenanceDays(result.maintenanceDays);
       if (result.note) setAiNote(result.note);
       setDetectedBarcode(result.barcode || null);
       setDetectedSubstance(result.activeSubstance || null);
@@ -12113,6 +12353,16 @@ function ProductModal({ product, onClose, onSave, isPremium, onWantPremium, appl
       stockPercent: isTool ? null : newStock,
       containerAmount: isTool ? null : (parseFloat(containerAmount) || 1),
       containerUnit: isTool ? null : (containerUnit || "kg"),
+      // v1.61.0 — Conditionnement galets/sticks. maintenanceRatio reste null
+      // tant que les 3 valeurs (nb unités / volume / jours) ne sont pas
+      // toutes renseignées — un ratio partiel n'est pas exploitable pour
+      // afficher la carte "entretien continu".
+      packagingType: isTool ? null : packagingType,
+      unitWeight: (isTool || packagingType !== "galets") ? null : (parseFloat(unitWeight) || null),
+      maintenanceRatio: (isTool || packagingType !== "galets" || !maintenanceUnits || !maintenanceVolumePer)
+        ? null
+        : { units: parseFloat(maintenanceUnits), volumePer: parseFloat(maintenanceVolumePer), days: parseFloat(maintenanceDays) || null },
+      createdAt: product?.createdAt || new Date().toISOString(),
     });
 
     // v1.48.0 — Écriture base commune, en tâche de fond (fire-and-forget) :
@@ -12390,6 +12640,45 @@ function ProductModal({ product, onClose, onSave, isPremium, onWantPremium, appl
           <input type="number" style={styles.input} value={containerAmount}
             onChange={(e) => setContainerAmount(e.target.value)}
             placeholder={aiSuggestion?.containerAmount != null ? String(aiSuggestion.containerAmount) : "1"} min="0.01" step="0.1" />
+
+          {/* v1.61.0 — Conditionnement : vrac/granulés (comportement historique,
+              quantité en kg) ou galets/sticks (quantité comptée en unités dans
+              le Wizard, via le poids unitaire ci-dessous). */}
+          {!isFixedDose && !isPhysicsDose && (
+            <>
+              <label style={styles.fieldLabel}>{t("packaging_type")}</label>
+              <div style={styles.segmentedControl}>
+                {["vrac", "galets"].map((pt) => (
+                  <button key={pt} type="button" onClick={() => setPackagingType(pt)}
+                    style={{ ...styles.segmentedBtn, ...(packagingType === pt ? styles.segmentedBtnActive : {}) }}>
+                    {t(pt === "vrac" ? "packaging_vrac" : "packaging_galets")}
+                  </button>
+                ))}
+              </div>
+
+              {packagingType === "galets" && (
+                <>
+                  <label style={styles.fieldLabel}>{t("unit_weight_label")}</label>
+                  <input type="number" style={styles.input} value={unitWeight}
+                    onChange={(e) => setUnitWeight(e.target.value)}
+                    placeholder="250" min="1" step="1" />
+
+                  <label style={styles.fieldLabel}>{t("maintenance_ratio_label")}</label>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <input type="number" style={{ ...styles.input, flex: 1 }} value={maintenanceUnits}
+                      onChange={(e) => setMaintenanceUnits(e.target.value)}
+                      placeholder={t("maintenance_units_label")} min="0" step="1" />
+                    <input type="number" style={{ ...styles.input, flex: 1 }} value={maintenanceVolumePer}
+                      onChange={(e) => setMaintenanceVolumePer(e.target.value)}
+                      placeholder={t("maintenance_volume_label")} min="0" step="1" />
+                    <input type="number" style={{ ...styles.input, flex: 1 }} value={maintenanceDays}
+                      onChange={(e) => setMaintenanceDays(e.target.value)}
+                      placeholder={t("maintenance_days_label")} min="0" step="1" />
+                  </div>
+                </>
+              )}
+            </>
+          )}
 
           <label style={styles.fieldLabel}>{t("current_stock")}</label>
           {stockPercent === null ? (
