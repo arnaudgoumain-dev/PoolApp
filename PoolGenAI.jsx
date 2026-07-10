@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.63.1";
+const APP_VERSION = "1.64.0";
 const CGU_VERSION = "1.3"; // v1.3 : clause 5 corrigée (clé API proxy, éditeur sous-traitant RGPD), article 12 - contribution photo base commune
 
 const TRANSLATIONS = {
@@ -492,6 +492,7 @@ const TRANSLATIONS = {
     maintenance_card_title: "Entretien continu",
     maintenance_card_text: "{units} galet(s) / {volume} m³, tous les {days} jours",
     no_stock_category_hint: "Aucun produit en stock dans cette catégorie — saisie libre",
+    no_stock_generic_hint: "Aucun produit en stock dans cette catégorie — produit générique proposé",
     prod_name_tac_plus: "Produit TAC+ (bicarbonate de sodium)",
     prod_name_calcium: "Chlorure de calcium (dureté +)",
     prod_name_anti_phos: "Anti-phosphates (PHOSfree type)",
@@ -1150,6 +1151,7 @@ const TRANSLATIONS = {
     maintenance_card_title: "Ongoing maintenance",
     maintenance_card_text: "{units} tablet(s) / {volume} m³, every {days} days",
     no_stock_category_hint: "No product in stock in this category — free entry",
+    no_stock_generic_hint: "No product in stock in this category — generic product suggested",
     prod_name_tac_plus: "TAC+ product (sodium bicarbonate)",
     prod_name_calcium: "Calcium chloride (hardness +)",
     prod_name_anti_phos: "Anti-phosphates (PHOSfree type)",
@@ -1807,6 +1809,7 @@ const TRANSLATIONS = {
     maintenance_card_title: "Laufende Pflege",
     maintenance_card_text: "{units} Tablette(n) / {volume} m³, alle {days} Tage",
     no_stock_category_hint: "Kein Produkt in dieser Kategorie auf Lager — freie Eingabe",
+    no_stock_generic_hint: "Kein Produkt in dieser Kategorie auf Lager — generisches Produkt vorgeschlagen",
     prod_name_tac_plus: "KH+-Produkt (Natriumbicarbonat)",
     prod_name_calcium: "Calciumchlorid (Härte +)",
     prod_name_anti_phos: "Anti-Phosphat (PHOSfree Typ)",
@@ -2460,6 +2463,7 @@ const TRANSLATIONS = {
     maintenance_card_title: "Manutenzione continua",
     maintenance_card_text: "{units} pastiglia/e / {volume} m³, ogni {days} giorni",
     no_stock_category_hint: "Nessun prodotto in stock in questa categoria — inserimento libero",
+    no_stock_generic_hint: "Nessun prodotto in stock in questa categoria — prodotto generico proposto",
     prod_name_tac_plus: "Prodotto TAC+ (bicarbonato di sodio)",
     prod_name_calcium: "Cloruro di calcio (durezza +)",
     prod_name_anti_phos: "Anti-fosfati (tipo PHOSfree)",
@@ -3113,6 +3117,7 @@ const TRANSLATIONS = {
     maintenance_card_title: "Mantenimiento continuo",
     maintenance_card_text: "{units} pastilla(s) / {volume} m³, cada {days} días",
     no_stock_category_hint: "Ningún producto en stock en esta categoría — entrada libre",
+    no_stock_generic_hint: "Ningún producto en stock en esta categoría — producto genérico propuesto",
     prod_name_tac_plus: "Producto TAC+ (bicarbonato de sodio)",
     prod_name_calcium: "Cloruro de calcio (dureza +)",
     prod_name_anti_phos: "Anti-fosfatos (tipo PHOSfree)",
@@ -3763,6 +3768,7 @@ const TRANSLATIONS = {
     maintenance_card_title: "Manutenção contínua",
     maintenance_card_text: "{units} pastilha(s) / {volume} m³, a cada {days} dias",
     no_stock_category_hint: "Nenhum produto em stock nesta categoria — entrada livre",
+    no_stock_generic_hint: "Nenhum produto em stock nesta categoria — produto genérico sugerido",
     prod_name_tac_plus: "Produto TAC+ (bicarbonato de sódio)",
     prod_name_calcium: "Cloreto de cálcio (dureza +)",
     prod_name_anti_phos: "Anti-fosfatos (tipo PHOSfree)",
@@ -11565,6 +11571,23 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
     });
   }
 
+  // v1.63.2 — Quand aucun produit de l'utilisateur n'est en stock pour cette
+  // action, on propose les produits génériques (DEFAULT_PRODUCTS, catalogue
+  // de référence utilisé par ailleurs pour les calculs de dose de repli) au
+  // lieu d'une saisie libre sans nom. Non liés au stock réel : jamais
+  // décomptés (saveApplication ne décrémente que les produits présents dans
+  // "products", donc un nom générique n'y matche jamais).
+  function getGenericCandidates(stepAction) {
+    const relatedActions = stepAction === "chlore" ? ["chlore", "chlore-stabilise"] : [stepAction];
+    return DEFAULT_PRODUCTS.filter((p) => relatedActions.includes(p.action));
+  }
+
+  // Résout un nom de produit en objet, en cherchant d'abord dans les produits
+  // réels de l'utilisateur, puis dans le catalogue générique (fallback).
+  function findAnyProduct(name) {
+    return (products || []).find((p) => p.name === name) || DEFAULT_PRODUCTS.find((p) => p.name === name) || null;
+  }
+
   useEffect(() => {
     const iv = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(iv);
@@ -11578,11 +11601,17 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
         const unit = step.doseUnit || "g";
         // v1.61.0 — Pré-sélection du produit à utiliser : le plus entamé
         // puis le plus ancien parmi les produits en stock de l'action (ou
-        // action liée). Si aucun candidat, on retombe sur le productName
-        // du step (produit par défaut / conseillé par l'algorithme).
+        // action liée). Si aucun candidat réel, on retombe sur le premier
+        // produit générique correspondant (v1.63.2), puis sur le
+        // productName du step (produit par défaut / conseillé par l'algorithme).
         const sorted = getSortedCandidates(step.action);
-        const defaultProductName = sorted.length > 0 ? sorted[0].name : step.productName;
-        const defaultProductObj = sorted.length > 0 ? sorted[0] : products?.find((p) => p.name === step.productName);
+        const generic = getGenericCandidates(step.action);
+        const defaultProductName = sorted.length > 0 ? sorted[0].name
+          : generic.length > 0 ? generic[0].name
+          : step.productName;
+        const defaultProductObj = sorted.length > 0 ? sorted[0]
+          : generic.length > 0 ? generic[0]
+          : products?.find((p) => p.name === step.productName);
         const { value } = toDisplayUnit(amount, unit, defaultProductObj);
         setEditAmount(value != null && value !== "" ? String(value) : "");
         // Heure par défaut = maintenant en format HH:MM
@@ -11649,7 +11678,8 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
   // v1.61.0 — Candidats produits pour cette étape (triés, filtrés sur stock
   // réel) et produit effectivement sélectionné (dropdown ou défaut trié).
   const sortedCandidates = getSortedCandidates(step.action);
-  const selectedProductObj = products?.find((p) => p.name === (selectedProduct || step.productName)) || null;
+  const genericCandidates = getGenericCandidates(step.action);
+  const selectedProductObj = findAnyProduct(selectedProduct || step.productName);
   const { displayUnit } = toDisplayUnit(step.computedDoseAmount || step.appliedAmount, baseUnit, selectedProductObj);
   const scheduled = step.scheduledAt ? new Date(step.scheduledAt).getTime() : null;
   const remaining = scheduled ? scheduled - now : null;
@@ -11663,9 +11693,10 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
       onApplyStep(currentIdx, null, new Date().toISOString(), null);
       return;
     }
-    if (manageStock && sortedCandidates.length === 0) {
-      // v1.61.0 — Aucun produit en stock dans la catégorie : saisie libre
-      // kg/unités, sans conversion ni lien à une fiche produit.
+    if (manageStock && sortedCandidates.length === 0 && genericCandidates.length === 0) {
+      // v1.61.0 — Aucun produit en stock ni générique pour cette action :
+      // dernier repli, saisie libre kg/unités, sans conversion ni lien à
+      // une fiche produit.
       const v = parseFloat(editAmount);
       const amount = isNaN(v) ? null : (freeUnitMode === "kg" ? v * 1000 : v);
       let appliedAt = new Date().toISOString();
@@ -11680,7 +11711,7 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
     }
     // Utiliser l'unité du produit sélectionné si différent du produit conseillé
     const actualProd = selectedProduct && selectedProduct !== step.productName
-      ? products?.find(p => p.name === selectedProduct)
+      ? findAnyProduct(selectedProduct)
       : selectedProductObj;
     const actualBaseUnit = actualProd?.doseUnit || baseUnit;
     const { displayUnit: actualDisplayUnit } = toDisplayUnit(null, actualBaseUnit, actualProd);
@@ -11827,8 +11858,46 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
           );
         })()}
 
-        {/* Quantité — masquée pour la carte entretien (rien à saisir) */}
-        {!isMaintenance && manageStock && sortedCandidates.length === 0 && (
+        {/* v1.63.2 — Sélecteur de produit générique (DEFAULT_PRODUCTS), quand
+            l'utilisateur n'a aucun produit réel en stock pour cette action.
+            Remplace l'ancienne saisie libre sans nom : le nom générique est
+            enregistré dans l'historique/le rapport, sans jamais décompter de
+            stock (aucun produit "products" ne porte ce nom). */}
+        {!isMaintenance && manageStock && sortedCandidates.length === 0 && genericCandidates.length > 0 && (() => {
+          const currentValue = selectedProduct || step.productName;
+          const selectValue = genericCandidates.some(p => p.name === currentValue)
+            ? currentValue
+            : genericCandidates[0].name;
+          return (
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 12, color: "#c0392b", marginBottom: 8 }}>{t("no_stock_generic_hint")}</div>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "#4a6480", display: "block", marginBottom: 6 }}>
+                {t("product_col")}
+              </label>
+              <select
+                value={selectValue}
+                onChange={(e) => {
+                  const newProd = e.target.value;
+                  setSelectedProduct(newProd);
+                  const newProdObj = findAnyProduct(newProd);
+                  const amount = step.computedDoseAmount ?? step.appliedAmount;
+                  const { value } = toDisplayUnit(amount, step.doseUnit || "g", newProdObj);
+                  setEditAmount(value != null && value !== "" ? String(value) : "");
+                }}
+                style={{ width: "100%", boxSizing: "border-box", fontSize: 14, fontWeight: 600, color: "#0d2b4e", border: "2px solid #d0e4f5", borderRadius: 10, padding: "10px 12px", outline: "none", background: "#fff" }}
+              >
+                {genericCandidates.map(p => (
+                  <option key={p.id || p.name} value={p.name}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+          );
+        })()}
+
+        {/* Quantité — masquée pour la carte entretien (rien à saisir).
+            Dernier repli : aucun produit réel NI générique pour cette action
+            (cas très rare, catalogue générique ne couvre pas l'action). */}
+        {!isMaintenance && manageStock && sortedCandidates.length === 0 && genericCandidates.length === 0 && (
           <div style={{ marginBottom: 6 }}>
             <div style={{ fontSize: 12, color: "#c0392b", marginBottom: 8 }}>{t("no_stock_category_hint")}</div>
             <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
@@ -11857,10 +11926,10 @@ function TreatmentWizard({ plan, products, manageStock, lang, onApplyStep, onSki
                 value={editAmount ?? ""}
                 onChange={(e) => setEditAmount(e.target.value)}
                 style={{ flex: 1, fontSize: 22, fontWeight: 700, color: "#0d2b4e", border: "2px solid #d0e4f5", borderRadius: 10, padding: "10px 12px", textAlign: "center", outline: "none" }}
-                step={(manageStock && sortedCandidates.length === 0 && freeUnitMode === "unites") || selectedProductObj?.packagingType === "galets" ? "1" : "0.01"}
+                step={(manageStock && sortedCandidates.length === 0 && genericCandidates.length === 0 && freeUnitMode === "unites") || selectedProductObj?.packagingType === "galets" ? "1" : "0.01"}
               />
               <div style={{ fontSize: 16, fontWeight: 700, color: "#4a6480", minWidth: 32 }}>
-                {manageStock && sortedCandidates.length === 0
+                {manageStock && sortedCandidates.length === 0 && genericCandidates.length === 0
                   ? t(freeUnitMode === "kg" ? "quantity_unit_mode_kg" : "quantity_unit_mode_units")
                   : displayUnit}
               </div>
