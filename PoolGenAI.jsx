@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.69.0";
+const APP_VERSION = "1.70.0";
 const CGU_VERSION = "1.3"; // v1.3 : clause 5 corrigée (clé API proxy, éditeur sous-traitant RGPD), article 12 - contribution photo base commune
 
 const TRANSLATIONS = {
@@ -571,6 +571,12 @@ const TRANSLATIONS = {
     paywall_test_note: "Ceci est une version de test. Aucun paiement réel n'est effectué.",
     premium_reveal_title: "Premium activé",
     premium_reveal_sub: "Bassins, invitations et mesures sans limite",
+    premium_downgrade_title: "Retour à la version gratuite",
+    premium_downgrade_sub: "Les fonctionnalités illimitées sont désormais désactivées",
+    premium_downgrade_confirm_title: "Désactiver la version illimitée ?",
+    premium_downgrade_confirm_desc: "Tu perdras l'accès à :",
+    premium_downgrade_confirm_btn: "Désactiver la version illimitée",
+    premium_downgrade_cancel_btn: "Annuler et continuer Premium",
     report_print_btn: "Imprimer / Enregistrer en PDF",
     share_report: "Partager le rapport",
     report_email_subject: "Rapport PoolGenAI — {pool}",
@@ -668,7 +674,8 @@ const TRANSLATIONS = {
     context_title: "Bassin affiché",
     context_own: "Mes bassins",
     secondary_pool_unavailable_title: "Bassin introuvable",
-    secondary_pool_unavailable_desc: "Ce bassin n'est plus accessible, ou son chargement est en cours. Si le problème persiste, l'accès a peut-être été révoqué.",
+    secondary_pool_unavailable_desc: "Ce bassin est introuvable. Il a peut-être été supprimé, ou le chargement rencontre un problème réseau. Réessaie plus tard.",
+    secondary_pool_revoked_desc: "Ton accès à ce bassin a été révoqué par son propriétaire.",
     secondary_invited_label: "{pool} - Invité",
     context_loading: "Chargement du bassin…",
     context_secondary_option: "Bassin de {pseudo}",
@@ -1238,6 +1245,12 @@ const TRANSLATIONS = {
     paywall_test_note: "This is a test version. No real payment is made.",
     premium_reveal_title: "Premium activated",
     premium_reveal_sub: "Unlimited pools, invitations and readings",
+    premium_downgrade_title: "Back to the free version",
+    premium_downgrade_sub: "Unlimited features are now disabled",
+    premium_downgrade_confirm_title: "Disable the unlimited version?",
+    premium_downgrade_confirm_desc: "You will lose access to:",
+    premium_downgrade_confirm_btn: "Disable unlimited version",
+    premium_downgrade_cancel_btn: "Cancel and keep Premium",
     report_print_btn: "Print / Save as PDF",
     share_report: "Share report",
     report_email_subject: "PoolGenAI report — {pool}",
@@ -1333,7 +1346,8 @@ const TRANSLATIONS = {
     context_title: "Pool shown",
     context_own: "My pools",
     secondary_pool_unavailable_title: "Pool unavailable",
-    secondary_pool_unavailable_desc: "This pool is no longer accessible, or is still loading. If this persists, access may have been revoked.",
+    secondary_pool_unavailable_desc: "This pool can't be found. It may have been deleted, or there's a network issue loading it. Try again later.",
+    secondary_pool_revoked_desc: "Your access to this pool has been revoked by its owner.",
     secondary_invited_label: "{pool} - Invited",
     context_loading: "Loading pool…",
     context_secondary_option: "{pseudo}'s pool",
@@ -1904,6 +1918,12 @@ const TRANSLATIONS = {
     paywall_test_note: "Dies ist eine Testversion. Es wird keine echte Zahlung vorgenommen.",
     premium_reveal_title: "Premium aktiviert",
     premium_reveal_sub: "Unbegrenzte Pools, Einladungen und Messungen",
+    premium_downgrade_title: "Zurück zur kostenlosen Version",
+    premium_downgrade_sub: "Unbegrenzte Funktionen sind jetzt deaktiviert",
+    premium_downgrade_confirm_title: "Unbegrenzte Version deaktivieren?",
+    premium_downgrade_confirm_desc: "Du verlierst den Zugriff auf:",
+    premium_downgrade_confirm_btn: "Unbegrenzte Version deaktivieren",
+    premium_downgrade_cancel_btn: "Abbrechen und Premium behalten",
     report_print_btn: "Drucken / Als PDF speichern",
     share_report: "Bericht teilen",
     report_email_subject: "PoolGenAI-Bericht — {pool}",
@@ -1998,7 +2018,8 @@ const TRANSLATIONS = {
     context_title: "Angezeigtes Becken",
     context_own: "Meine Becken",
     secondary_pool_unavailable_title: "Becken nicht verfügbar",
-    secondary_pool_unavailable_desc: "Dieses Becken ist nicht mehr zugänglich oder wird noch geladen. Falls das Problem bestehen bleibt, wurde der Zugriff möglicherweise widerrufen.",
+    secondary_pool_unavailable_desc: "Dieses Becken wurde nicht gefunden. Es wurde eventuell gelöscht, oder es gibt ein Netzwerkproblem beim Laden. Versuche es später erneut.",
+    secondary_pool_revoked_desc: "Dein Zugriff auf dieses Becken wurde vom Eigentümer widerrufen.",
     secondary_invited_label: "{pool} - Eingeladen",
     context_loading: "Becken wird geladen…",
     context_secondary_option: "Becken von {pseudo}",
@@ -2566,6 +2587,12 @@ const TRANSLATIONS = {
     paywall_test_note: "Questa è una versione di test. Nessun pagamento reale viene effettuato.",
     premium_reveal_title: "Premium attivato",
     premium_reveal_sub: "Piscine, inviti e misurazioni senza limiti",
+    premium_downgrade_title: "Ritorno alla versione gratuita",
+    premium_downgrade_sub: "Le funzionalità illimitate sono ora disattivate",
+    premium_downgrade_confirm_title: "Disattivare la versione illimitata?",
+    premium_downgrade_confirm_desc: "Perderai l'accesso a:",
+    premium_downgrade_confirm_btn: "Disattiva versione illimitata",
+    premium_downgrade_cancel_btn: "Annulla e mantieni Premium",
     report_print_btn: "Stampa / Salva come PDF",
     share_report: "Condividi il rapporto",
     report_email_subject: "Rapporto PoolGenAI — {pool}",
@@ -2660,7 +2687,8 @@ const TRANSLATIONS = {
     context_title: "Piscina visualizzata",
     context_own: "Le mie piscine",
     secondary_pool_unavailable_title: "Piscina non disponibile",
-    secondary_pool_unavailable_desc: "Questa piscina non è più accessibile, oppure è ancora in caricamento. Se il problema persiste, l'accesso potrebbe essere stato revocato.",
+    secondary_pool_unavailable_desc: "Questa piscina non è stata trovata. Potrebbe essere stata eliminata, oppure c'è un problema di rete nel caricamento. Riprova più tardi.",
+    secondary_pool_revoked_desc: "Il tuo accesso a questa piscina è stato revocato dal proprietario.",
     secondary_invited_label: "{pool} - Invitato",
     context_loading: "Caricamento piscina…",
     context_secondary_option: "Piscina di {pseudo}",
@@ -3228,6 +3256,12 @@ const TRANSLATIONS = {
     paywall_test_note: "Esta es una versión de prueba. No se realiza ningún pago real.",
     premium_reveal_title: "Premium activado",
     premium_reveal_sub: "Piscinas, invitaciones y mediciones sin límite",
+    premium_downgrade_title: "Volver a la versión gratuita",
+    premium_downgrade_sub: "Las funciones ilimitadas están ahora desactivadas",
+    premium_downgrade_confirm_title: "¿Desactivar la versión ilimitada?",
+    premium_downgrade_confirm_desc: "Perderás el acceso a:",
+    premium_downgrade_confirm_btn: "Desactivar versión ilimitada",
+    premium_downgrade_cancel_btn: "Cancelar y mantener Premium",
     report_print_btn: "Imprimir / Guardar como PDF",
     share_report: "Compartir informe",
     report_email_subject: "Informe PoolGenAI — {pool}",
@@ -3322,7 +3356,8 @@ const TRANSLATIONS = {
     context_title: "Piscina mostrada",
     context_own: "Mis piscinas",
     secondary_pool_unavailable_title: "Piscina no disponible",
-    secondary_pool_unavailable_desc: "Esta piscina ya no está accesible, o todavía se está cargando. Si el problema persiste, es posible que se haya revocado el acceso.",
+    secondary_pool_unavailable_desc: "No se encuentra esta piscina. Puede que haya sido eliminada, o hay un problema de red al cargarla. Inténtalo más tarde.",
+    secondary_pool_revoked_desc: "Tu acceso a esta piscina ha sido revocado por su propietario.",
     secondary_invited_label: "{pool} - Invitado",
     context_loading: "Cargando piscina…",
     context_secondary_option: "Piscina de {pseudo}",
@@ -3887,6 +3922,12 @@ const TRANSLATIONS = {
     paywall_test_note: "Esta é uma versão de teste. Nenhum pagamento real é efetuado.",
     premium_reveal_title: "Premium ativado",
     premium_reveal_sub: "Piscinas, convites e medições sem limite",
+    premium_downgrade_title: "Voltar à versão gratuita",
+    premium_downgrade_sub: "Os recursos ilimitados estão agora desativados",
+    premium_downgrade_confirm_title: "Desativar a versão ilimitada?",
+    premium_downgrade_confirm_desc: "Perderás o acesso a:",
+    premium_downgrade_confirm_btn: "Desativar versão ilimitada",
+    premium_downgrade_cancel_btn: "Cancelar e manter Premium",
     report_print_btn: "Imprimir / Salvar como PDF",
     share_report: "Partilhar relatório",
     report_email_subject: "Relatório PoolGenAI — {pool}",
@@ -3981,7 +4022,8 @@ const TRANSLATIONS = {
     context_title: "Piscina exibida",
     context_own: "Minhas piscinas",
     secondary_pool_unavailable_title: "Piscina indisponível",
-    secondary_pool_unavailable_desc: "Esta piscina já não está acessível, ou ainda está a carregar. Se o problema persistir, o acesso pode ter sido revogado.",
+    secondary_pool_unavailable_desc: "Esta piscina não foi encontrada. Pode ter sido eliminada, ou há um problema de rede ao carregar. Tenta novamente mais tarde.",
+    secondary_pool_revoked_desc: "O teu acesso a esta piscina foi revogado pelo proprietário.",
     secondary_invited_label: "{pool} - Convidado",
     context_loading: "A carregar a piscina…",
     context_secondary_option: "Piscina de {pseudo}",
@@ -5464,12 +5506,17 @@ const FB = {
     const snap = await window._fbGetDoc(window._fbDoc(window._fbDb, "users", uid, "config", "main"));
     return snap.exists() ? snap.data() : null;
   },
-  onConfig: (uid, cb) => {
+  // v1.70.0 — errCb optionnel : Firestore n'appelle jamais cb() en cas de
+  // permission-denied (accès secondaire révoqué), l'écoute restait donc
+  // bloquée en silence dans "context_loading" indéfiniment. errCb permet de
+  // distinguer explicitement ce cas plutôt que de compter uniquement sur un
+  // timeout côté UI.
+  onConfig: (uid, cb, errCb) => {
     if (!window._fbDb || !window._fbOnSnapshot) return () => {};
     const ref = window._fbDoc(window._fbDb, "users", uid, "config", "main");
     return window._fbOnSnapshot(ref, (snap) => {
       if (snap.exists()) cb(snap.data());
-    });
+    }, (err) => { if (errCb) errCb(err); });
   },
   // ── Calibration Lot B — collection RACINE, create-only, sans uid (cf.
   // firestore.rules). ID généré côté client via uid() — pas de setDoc avec
@@ -6138,6 +6185,12 @@ function PoolApp() {
   // SettingsView. viewContext : null = mes bassins ; sinon
   // { primaryUid, poolId, poolName, pseudo } = bassin d'un principal.
   const [linkedAccounts, setLinkedAccounts] = useState([]);
+  // v1.70.0 — Distingue "linkedAccounts pas encore chargé" de "chargé et
+  // vide" : sans ce flag, le useEffect de contrôle de révocation voyait un
+  // tableau vide dès le premier rendu (avant même que l'écoute Firestore
+  // n'ait renvoyé son premier snapshot) et éjectait à tort un utilisateur
+  // secondaire dont l'accès était pourtant toujours actif.
+  const [linkedAccountsLoaded, setLinkedAccountsLoaded] = useState(false);
   const [viewContext, setViewContext] = useState(null);
   const viewContextLoadedRef = useRef(false);
   // v1.57.4 — Switcher unifié (mes bassins + bassins invités, cf. incident
@@ -6151,8 +6204,12 @@ function PoolApp() {
   const [linkedPoolsInfo, setLinkedPoolsInfo] = useState([]);
 
   useEffect(() => {
-    if (!authUser?.uid || !FB.ready()) { setLinkedAccounts([]); return; }
-    const unsub = FB.onLinkedAccounts(authUser.uid, setLinkedAccounts);
+    if (!authUser?.uid || !FB.ready()) { setLinkedAccounts([]); setLinkedAccountsLoaded(false); return; }
+    setLinkedAccountsLoaded(false);
+    const unsub = FB.onLinkedAccounts(authUser.uid, (accounts) => {
+      setLinkedAccounts(accounts);
+      setLinkedAccountsLoaded(true);
+    });
     return () => unsub();
   }, [authUser?.uid]);
 
@@ -6192,12 +6249,14 @@ function PoolApp() {
   }, [authUser?.uid]);
 
   // Si le lien correspondant a été révoqué entre-temps, retombe sur "mes bassins".
+  // v1.70.0 — Attend linkedAccountsLoaded : sinon le tableau vide de l'état
+  // initial déclenchait ce fallback avant même que la vraie liste n'arrive.
   useEffect(() => {
-    if (!viewContext) return;
+    if (!viewContext || !linkedAccountsLoaded) return;
     if (!linkedAccounts.some((l) => l.primaryUid === viewContext.primaryUid && l.status === "active")) {
       setViewContext(null);
     }
-  }, [linkedAccounts, viewContext]);
+  }, [linkedAccounts, linkedAccountsLoaded, viewContext]);
 
   function switchToContext(next) {
     setViewContext(next);
@@ -6249,7 +6308,11 @@ function PoolApp() {
   const [showPaywall, setShowPaywall] = useState(false);
   // v1.69.0 — Écran plein cadre joué à l'activation du Premium (effet
   // effervescent), avant que l'app ne se ré-affiche déjà débloquée.
+  // v1.70.0 — Rejoué aussi à la désactivation (revealVariant "downgrade"),
+  // après confirmation explicite (showDowngradeConfirm).
   const [showPremiumReveal, setShowPremiumReveal] = useState(false);
+  const [revealVariant, setRevealVariant] = useState("activate");
+  const [showDowngradeConfirm, setShowDowngradeConfirm] = useState(false);
   const [paywallSource, setPaywallSource] = useState(null);
   function openPaywall(source) {
     track("paywall_shown", { source: source || "unknown" });
@@ -6676,6 +6739,14 @@ function PoolApp() {
   const firestoreUnsubRef = useRef(null);
   const cloudConfigReceivedRef = useRef(false);
   const [cloudConfigReceived, setCloudConfigReceived] = useState(false);
+  // v1.70.0 — "Bassin introuvable" (contexte secondaire) : deux signaux
+  // combinés plutôt qu'un seul. poolAccessError se pose immédiatement si
+  // Firestore renvoie explicitement permission-denied (accès révoqué de
+  // façon certaine). secondaryLoadTimeout ne se déclenche qu'après 5s sans
+  // nouvelle ni confirmation ni infirmation (latence réseau, bassin
+  // supprimé) — le temps normal de charger reste juste un spinner.
+  const [poolAccessError, setPoolAccessError] = useState(null);
+  const [secondaryLoadTimeout, setSecondaryLoadTimeout] = useState(false);
   useEffect(() => {
     if (!dataUid || !FB.ready() || !window._fbOnSnapshot) return;
     const uid = dataUid;
@@ -6687,6 +6758,8 @@ function PoolApp() {
     const scopedPoolId = viewContext ? viewContext.poolId : null;
     cloudConfigReceivedRef.current = false;
     setCloudConfigReceived(false);
+    setPoolAccessError(null);
+    setSecondaryLoadTimeout(false);
 
     // Nettoyage abonnements précédents
     if (firestoreUnsubRef.current) {
@@ -6736,6 +6809,13 @@ function PoolApp() {
       // v1.53.0 — apiProvider n'est plus lu depuis Firestore : valeur fixe
       // "anthropic" imposée au chargement (voir plus bas), jamais un réglage
       // synchronisé entre appareils.
+    }, (err) => {
+      // v1.70.0 — permission-denied confirme sans ambiguïté un accès révoqué
+      // (cf. règle users/{uid}/config/main : lecture conditionnée à
+      // isActiveSecondary). Affiché immédiatement, sans attendre le timeout.
+      if (viewContext && err?.code === "permission-denied") {
+        setPoolAccessError("denied");
+      }
     });
 
     // v1.30.0 — Écoute temps réel de productPhotos. Alimente productPhotosRef
@@ -6760,6 +6840,17 @@ function PoolApp() {
       unsubProductPhotos();
     };
   }, [dataUid, viewContext?.poolId]);
+
+  // v1.70.0 — Filet de sécurité pour le contexte secondaire : si après 5s le
+  // bassin n'est toujours ni confirmé (cloudConfigReceived) ni explicitement
+  // refusé (poolAccessError), on cesse de considérer ça comme un simple
+  // temps de chargement — l'écran "Bassin introuvable" prend le relais avec
+  // un message générique (bassin supprimé, ou souci réseau persistant).
+  useEffect(() => {
+    if (!viewContext || cloudConfigReceived || poolAccessError) return;
+    const timer = setTimeout(() => setSecondaryLoadTimeout(true), 5000);
+    return () => clearTimeout(timer);
+  }, [viewContext, cloudConfigReceived, poolAccessError]);
 
   // --- Firebase Auth ---
   useEffect(() => {
@@ -8165,7 +8256,12 @@ function PoolApp() {
         l'ancien contexte (measures/products encore en mémoire) — donnait
         l'impression trompeuse d'un historique perdu le temps que la vraie
         config du nouveau dataUid arrive (1-2s sur mobile). */}
-    {loaded && authUser && !suspended && !accountDeleted && !forceUpdate && !needsEmailVerification && !cloudConfigReceived && (
+    {/* v1.70.0 — En contexte secondaire, ce spinner générique ne doit plus
+        tourner indéfiniment si l'accès a été explicitement refusé
+        (poolAccessError) ou si 5s se sont écoulées sans résolution
+        (secondaryLoadTimeout) : l'écran "Bassin introuvable" prend le relais
+        dans ces deux cas au lieu de laisser croire à un simple chargement. */}
+    {loaded && authUser && !suspended && !accountDeleted && !forceUpdate && !needsEmailVerification && !cloudConfigReceived && !(viewContext && (poolAccessError || secondaryLoadTimeout)) && (
       <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "#f5f8f7", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
         <Loader2 size={34} className="spin" style={{ marginBottom: 10, color: "#0a6ebd" }} />
         <div style={{ fontSize: 13.5, color: "#4a6480" }}>{t("context_loading")}</div>
@@ -8179,15 +8275,19 @@ function PoolApp() {
         de contexte) ou durablement (accès révoqué, bassin supprimé). Dans les
         deux cas, ce n'est JAMAIS au secondaire de créer un bassin — l'ancien
         code affichait le formulaire de création forcée y compris ici, un
-        cul-de-sac puisque addPool() est un no-op en contexte secondaire. */}
-    {loaded && authUser && !suspended && !accountDeleted && !forceUpdate && !needsEmailVerification && activePools.length === 0 && cloudConfigReceived && viewContext && (
+        cul-de-sac puisque addPool() est un no-op en contexte secondaire.
+        v1.70.0 — Se déclenche aussi sur poolAccessError (refus confirmé) ou
+        secondaryLoadTimeout (5s sans résolution), pas seulement quand
+        cloudConfigReceived est déjà arrivé avec un tableau de bassins vide. */}
+    {loaded && authUser && !suspended && !accountDeleted && !forceUpdate && !needsEmailVerification && viewContext &&
+      ((activePools.length === 0 && cloudConfigReceived) || poolAccessError || secondaryLoadTimeout) && (
       <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "#f5f8f7", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, textAlign: "center" }}>
         <Droplets size={40} color="#7ab8e8" style={{ marginBottom: 16 }} />
         <div style={{ fontSize: 16, fontWeight: 700, color: "#0d2b4e", marginBottom: 8 }}>
           {t("secondary_pool_unavailable_title")}
         </div>
         <div style={{ fontSize: 13.5, color: "#6a7d90", marginBottom: 24, maxWidth: 320 }}>
-          {t("secondary_pool_unavailable_desc")}
+          {poolAccessError === "denied" ? t("secondary_pool_revoked_desc") : t("secondary_pool_unavailable_desc")}
         </div>
         <button
           onClick={() => switchToContext(null)}
@@ -8361,6 +8461,7 @@ function PoolApp() {
             onWantPremium={() => openPaywall()}
             isPremium={isPremium}
             setIsPremium={setIsPremium}
+            onWantDowngrade={() => setShowDowngradeConfirm(true)}
             aiEnabled={aiEnabled}
             setAiEnabled={setAiEnabled}
             calibrationContribution={calibrationContribution}
@@ -8510,13 +8611,28 @@ function PoolApp() {
             // de flash/incohérence si l'utilisateur ferme l'overlay tôt) ;
             // l'overlay masque juste la transition le temps de l'effet.
             setShowPaywall(false);
+            setRevealVariant("activate");
+            setShowPremiumReveal(true);
+          }}
+        />
+      )}
+
+      {showDowngradeConfirm && (
+        <PremiumDowngradeConfirmModal
+          lang={lang}
+          onClose={() => setShowDowngradeConfirm(false)}
+          onConfirm={() => {
+            track("downgrade_confirmed");
+            setIsPremium(false);
+            setShowDowngradeConfirm(false);
+            setRevealVariant("downgrade");
             setShowPremiumReveal(true);
           }}
         />
       )}
 
       {showPremiumReveal && (
-        <PremiumRevealOverlay onDone={() => setShowPremiumReveal(false)} lang={lang} />
+        <PremiumRevealOverlay onDone={() => setShowPremiumReveal(false)} lang={lang} variant={revealVariant} />
       )}
 
       {showAddPool && (
@@ -13704,7 +13820,7 @@ function AccountDataRequestScreen({ lang, authUser, onClose, onSubmit }) {
   );
 }
 
-function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitchPool, onWantAddPool, viewContext, onDeleteAllMeasures: onDeleteAllMeasuresRaw, orphanedCount, onRepairOrphanedData, poolMeasureCount, onGenerateReport, onWantPremiumForReport, onWantPremium, isPremium, setIsPremium, aiEnabled, setAiEnabled, calibrationContribution, setCalibrationContribution, lang, setLang, authUser, onSignOut, onSignIn, onDeleteAccount, dataConsent, onRevokeDataConsent, cguAcceptedDate, myPseudo }) {
+function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitchPool, onWantAddPool, viewContext, onDeleteAllMeasures: onDeleteAllMeasuresRaw, orphanedCount, onRepairOrphanedData, poolMeasureCount, onGenerateReport, onWantPremiumForReport, onWantPremium, isPremium, setIsPremium, onWantDowngrade, aiEnabled, setAiEnabled, calibrationContribution, setCalibrationContribution, lang, setLang, authUser, onSignOut, onSignIn, onDeleteAccount, dataConsent, onRevokeDataConsent, cguAcceptedDate, myPseudo }) {
   const [editingPool, setEditingPool] = useState(null);
   const [showLangPicker, setShowLangPicker] = useState(false);
   const [pendingLang, setPendingLang] = useState(lang);
@@ -13898,7 +14014,7 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
 
       <div style={styles.testPremiumCard}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Crown size={18} color={isPremium ? "#a8721a" : "#9aa9a5"} />
+          <Crown size={18} color={isPremium ? "#a8721a" : "#5b7691"} />
           <div>
             <div style={{ fontWeight: 700, fontSize: 13.5, color: "#0d2b4e" }}>
               {isPremium ? t("unlimited_active") : t("free_mode")}
@@ -13914,7 +14030,9 @@ function SettingsView({ pools, activePoolId, onUpdatePool, onDeletePool, onSwitc
             if (val) {
               onWantPremium();
             } else {
-              setIsPremium(false);
+              // v1.70.0 — Ne coupe plus isPremium directement : passe par un
+              // écran de confirmation qui rappelle ce qui sera perdu.
+              onWantDowngrade();
             }
           }}
         />
@@ -14279,17 +14397,72 @@ function PaywallModal({ onClose, onActivate, lang, source }) {
   );
 }
 
+// v1.70.0 — Confirmation avant désactivation du Premium : rappelle ce que
+// l'utilisateur perd (mêmes 7 points que le mur Premium, pour rester
+// cohérent) avant de valider. "Annuler" reste l'option la plus visible
+// (bouton principal), la désactivation est un bouton secondaire — on ne
+// pousse pas vers la sortie.
+function PremiumDowngradeConfirmModal({ onClose, onConfirm, lang }) {
+  const t = useT(lang || "fr");
+  const perks = [
+    t("paywall_perk1"),
+    t("paywall_perk2"),
+    t("paywall_perk3"),
+    t("paywall_perk4"),
+    t("paywall_perk5"),
+    t("paywall_perk6"),
+    t("paywall_perk7"),
+  ];
+  return (
+    <ModalShell onClose={onClose} title={t("premium_downgrade_confirm_title")}>
+      <p style={{ fontSize: 13.5, color: "#4a6480", margin: "0 0 12px", lineHeight: 1.4 }}>
+        {t("premium_downgrade_confirm_desc")}
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 9, margin: "0 2px 20px" }}>
+        {perks.map((perk, i) => (
+          <div key={i} style={styles.paywallPerk}>
+            <Lock size={14} color="#8095a8" />
+            <span>{perk}</span>
+          </div>
+        ))}
+      </div>
+      <button style={styles.primaryBtn} onClick={onClose}>
+        {t("premium_downgrade_cancel_btn")}
+      </button>
+      <button
+        style={{
+          width: "100%", padding: "13px 0", marginTop: 10, borderRadius: 12,
+          border: "1.5px solid #d6dde3", background: "#fff", color: "#3f5a73",
+          fontWeight: 600, fontSize: 13.5, cursor: "pointer",
+        }}
+        onClick={onConfirm}
+      >
+        {t("premium_downgrade_confirm_btn")}
+      </button>
+    </ModalShell>
+  );
+}
+
 // v1.69.0 — Écran plein cadre joué à l'activation du Premium : bulles
 // montantes qui révèlent l'écran "Premium activé" (1,5s), puis un reflet
 // lumineux qui redescend pour sceller la transition (1,5s). L'activation
 // réelle (isPremium, stock, etc.) est déjà faite avant l'affichage de cet
 // overlay — il ne fait que masquer/habiller la transition visuellement.
-function PremiumRevealOverlay({ onDone, lang }) {
+// v1.70.0 — Fix : le clip-path qui révélait le fond masquait aussi les
+// bulles pendant l'essentiel de l'animation (seule la portion déjà "révélée"
+// du cadre était visible), donnant l'impression d'une simple barre qui
+// montait et redescendait au lieu de bulles distinctes. Le fond est
+// désormais visible dès le départ (fondu rapide en 220ms) et les bulles
+// montent librement sur toute la durée de l'overlay (3s au total, inchangé).
+// v1.70.0 — variant "downgrade" : même effet, rejoué à la désactivation du
+// Premium, avec la palette gratuite/désaturée validée (#5b7691/#3f5a73) au
+// lieu du bleu Premium, pour ne jamais confondre les deux transitions.
+function PremiumRevealOverlay({ onDone, lang, variant = "activate" }) {
   const t = useT(lang || "fr");
   const reduceMotion = typeof window !== "undefined" && window.matchMedia
     ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
     : false;
-  const [phase, setPhase] = useState("rise"); // "rise" -> "shimmer" -> "done"
+  const [phase, setPhase] = useState("enter"); // "enter" -> "rise" -> "shimmer"
 
   const bubbles = useMemo(() => {
     if (reduceMotion) return [];
@@ -14307,22 +14480,32 @@ function PremiumRevealOverlay({ onDone, lang }) {
       const doneTimer = setTimeout(onDone, 500);
       return () => clearTimeout(doneTimer);
     }
+    // Un tick après le montage pour que le fondu d'entrée (opacity 0 -> 1)
+    // soit bien animé par le navigateur plutôt qu'appliqué instantanément.
+    const enterTimer = setTimeout(() => setPhase("rise"), 20);
     const shimmerTimer = setTimeout(() => setPhase("shimmer"), 1500);
     const doneTimer = setTimeout(onDone, 3000);
-    return () => { clearTimeout(shimmerTimer); clearTimeout(doneTimer); };
+    return () => { clearTimeout(enterTimer); clearTimeout(shimmerTimer); clearTimeout(doneTimer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const isDowngrade = variant === "downgrade";
+  const gradient = isDowngrade
+    ? "linear-gradient(135deg, #5b7691, #3f5a73)"
+    : "linear-gradient(135deg, #0a6ebd, #064a8a)";
+  const titleKey = isDowngrade ? "premium_downgrade_title" : "premium_reveal_title";
+  const subKey = isDowngrade ? "premium_downgrade_sub" : "premium_reveal_sub";
 
   return (
     <div
       onClick={onDone}
       style={{
         position: "fixed", inset: 0, zIndex: 2000, overflow: "hidden",
-        background: "linear-gradient(135deg, #0a6ebd, #064a8a)",
+        background: gradient,
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
         cursor: "pointer",
-        clipPath: reduceMotion ? "inset(0 0 0 0)" : (phase === "rise" ? "inset(100% 0 0 0)" : "inset(0 0 0 0)"),
-        transition: reduceMotion ? "none" : "clip-path 1500ms ease-in",
+        opacity: reduceMotion ? 1 : (phase === "enter" ? 0 : 1),
+        transition: reduceMotion ? "none" : "opacity 220ms ease-out",
       }}
     >
       <style>{`
@@ -14363,9 +14546,9 @@ function PremiumRevealOverlay({ onDone, lang }) {
       )}
 
       <div style={{ position: "relative", textAlign: "center", color: "#fff", padding: 24 }}>
-        <Crown size={48} color="#f5d999" style={{ marginBottom: 14 }} />
-        <div style={{ fontSize: 21, fontWeight: 800, marginBottom: 6 }}>{t("premium_reveal_title")}</div>
-        <div style={{ fontSize: 13.5, opacity: 0.85 }}>{t("premium_reveal_sub")}</div>
+        <Crown size={48} color={isDowngrade ? "#e4ebf1" : "#f5d999"} style={{ marginBottom: 14 }} />
+        <div style={{ fontSize: 21, fontWeight: 800, marginBottom: 6 }}>{t(titleKey)}</div>
+        <div style={{ fontSize: 13.5, opacity: 0.85 }}>{t(subKey)}</div>
       </div>
     </div>
   );
@@ -16152,9 +16335,11 @@ const styles = {
     gap: 7,
     padding: "11px 0",
     borderRadius: 12,
-    border: "1.5px solid #f0d9a8",
-    background: "#fdf6e6",
-    color: "#a8721a",
+    // v1.70.0 — Palette gratuit/verrouillé validée (dérivée de #5b7691),
+    // pour ne plus réutiliser l'or (réservé au Premium actif).
+    border: "1.5px solid #d6dde3",
+    background: "#eef1f4",
+    color: "#3f5a73",
     fontWeight: 700,
     fontSize: 13.5,
     marginBottom: 22,
@@ -17144,9 +17329,11 @@ const styles = {
     width: "100%",
     padding: "13px 0",
     borderRadius: 12,
-    border: "1.5px solid #f0d9a8",
-    background: "#fdf6e6",
-    color: "#a8721a",
+    // v1.70.0 — Palette gratuit/verrouillé validée (dérivée de #5b7691),
+    // pour ne plus réutiliser l'or (réservé au Premium actif).
+    border: "1.5px solid #d6dde3",
+    background: "#eef1f4",
+    color: "#3f5a73",
     fontWeight: 600,
     fontSize: 13.5,
     cursor: "pointer",
