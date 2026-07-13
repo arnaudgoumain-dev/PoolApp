@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.75.0";
+const APP_VERSION = "1.76.0";
 const CGU_VERSION = "1.3"; // v1.3 : clause 5 corrigée (clé API proxy, éditeur sous-traitant RGPD), article 12 - contribution photo base commune
 
 const TRANSLATIONS = {
@@ -8020,12 +8020,18 @@ function PoolApp() {
     syncConfig({ activePlan: activePlanByPool });
   }, [activePlanByPool]);
 
-  // v1.57.9 — isPremium reste volontairement local (pas de sync Firestore) :
-  // la règle de sécurité bloque toute écriture client sur ce champ, y compris
-  // pour le propriétaire (empêche l'auto-attribution du statut premium).
-  // C'est le comportement voulu — seul un futur webhook Stripe côté Worker
-  // (service account, hors règles de sécurité) pourra le faire passer à true.
-  // L'interrupteur de test ici ne simule que l'état local, sans persistance.
+  // v1.57.9 — isPremium : la règle de sécurité bloque toute écriture client
+  // qui ferait passer ce champ à TRUE (empêche l'auto-attribution du statut
+  // premium), y compris pour le propriétaire. Seul un futur webhook Stripe
+  // côté Worker (service account, hors règles de sécurité) pourra le faire
+  // passer à true. L'activation via l'interrupteur de test ici ne simule que
+  // l'état local, sans persistance.
+  // v1.76.0 — La direction inverse (désactivation, passage à FALSE) est en
+  // revanche bien persistée sur Firestore désormais (voir syncOwnConfig dans
+  // le handler onConfirm de PremiumDowngradeConfirmModal) : sans ça, un true
+  // resté en base d'un test antérieur pouvait indéfiniment réaffirmer
+  // isPremium=true à chaque snapshot onConfig, rendant le toggle local
+  // impuissant à le faire tenir sur OFF après un rechargement.
 
   useEffect(() => {
     if (!loaded || !authUser?.uid) return;
@@ -8825,6 +8831,11 @@ function PoolApp() {
           onConfirm={() => {
             track("downgrade_confirmed");
             setIsPremium(false);
+            // v1.76.0 — Écrit réellement false côté serveur (autorisé par la
+            // règle Firestore, direction sûre) : sans ça, si un true traînait
+            // en base d'un test antérieur, le prochain snapshot onConfig
+            // réaffirmait indéfiniment true, rendant le toggle local impuissant.
+            syncOwnConfig({ isPremium: false });
             setShowDowngradeConfirm(false);
             setRevealVariant("downgrade");
             setShowPremiumReveal(true);
