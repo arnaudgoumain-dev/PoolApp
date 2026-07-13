@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.86.0";
+const APP_VERSION = "1.88.0";
 const CGU_VERSION = "1.3"; // v1.3 : clause 5 corrigée (clé API proxy, éditeur sous-traitant RGPD), article 12 - contribution photo base commune
 
 const TRANSLATIONS = {
@@ -5250,14 +5250,15 @@ Règles strictes :
 // use (incrément callCount + re-vérification web au multiple de 50).
 // v1.79.0 — Séparation dev/test/prod : le Worker Cloudflare (proxy IA) est
 // choisi selon le hostname, même logique que la config Firebase dans
-// index.html. TEST/DEV retombent sur le Worker prod tant que les Workers
-// dédiés (poolgenai-proxy-test / poolgenai-proxy-dev) ne sont pas créés et
-// leurs URLs renseignées ci-dessous.
+// index.html.
+// v1.88.0 — BUG : dev restait à null, donc TOUS les appels proxy (set-pseudo,
+// analyse photo IA, invitations, vérification email, etc.) partaient vers le
+// Worker PROD (fallback silencieux), qui rejetait les tokens émis par
+// poolgenai-dev (FIREBASE_PROJECT_ID ne correspond pas). URL réelle branchée.
 const PROXY_URLS = {
   prod: "https://poolgenai-proxy.support-poolgenai.workers.dev",
   test: "https://poolgenai-proxy-test.support-poolgenai.workers.dev",
-  // TODO : remplacer par l'URL réelle une fois le Worker "poolgenai-proxy-dev" déployé
-  dev: null,
+  dev: "https://poolgenai-proxy-dev.support-poolgenai.workers.dev",
 };
 function detectPoolGenAIEnv() {
   if (typeof window !== "undefined" && window.__poolgenaiEnv) return window.__poolgenaiEnv;
@@ -8185,10 +8186,6 @@ function PoolGenAIApp() {
   // quantité — quel que soit le statut premium ou la gestion de stock.
   function addPool(pool) {
     if (viewContext) return; // v1.55.0 — réservé au propriétaire du compte
-    // v1.72.0 — pools.length (pas activePools) : un compte qui a supprimé tous
-    // ses bassins par le passé a déjà pools.length > 0 (soft delete), donc ne
-    // revoit pas le wizard. Seul un compte réellement neuf déclenche l'onboarding.
-    const isFirstPoolEver = pools.length === 0;
     const id = uid();
     setPools((prev) => [...prev, { id, ...pool }]);
     setProducts((prev) => {
@@ -8202,9 +8199,6 @@ function PoolGenAIApp() {
     });
     setActivePoolId(id);
     setShowAddPool(false);
-    if (isFirstPoolEver && !onboardingSeen) {
-      setShowOnboarding(true);
-    }
   }
 
   // v1.72.0 — Marque l'onboarding comme vu (fin normale ou "Passer"), synchronisé
@@ -8604,8 +8598,16 @@ function PoolGenAIApp() {
         <div style={{ fontSize: 13.5, color: "var(--brand-text-secondary)" }}>{t("context_loading")}</div>
       </div>
     )}
-    {loaded && authUser && !suspended && !accountDeleted && !forceUpdate && !needsEmailVerification && !needsCguAcceptance && activePools.length === 0 && cloudConfigReceived && !viewContext && (
+    {loaded && authUser && !suspended && !accountDeleted && !forceUpdate && !needsEmailVerification && !needsCguAcceptance && activePools.length === 0 && cloudConfigReceived && !viewContext && onboardingSeen && (
       <AddPoolModal forced onSave={addPool} lang={lang} />
+    )}
+    {/* v1.87.0 — L'onboarding doit venir AVANT la création du premier bassin, pas
+        après (ordre inversé jusqu'ici : le formulaire de création s'affichait
+        immédiatement, l'onboarding ne se déclenchait qu'une fois addPool() appelé).
+        Condition identique à isFirstPoolEver (pools.length === 0 dans addPool),
+        mais évaluée ici en amont via activePools.length === 0 && !onboardingSeen. */}
+    {loaded && authUser && !suspended && !accountDeleted && !forceUpdate && !needsEmailVerification && !needsCguAcceptance && activePools.length === 0 && cloudConfigReceived && !viewContext && !onboardingSeen && (
+      <OnboardingWizard onDone={markOnboardingSeen} lang={lang} />
     )}
     {/* v1.57.3 — En contexte secondaire, activePools peut être vide un court
         instant (le temps que la config du principal arrive après le switch
