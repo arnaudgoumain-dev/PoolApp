@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.79.0";
+const APP_VERSION = "1.80.0";
 const CGU_VERSION = "1.3"; // v1.3 : clause 5 corrigée (clé API proxy, éditeur sous-traitant RGPD), article 12 - contribution photo base commune
 
 const TRANSLATIONS = {
@@ -5231,8 +5231,7 @@ Règles strictes :
 // leurs URLs renseignées ci-dessous.
 const PROXY_URLS = {
   prod: "https://poolgenai-proxy.support-poolgenai.workers.dev",
-  // TODO : remplacer par l'URL réelle une fois le Worker "poolgenai-proxy-test" déployé
-  test: null,
+  test: "https://poolgenai-proxy-test.support-poolgenai.workers.dev",
   // TODO : remplacer par l'URL réelle une fois le Worker "poolgenai-proxy-dev" déployé
   dev: null,
 };
