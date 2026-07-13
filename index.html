@@ -282,12 +282,9 @@
   import { getAnalytics, logEvent, setUserId, setUserProperties } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
 
   // v1.79.0 — Séparation dev/test/prod : la config Firebase est choisie selon
-  // le hostname. PROD (app.poolgenai.com) reste sur poolapp-ago, inchangé.
-  // TEST (test.poolgenai.com) et DEV (tout le reste, dont localhost) ont des
-  // configs à COMPLÉTER une fois les projets poolgenai-test / poolgenai-dev
-  // créés sur la Console Firebase (Ajouter une Web App → copier le bloc
-  // affiché ici). Tant que ce n'est pas fait, TEST/DEV retombent sur
-  // poolapp-ago par défaut (comportement actuel, aucune régression).
+  // le hostname. PROD (app.poolgenai.com) → poolapp-ago, TEST (test.poolgenai.com)
+  // → poolgenai-test, DEV (tout le reste, dont localhost) → poolgenai-dev.
+  // v1.84.0 — Les 3 projets Firebase existent désormais, plus de fallback prod.
   const FIREBASE_CONFIGS = {
     prod: {
       apiKey: "AIzaSyCZNXi1UPt6B69EVhd8nbTbh3YzM89Yo1s",
@@ -299,14 +296,22 @@
       measurementId: "G-0T8XX2SYTS",
     },
     test: {
-      // TODO : remplacer par la config du projet Firebase "poolgenai-test"
-      // une fois créé (Console Firebase → poolgenai-test → Ajouter une Web App).
-      apiKey: null,
+      apiKey: "AIzaSyDWSRu-Iaq4mG8ssrBUioktSprXSLSMnYo",
+      authDomain: "poolgenai-test.firebaseapp.com",
+      projectId: "poolgenai-test",
+      storageBucket: "poolgenai-test.firebasestorage.app",
+      messagingSenderId: "29427727408",
+      appId: "1:29427727408:web:14cb19e2a28cbde6b0c1f5",
+      measurementId: "G-084K0BMJDD",
     },
     dev: {
-      // TODO : remplacer par la config du projet Firebase "poolgenai-dev"
-      // une fois créé.
-      apiKey: null,
+      apiKey: "AIzaSyA9_XUwBQME0ywvWvLjBI_-5TFZ_HbNqrI",
+      authDomain: "poolgenai-dev.firebaseapp.com",
+      projectId: "poolgenai-dev",
+      storageBucket: "poolgenai-dev.firebasestorage.app",
+      messagingSenderId: "1059394562193",
+      appId: "1:1059394562193:web:bc7fccac63b244ca4c3730",
+      measurementId: "G-YW3CZW6QMQ",
     },
   };
 
