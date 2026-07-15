@@ -9,7 +9,7 @@ const {
 } = LucideReact;
 
 // ---------- Constantes / cibles ----------
-const APP_VERSION = "1.91.0";
+const APP_VERSION = "1.92.0";
 const CGU_VERSION = "1.3"; // v1.3 : clause 5 corrigée (clé API proxy, éditeur sous-traitant RGPD), article 12 - contribution photo base commune
 
 const TRANSLATIONS = {
@@ -6629,6 +6629,25 @@ function PoolGenAIApp() {
   const [awaitingStripeActivation, setAwaitingStripeActivation] = useState(false);
   const [stripeActivationTimedOut, setStripeActivationTimedOut] = useState(false);
   const awaitingStripeActivationRef = useRef(false);
+
+  // v1.92.0 — Fix : si l'utilisateur fait "retour arrière" depuis la page
+  // Stripe Checkout ou le portail Stripe, la plupart des navigateurs
+  // restaurent la PWA depuis le bfcache (état JS gelé tel qu'avant la
+  // redirection) plutôt que de recharger la page. checkoutBusy/portalBusy
+  // restaient alors bloqués à true pour toujours (on ne les remettait jamais
+  // à false avant la redirection, volontairement, puisque la page était
+  // censée quitter l'app) — ce qui verrouillait le modal d'abonnement.
+  // event.persisted === true est le signal fiable d'une restauration bfcache.
+  useEffect(() => {
+    function onPageShow(e) {
+      if (e.persisted) {
+        setCheckoutBusy(false);
+        setPortalBusy(false);
+      }
+    }
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
 
   // ── Retour de Stripe Checkout (?stripe=success|cancel) ──
   // v1.90.0 — success : on attend la confirmation isPremium (webhook Stripe
